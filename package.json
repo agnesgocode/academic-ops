@@ -1,0 +1,16 @@
+{
+  "name": "akademic-web",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "dev": "live-server --host=127.0.0.1 --port=5173 --no-browser",
+    "start": "live-server --host=127.0.0.1 --port=5173 --no-browser"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
