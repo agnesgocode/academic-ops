@@ -207,6 +207,9 @@
 .mpp-summary .urgent strong{color:#c84e45}
 .mpp-needs-layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:20px;align-items:start}
 .mpp-table-shell .data-toolbar span{color:#8c8995;font-size:11px}
+.mpp-table-heading{display:flex;align-items:center;gap:9px}
+.mpp-table-heading span{padding-left:9px;border-left:1px solid #e5e3eb}
+.mpp-table-shell .data-toolbar select{border:1px solid #e2e0ea;border-radius:12px;background:#fff;padding:8px 34px 8px 11px;color:#4b4854;font:700 10px 'DM Sans';outline:none}
 .mpp-table-shell .table-wrap{max-height:calc(100vh - 170px);overflow:auto}
 .mpp-table-shell table{width:100%;min-width:690px;table-layout:fixed}
 .mpp-table-shell thead th{position:sticky;top:0;z-index:3;background:#f8f8fc;box-shadow:0 1px 0 #e7e7ef}
