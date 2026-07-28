@@ -206,7 +206,9 @@
 .mpp-summary .urgent{background:#fff1ee;border-color:#ffd4cc}
 .mpp-summary .urgent strong{color:#c84e45}
 .mpp-table-shell .data-toolbar span{color:#8c8995;font-size:11px}
+.mpp-table-shell .table-wrap{max-height:calc(100vh - 170px);overflow:auto}
 .mpp-table-shell table{min-width:760px}
+.mpp-table-shell thead th{position:sticky;top:0;z-index:3;background:#f8f8fc;box-shadow:0 1px 0 #e7e7ef}
 .mpp-table-shell th:not(:first-child),.mpp-table-shell td:not(:first-child){text-align:center}
 .mpp-table-shell th{white-space:normal}
 .mpp-needs-input{display:inline-flex;align-items:center;gap:8px;padding:5px 9px;border:1px solid #dfdce8;border-radius:12px;background:#fff}
