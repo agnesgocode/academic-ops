@@ -104,6 +104,7 @@
 .dashboard-session{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;border-radius:16px;padding:13px 14px;border-left:5px solid transparent}
 .dashboard-session.session-running{background:#e7f7ec;border-left-color:#45a66d;color:#235f3f}
 .dashboard-session.session-upcoming{background:#fff4cf;border-left-color:#e0b632;color:#70570f}
+.dashboard-session.session-later{background:#fff;border:1px solid #eceaf2;border-left:5px solid #dedbe8;color:#55525e}
 .dashboard-session.session-passed{background:#f1f1f4;border-left-color:#b5b3bb;color:#77747e}
 .dashboard-session-time strong,.dashboard-session-copy strong{display:block;font:800 12px Manrope}
 .dashboard-session-time span{display:inline-block;margin-top:5px;text-transform:uppercase;font-size:8px;font-weight:800;letter-spacing:.7px}
