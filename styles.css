@@ -191,6 +191,8 @@
 .mpp-main-tabs .sheet-tab{pointer-events:none}
 .mpp-controls{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}
 .mpp-controls .filter-switch{width:max-content}
+.mpp-connection{display:flex;align-items:center;gap:12px}
+.mpp-connection .control-button{padding:9px 13px;font-size:10px}
 .mpp-save-note{color:#8b8794;font-size:11px}
 .mpp-save-note:before{content:"●";color:#36a66b;margin-right:7px}
 .mpp-save-note[data-state="saving"]:before{color:#d8a51e}
@@ -219,4 +221,11 @@
 .mpp-priority.p0{background:#fde9e6;color:#bf4d44}
 .mpp-priority.p1{background:#fff3cd;color:#946b12}
 .mpp-priority.p2{background:#e9efff;color:#4b64bd}
+.mpp-priority-select{display:inline-flex;position:relative;border-radius:99px}
+.mpp-priority-select:after{content:"⌄";position:absolute;right:12px;top:50%;transform:translateY(-54%);pointer-events:none;font-weight:900}
+.mpp-priority-select select{min-width:140px;appearance:none;border:0;border-radius:99px;padding:8px 31px 8px 14px;outline:none;font:800 10px Manrope;cursor:pointer}
+.mpp-priority-select.p0 select{background:#fde9e6;color:#bf4d44}
+.mpp-priority-select.p1 select{background:#fff3cd;color:#946b12}
+.mpp-priority-select.p2 select{background:#e9efff;color:#4b64bd}
+.mpp-priority-select:focus-within{box-shadow:0 0 0 3px #6b5bdf24}
 @media(max-width:760px){.mpp-controls{align-items:flex-start;flex-direction:column}.mpp-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}

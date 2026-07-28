@@ -8,10 +8,18 @@ function doPost(e) {
 
     const branch = String(payload.branch || '').trim();
     const view = String(payload.view || '').toLowerCase();
+    const field = String(payload.field || 'needs').toLowerCase();
     const needs = Math.max(0, Math.round(Number(payload.needs)));
+    const priority = String(payload.priority || '').toUpperCase();
 
-    if (!branch || !['coach', 'mitra'].includes(view) || !Number.isFinite(needs)) {
-      throw new Error('branch, view, and a valid needs value are required');
+    if (!branch || !['coach', 'mitra'].includes(view)) {
+      throw new Error('branch and view are required');
+    }
+    if (field === 'priority' && !['P0', 'P1', 'P2'].includes(priority)) {
+      throw new Error('Priority must be P0, P1, or P2');
+    }
+    if (field === 'needs' && !Number.isFinite(needs)) {
+      throw new Error('A valid needs value is required');
     }
 
     const lock = LockService.getScriptLock();
@@ -26,16 +34,19 @@ function doPost(e) {
       const row = findBranchRow_(sheet, columns.branch, branch);
       if (!row) throw new Error('Branch was not found in Hiring PRIO');
 
+      if (field === 'priority') {
+        sheet.getRange(row, columns.priority).setValue(priority);
+        SpreadsheetApp.flush();
+        return json_({ ok: true, branch, view, priority });
+      }
+
       const existing = Number(sheet.getRange(row, columns.existing).getValue()) || 0;
       const gap = needs - existing;
-      const priority = gap >= 2 ? 'P0' : gap === 1 ? 'P1' : 'P2';
-
       sheet.getRange(row, columns.needs).setValue(needs);
       sheet.getRange(row, columns.gap).setFormulaR1C1('=RC[-1]-RC[-2]');
-      sheet.getRange(row, columns.priority).setValue(priority);
       SpreadsheetApp.flush();
 
-      return json_({ ok: true, branch, view, existing, needs, gap, priority });
+      return json_({ ok: true, branch, view, existing, needs, gap });
     } finally {
       lock.releaseLock();
     }

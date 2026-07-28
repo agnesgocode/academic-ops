@@ -14,7 +14,9 @@
 
 Every saved edit finds the matching branch and updates:
 
-- MT Coach: needs C, gap D, priority E
-- MT Mitra: needs J, gap K, priority L
+- MT Coach needs: C and gap D
+- MT Coach priority: E
+- MT Mitra needs: J and gap K
+- MT Mitra priority: L
 
 Columns F–G and M–N are never modified.
