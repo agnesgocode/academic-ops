@@ -69,20 +69,21 @@
 #dashboard .hero h1 br{display:block}
 #dashboard .hero .hero-region{margin:10px 0 0;color:#92909d;font:500 clamp(16px,1.45vw,21px)/1.4 'DM Sans',Arial,sans-serif;letter-spacing:0}
 #dashboard .metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-#dashboard .metric{position:relative;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:17px;min-height:156px;padding:24px;text-decoration:none;background:#fff;border:1px solid #efedf7;border-radius:28px;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
+#dashboard .metric{position:relative;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:17px;min-height:156px;padding:25px 27px;text-decoration:none;background:#fff;border:1px solid #efedf7;border-top:5px solid #dedbe8;border-radius:28px;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
 #dashboard .metric:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(45,39,90,.09)}
 #dashboard .metric:before{display:none}
 #dashboard .metric>span{margin-left:0}
-#dashboard .metric-icon{flex:0 0 68px;width:68px;height:68px;border-radius:22px;background:currentColor;opacity:.13}
-#dashboard .metric-icon:after{content:"";display:block;width:22px;height:22px;margin:23px;border:3px solid currentColor;box-sizing:border-box}
 #dashboard .metric-copy{display:flex;min-width:0;flex-direction:column}
 #dashboard .metric small{color:#92909d;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#dashboard .metric strong{margin:4px 0 1px;color:#171522;font:800 28px Manrope;line-height:1.05}
+#dashboard .metric strong{margin:5px 0 2px;color:#171522;font:800 32px Manrope;line-height:1.05}
 #dashboard .metric b{color:#504d59;font:700 14px Manrope;line-height:1.25}
+#dashboard .metric i{margin-top:11px;font:800 9px 'DM Sans';font-style:normal;text-transform:uppercase;letter-spacing:.7px}
 #dashboard .metric-arrow{position:absolute;right:20px;bottom:16px;font-size:18px}
-#dashboard .metric-violet{color:#6858e4}
-#dashboard .metric-pink{color:#d957d2}
-#dashboard .metric-blue{color:#38a7d2}
+#dashboard .metric-status-low{border-top-color:#df6b63}
+#dashboard .metric-status-low strong,#dashboard .metric-status-low i,#dashboard .metric-status-low .metric-arrow{color:#c84e45}
+#dashboard .metric-status-good{border-top-color:#45a66d}
+#dashboard .metric-status-good strong,#dashboard .metric-status-good i,#dashboard .metric-status-good .metric-arrow{color:#278158}
+#dashboard .metric-status-neutral strong,#dashboard .metric-status-neutral i,#dashboard .metric-status-neutral .metric-arrow{color:#6b5bdf}
 @media(max-width:980px){#dashboard .metrics{grid-template-columns:1fr}#dashboard .metric{min-height:132px}}
 
 /* Dashboard schedule rail */
