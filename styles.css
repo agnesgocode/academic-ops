@@ -289,8 +289,8 @@
 .acops-select-options button:hover{background:#f5f3ff}
 .acops-select-options button.selected{background:#ebe8ff;color:#5d4fce}
 .acops-select-options button:disabled{opacity:.45;cursor:not-allowed}
-.acops-select-check{display:grid;place-items:center;width:16px;height:16px;line-height:1;color:transparent;font:900 13px/1 'DM Sans'}
-.acops-select-options button.selected .acops-select-check{color:currentColor}
+.acops-select-check{display:grid;place-items:center;width:16px;height:16px;line-height:1;color:transparent;visibility:hidden;font:900 13px/1 'DM Sans'}
+.acops-select-options button.selected .acops-select-check{color:currentColor;visibility:visible}
 .sqt-controls .acops-select,.obs-controls .acops-select,.session-controls .acops-select,.teacher-total-controls .acops-select,.dashboard-academic-controls .acops-select{min-width:180px}
 .mpp-table-shell .data-toolbar .acops-select{min-width:155px}
 @media(max-width:760px){.acops-select{max-width:100%}.teacher-total-controls>.acops-select{width:100%}}
