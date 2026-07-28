@@ -120,3 +120,33 @@
 @media(max-width:1129px){#dashboard .dashboard-sessions{margin-top:28px}.dashboard-session-list{max-height:620px}}
 @media(max-width:560px){#dashboard .dashboard-sessions{padding:20px 16px}.dashboard-session-summary{grid-template-columns:1fr}.dashboard-session-summary>span{display:flex;align-items:center;justify-content:center;gap:6px}.dashboard-session-summary b{display:inline}.dashboard-session{grid-template-columns:90px minmax(0,1fr)}}
 @media(max-width:760px){#dashboard .hero{padding-left:0;padding-right:0}#dashboard .hero h1{font-size:34px;letter-spacing:-1.8px}}
+
+/* Dashboard academic performance summary */
+.dashboard-academic{margin-top:34px}
+.dashboard-academic-loading{padding:42px;background:#fff;border-radius:24px;text-align:center;color:#92909d;font-size:12px}
+.dashboard-academic-head{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:16px}
+.dashboard-academic-head .eyebrow,.dashboard-academic-trend .eyebrow{color:#6b5bdf;margin:0 0 6px;font-size:10px}
+.dashboard-academic-head h2{font:800 25px Manrope;letter-spacing:-1.1px;margin:0}
+.dashboard-academic-head>div>p:last-child,.dashboard-academic-trend>div>p:last-child{color:#92909d;font-size:12px;margin:5px 0 0}
+.dashboard-academic-controls{display:flex;gap:8px;flex-wrap:wrap}
+.dashboard-academic-controls select{border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:10px 38px 10px 12px;color:#403d49;font:700 11px 'DM Sans';outline:none}
+.dashboard-academic-table{max-height:520px;overflow:auto;background:#fff;border-radius:22px;border:1px solid #efedf5}
+.dashboard-academic-table thead th{position:sticky;top:0;z-index:2;background:#f8f8fc}
+.dashboard-academic-table th,.dashboard-academic-table td{padding:13px 18px}
+.dashboard-academic-table th:not(:first-child),.dashboard-academic-table td:not(:first-child){text-align:center}
+.dashboard-score{display:inline-flex;min-width:68px;justify-content:center;border-radius:12px;background:#e8f6ed;color:#278158;padding:6px 10px;font-weight:800}
+.dashboard-score.low{background:#fde9e6;color:#c84e45}
+.dashboard-academic-trend{position:relative;margin-top:22px;padding:24px;background:#fff;border:1px solid #efedf5;border-radius:22px}
+.dashboard-academic-trend h3{font:800 22px Manrope;letter-spacing:-.8px;margin:0}
+.dashboard-academic-trend>aside{position:absolute;right:24px;top:22px;min-width:135px;border-radius:15px;background:#f0eeff;padding:11px 15px}
+.dashboard-academic-trend>aside span{display:block;color:#7d788e;font-size:10px}
+.dashboard-academic-trend>aside strong{display:block;color:#5f50cf;font:800 21px Manrope;margin-top:2px}
+.dashboard-trend-canvas{margin-top:20px;border:1px solid #eeecf4;border-radius:17px;background:#fbfbfe;padding:8px;overflow-x:auto}
+.dashboard-trend-canvas svg{display:block;width:100%;min-width:620px;height:auto}
+.dashboard-trend-grid line{stroke:#e7e6f0;stroke-dasharray:3 4}
+.dashboard-trend-grid text,.dashboard-trend-labels text{font:600 10px 'DM Sans';fill:#8b8894}
+.dashboard-trend-target{stroke:#df7566;stroke-width:1.5;stroke-dasharray:5 5}
+.dashboard-trend-target-label{font:700 9px 'DM Sans';fill:#c95f51}
+.dashboard-trend-line{fill:none;stroke:#6b5bdf;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.dashboard-trend-canvas circle{fill:#fff;stroke:#6b5bdf;stroke-width:4}
+@media(max-width:800px){.dashboard-academic-head{align-items:flex-start;flex-direction:column}.dashboard-academic-controls{width:100%}.dashboard-academic-controls select{flex:1;min-width:180px}.dashboard-academic-table table{min-width:650px}.dashboard-academic-trend>aside{position:static;margin-top:15px;width:max-content}}
