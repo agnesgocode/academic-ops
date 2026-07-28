@@ -141,7 +141,15 @@
 .dashboard-academic-trend>aside{position:absolute;right:24px;top:22px;min-width:135px;border-radius:15px;background:#f0eeff;padding:11px 15px}
 .dashboard-academic-trend>aside span{display:block;color:#7d788e;font-size:10px}
 .dashboard-academic-trend>aside strong{display:block;color:#5f50cf;font:800 21px Manrope;margin-top:2px}
+.dashboard-trend-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:20px}
+.dashboard-trend-controls select,.dashboard-trend-controls input{border:1px solid #e2e0ea;border-radius:12px;background:#fff;padding:9px 11px;color:#403d49;font:700 11px 'DM Sans';outline:none}
+.dashboard-trend-period{display:flex;align-items:center;gap:8px;color:#85818e;font-size:10px}
+.dashboard-trend-period label{display:flex;align-items:center;gap:5px}
 .dashboard-trend-canvas{margin-top:20px;border:1px solid #eeecf4;border-radius:17px;background:#fbfbfe;padding:8px;overflow-x:auto}
+.dashboard-trend-canvas{scrollbar-color:#c7c1ef #efedf8;scrollbar-width:thin}
+.dashboard-trend-canvas::-webkit-scrollbar{height:9px}
+.dashboard-trend-canvas::-webkit-scrollbar-track{background:#efedf8;border-radius:99px}
+.dashboard-trend-canvas::-webkit-scrollbar-thumb{background:#c7c1ef;border-radius:99px}
 .dashboard-trend-canvas svg{display:block;width:100%;min-width:620px;height:auto}
 .dashboard-trend-grid line{stroke:#e7e6f0;stroke-dasharray:3 4}
 .dashboard-trend-grid text,.dashboard-trend-labels text{font:600 10px 'DM Sans';fill:#8b8894}
@@ -149,4 +157,4 @@
 .dashboard-trend-target-label{font:700 9px 'DM Sans';fill:#c95f51}
 .dashboard-trend-line{fill:none;stroke:#6b5bdf;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
 .dashboard-trend-canvas circle{fill:#fff;stroke:#6b5bdf;stroke-width:4}
-@media(max-width:800px){.dashboard-academic-head{align-items:flex-start;flex-direction:column}.dashboard-academic-controls{width:100%}.dashboard-academic-controls select{flex:1;min-width:180px}.dashboard-academic-table table{min-width:650px}.dashboard-academic-trend>aside{position:static;margin-top:15px;width:max-content}}
+@media(max-width:800px){.dashboard-academic-head{align-items:flex-start;flex-direction:column}.dashboard-academic-controls{width:100%}.dashboard-academic-controls select{flex:1;min-width:180px}.dashboard-academic-table table{min-width:650px}.dashboard-academic-trend>aside{position:static;margin-top:15px;width:max-content}.dashboard-trend-period{width:100%;flex-wrap:wrap}}
