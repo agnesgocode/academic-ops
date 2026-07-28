@@ -92,6 +92,7 @@
 .dashboard-sessions-head .eyebrow{color:#6b5bdf;margin:0 0 5px;font-size:10px}
 .dashboard-sessions-head h2{font:800 24px Manrope;margin:0;letter-spacing:-1px}
 .dashboard-sessions-head div>span{display:block;color:#92909d;font-size:11px;margin-top:4px}
+.dashboard-sessions-head div>span b{color:#6b5bdf;font-weight:800;margin-left:5px}
 .dashboard-sessions-head>a{flex:0 0 auto;color:#6b5bdf;text-decoration:none;font-size:11px;font-weight:800;padding-top:5px}
 .dashboard-session-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:15px}
 .dashboard-session-summary>span{border-radius:13px;padding:9px 7px;text-align:center;font-size:9px;font-weight:700}
