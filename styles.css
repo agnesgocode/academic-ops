@@ -61,6 +61,13 @@
 
 /* Dashboard live performance cards */
 #dashboard .hero h1 em{color:#6b5bdf;font-style:normal}
+#dashboard .hero{min-height:auto;padding:18px 8px 28px;background:transparent;border-radius:0;color:#171725;overflow:visible}
+#dashboard .hero:before,#dashboard .hero:after{display:none}
+#dashboard .hero .eyebrow{color:#6b5bdf;margin-bottom:15px;font-weight:700}
+#dashboard .hero h1{color:#171725;font:700 clamp(38px,4.15vw,62px)/1.02 Manrope;letter-spacing:-3.2px}
+#dashboard .hero h1 span{color:#171725}
+#dashboard .hero h1 br{display:block}
+#dashboard .hero .hero-region{margin:10px 0 0;color:#92909d;font:500 clamp(16px,1.45vw,21px)/1.4 'DM Sans',Arial,sans-serif;letter-spacing:0}
 #dashboard .metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 #dashboard .metric{position:relative;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:17px;min-height:156px;padding:24px;text-decoration:none;background:#fff;border:1px solid #efedf7;border-radius:28px;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
 #dashboard .metric:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(45,39,90,.09)}
@@ -109,3 +116,4 @@
 @media(min-width:1130px){main{padding-right:34px}.view#dashboard{margin-right:0}.view#dashboard.active{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:28px;align-items:start}.dashboard-sessions{position:sticky;top:30px;max-height:calc(100vh - 60px)}}
 @media(max-width:1129px){#dashboard .dashboard-sessions{margin-top:28px}.dashboard-session-list{max-height:620px}}
 @media(max-width:560px){#dashboard .dashboard-sessions{padding:20px 16px}.dashboard-session-summary{grid-template-columns:1fr}.dashboard-session-summary>span{display:flex;align-items:center;justify-content:center;gap:6px}.dashboard-session-summary b{display:inline}.dashboard-session{grid-template-columns:90px minmax(0,1fr)}}
+@media(max-width:760px){#dashboard .hero{padding-left:0;padding-right:0}#dashboard .hero h1{font-size:34px;letter-spacing:-1.8px}}
