@@ -15,8 +15,8 @@ function doPost(e) {
     if (!branch || !['coach', 'mitra'].includes(view)) {
       throw new Error('branch and view are required');
     }
-    if (field === 'priority' && !['P0', 'P1', 'P2'].includes(priority)) {
-      throw new Error('Priority must be P0, P1, or P2');
+    if (field === 'priority' && !['P0', 'P1', 'P2', 'NO NEED'].includes(priority)) {
+      throw new Error('Priority must be P0, P1, P2, or No Need');
     }
     if (field === 'needs' && !Number.isFinite(needs)) {
       throw new Error('A valid needs value is required');
@@ -35,7 +35,7 @@ function doPost(e) {
       if (!row) throw new Error('Branch was not found in Hiring PRIO');
 
       if (field === 'priority') {
-        sheet.getRange(row, columns.priority).setValue(priority);
+        sheet.getRange(row, columns.priority).setValue(priority === 'NO NEED' ? 'No Need' : priority);
         SpreadsheetApp.flush();
         return json_({ ok: true, branch, view, priority });
       }
