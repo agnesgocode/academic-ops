@@ -239,6 +239,7 @@
 .mpp-needs-input{display:inline-flex;align-items:center;gap:8px;padding:5px 9px;border:1px solid #dfdce8;border-radius:12px;background:#fff}
 .mpp-needs-input:focus-within{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf17}
 .mpp-needs-input input{width:72px;border:0;background:transparent;color:#2e2b36;font:800 14px Manrope;text-align:center;outline:none}
+.mpp-needs-input input::-webkit-inner-spin-button,.mpp-needs-input input::-webkit-outer-spin-button{opacity:1;-webkit-appearance:auto}
 .mpp-needs-input span{color:#9995a1;font-size:9px}
 .mpp-gap{display:inline-flex;min-width:44px;justify-content:center;border-radius:10px;background:#eaf7ef;color:#27764e;padding:6px 9px}
 .mpp-gap.shortage{background:#fff0ed;color:#c84e45}
