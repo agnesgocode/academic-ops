@@ -275,3 +275,22 @@
 .mpp-priority-options button.selected .mpp-option-check{color:currentColor}
 @media(max-width:1100px){.mpp-needs-layout{grid-template-columns:1fr}.mpp-overview{position:static;max-height:none}}
 @media(max-width:760px){.mpp-controls{align-items:flex-start;flex-direction:column}.mpp-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Consistent custom select menus */
+.acops-native-select{position:absolute!important;width:1px!important;height:1px!important;margin:0!important;padding:0!important;opacity:0!important;pointer-events:none!important}
+.acops-select{position:relative;display:inline-block;min-width:150px;color:#3d3947;font-family:'DM Sans',Arial,sans-serif}
+.acops-select-trigger{position:relative;width:100%;min-height:38px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:9px 35px 9px 12px;color:inherit;text-align:left;font:700 11px 'DM Sans';cursor:pointer}
+.acops-select-trigger>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acops-select-trigger:after{content:"";position:absolute;right:14px;top:50%;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-70%) rotate(45deg)}
+.acops-select:focus-within .acops-select-trigger{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.acops-select-options{position:absolute;z-index:100;top:calc(100% + 6px);left:0;min-width:100%;width:max-content;max-width:320px;max-height:280px;overflow:auto;padding:7px;background:#fff;border:1px solid #dedce6;border-radius:15px;box-shadow:0 15px 32px #29254129}
+.acops-select-options[hidden]{display:none}
+.acops-select-options button{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;width:100%;border:0;border-radius:10px;background:transparent;padding:9px 11px;color:#393641;text-align:left;font:700 11px 'DM Sans';cursor:pointer}
+.acops-select-options button:hover{background:#f5f3ff}
+.acops-select-options button.selected{background:#ebe8ff;color:#5d4fce}
+.acops-select-options button:disabled{opacity:.45;cursor:not-allowed}
+.acops-select-check{display:grid;place-items:center;width:16px;height:16px;line-height:1;color:transparent;font:900 13px/1 'DM Sans'}
+.acops-select-options button.selected .acops-select-check{color:currentColor}
+.sqt-controls .acops-select,.obs-controls .acops-select,.session-controls .acops-select,.teacher-total-controls .acops-select,.dashboard-academic-controls .acops-select{min-width:180px}
+.mpp-table-shell .data-toolbar .acops-select{min-width:155px}
+@media(max-width:760px){.acops-select{max-width:100%}.teacher-total-controls>.acops-select{width:100%}}
