@@ -311,6 +311,71 @@
 @media(max-width:1100px){.mpp-needs-layout{grid-template-columns:1fr}.mpp-overview{position:static;max-height:none}}
 @media(max-width:760px){.mpp-controls{align-items:flex-start;flex-direction:column}.mpp-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+/* Academic operations · Teacher Database */
+.mpp-main-tabs .sheet-tab{pointer-events:auto}
+.teacher-db-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.teacher-db-controls>input[type="search"]{flex:1 1 290px;min-height:39px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:9px 13px;color:#34313d;font:600 11px 'DM Sans';outline:none}
+.teacher-db-controls>input[type="search"]:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.teacher-db-action-filter{display:flex;align-items:center;gap:8px;min-height:39px;padding:8px 12px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;color:#585461;font-size:10px;font-weight:700;cursor:pointer}
+.teacher-db-action-filter input{accent-color:#6b5bdf}
+.teacher-db-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.teacher-db-summary>div{padding:18px 20px;background:#fff;border:1px solid #eeecf4;border-radius:19px}
+.teacher-db-summary span{display:block;color:#8a8793;font-size:10px;font-weight:700}
+.teacher-db-summary strong{display:block;margin-top:6px;color:#262330;font:800 25px Manrope}
+.teacher-db-summary .attention{background:#fff4e2;border-color:#f5dfb4}
+.teacher-db-summary .attention strong{color:#a87513}
+.teacher-db-layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:20px;align-items:start}
+.teacher-db-list-shell{margin:0;overflow:hidden}
+.teacher-db-list-shell .data-toolbar>div{display:flex;align-items:center;gap:9px}
+.teacher-db-list-shell .data-toolbar>div span{padding-left:9px;border-left:1px solid #e5e3eb;color:#8c8995;font-size:10px}
+.teacher-db-live-note{color:#898592;font-size:9px}
+.teacher-db-live-note:before{content:"●";margin-right:6px;color:#35a66a}
+.teacher-db-list{max-height:calc(100vh - 190px);min-height:450px;overflow:auto}
+.teacher-db-row{display:grid;grid-template-columns:minmax(190px,1.4fr) minmax(90px,.7fr) 112px minmax(150px,1fr) 16px;gap:14px;align-items:center;width:100%;border:0;border-bottom:1px solid #efedf4;background:#fff;padding:14px 17px;color:#34313d;text-align:left;cursor:pointer}
+.teacher-db-row:hover{background:#faf9ff}
+.teacher-db-row.selected{background:#f1efff;box-shadow:inset 3px 0 #6b5bdf}
+.teacher-db-row-main{min-width:0}
+.teacher-db-row-main strong,.teacher-db-row-main small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.teacher-db-row-main strong{font:750 12px Manrope}
+.teacher-db-row-main small{margin-top:4px;color:#918e99;font-size:9px}
+.teacher-db-role{overflow:hidden;color:#65616d;font-size:10px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+.teacher-db-status{display:inline-flex;justify-content:center;border-radius:99px;padding:6px 8px;background:#f0eff3;color:#74717a;font-size:8px;font-weight:800;text-transform:uppercase}
+.teacher-db-status.active{background:#e8f6ed;color:#27764e}
+.teacher-db-status.inactive{background:#f4eeed;color:#9a625c}
+.teacher-db-progress{min-width:0}
+.teacher-db-progress small{display:block;overflow:hidden;color:#74707c;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+.teacher-db-progress small+small{margin-top:4px;color:#9a96a1}
+.teacher-db-chevron{color:#9993b2;font-size:22px}
+.teacher-db-detail{position:sticky;top:22px;max-height:calc(100vh - 44px);overflow:auto;padding:22px;background:#fff;border:1px solid #eeecf4;border-radius:20px}
+.teacher-db-detail-empty{display:grid;place-items:center;min-height:390px;text-align:center;color:#9b97a2}
+.teacher-db-detail-empty>span{font-size:28px}
+.teacher-db-detail-empty strong{margin-top:-75px;color:#45414d;font:800 15px Manrope}
+.teacher-db-detail-empty p{max-width:230px;margin-top:-100px;font-size:10px;line-height:1.5}
+.teacher-db-profile{display:flex;align-items:center;gap:13px;padding-bottom:18px;border-bottom:1px solid #eeecf4}
+.teacher-db-avatar{display:grid;place-items:center;width:50px;height:50px;flex:0 0 auto;border-radius:16px;background:#ebe8ff;color:#5c4dcc;font:800 15px Manrope}
+.teacher-db-profile .eyebrow{margin:0 0 3px;color:#6b5bdf;font-size:8px}
+.teacher-db-profile h3{margin:0;font:800 17px Manrope}
+.teacher-db-profile p:last-child{margin:4px 0 0;color:#8d8995;font-size:9px}
+.teacher-db-contact{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:16px 0}
+.teacher-db-contact>a,.teacher-db-contact>div{min-width:0;padding:10px;border:1px solid #eeecf4;border-radius:12px;background:#fafafd;text-decoration:none}
+.teacher-db-contact span,.teacher-db-contact strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.teacher-db-contact span{color:#96929e;font-size:8px}
+.teacher-db-contact strong{margin-top:4px;color:#4d4955;font-size:9px}
+.teacher-db-contact .teacher-db-whatsapp{background:#eaf7ef;border-color:#cce9d6}
+.teacher-db-contact .teacher-db-whatsapp strong{color:#287b4f}
+.teacher-db-edit-note{display:grid;gap:3px;margin-bottom:12px;padding:10px 11px;border-radius:11px;background:#fff6df;color:#8d6b20}
+.teacher-db-edit-note strong{font-size:9px}
+.teacher-db-edit-note span{font-size:8px;line-height:1.4}
+.teacher-db-edit-grid{display:grid;gap:11px}
+.teacher-db-edit-field>span{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px;color:#57535f;font-size:9px;font-weight:800}
+.teacher-db-edit-field>span small{color:#a39faa;font-size:7px;font-weight:700}
+.teacher-db-edit-field>.acops-select{width:100%}
+.teacher-db-match{margin-top:15px;border-radius:10px;padding:9px 10px;font-size:8px;font-weight:800}
+.teacher-db-match.matched{background:#eaf7ef;color:#287b4f}
+.teacher-db-match.unmatched{background:#fff1ee;color:#b9584e}
+@media(max-width:1120px){.teacher-db-layout{grid-template-columns:1fr}.teacher-db-detail{position:static;max-height:none}.teacher-db-list{max-height:650px}.teacher-db-row{grid-template-columns:minmax(180px,1.3fr) minmax(90px,.7fr) 110px minmax(140px,1fr) 16px}}
+@media(max-width:760px){.teacher-db-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-db-controls>*{width:100%}.teacher-db-row{grid-template-columns:minmax(0,1fr) 95px 16px}.teacher-db-row .teacher-db-role,.teacher-db-row .teacher-db-progress{display:none}.teacher-db-contact{grid-template-columns:1fr}}
+
 /* Consistent custom select menus */
 .acops-native-select{position:absolute!important;width:1px!important;height:1px!important;margin:0!important;padding:0!important;opacity:0!important;pointer-events:none!important}
 .acops-select{position:relative;display:inline-block;min-width:150px;color:#3d3947;font-family:'DM Sans',Arial,sans-serif}
