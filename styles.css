@@ -151,7 +151,9 @@
 .dashboard-academic-trend>aside strong{display:block;color:#5f50cf;font:800 21px Manrope;margin-top:2px}
 .dashboard-trend-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:20px}
 .dashboard-trend-controls select,.dashboard-trend-controls input{border:1px solid #e2e0ea;border-radius:12px;background:#fff;padding:9px 11px;color:#403d49;font:700 11px 'DM Sans';outline:none}
+#dashboardTrendWeek[hidden]+.acops-select{display:none}
 .dashboard-trend-period{display:flex;align-items:center;gap:8px;color:#85818e;font-size:10px}
+.dashboard-trend-period[hidden]{display:none}
 .dashboard-trend-period label{display:flex;align-items:center;gap:5px}
 .dashboard-trend-canvas{margin-top:20px;border:1px solid #eeecf4;border-radius:17px;background:#fbfbfe;padding:8px;overflow-x:auto}
 .dashboard-trend-canvas{scrollbar-color:#c7c1ef #efedf8;scrollbar-width:thin}
