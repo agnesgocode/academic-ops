@@ -123,6 +123,14 @@
 
 /* Dashboard academic performance summary */
 .dashboard-academic{margin-top:34px}
+.dashboard-scope{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:0 2px 12px}
+.dashboard-scope small{color:#92909d;font-size:10px}
+.dashboard-wave-toggle{display:inline-flex;align-items:center;gap:8px;color:#4b4855;font:700 11px "DM Sans";cursor:pointer;white-space:nowrap}
+.dashboard-wave-toggle input{position:absolute;opacity:0;pointer-events:none}
+.dashboard-wave-toggle span{position:relative;width:34px;height:20px;border-radius:99px;background:#d8d6e3;transition:background .18s ease}
+.dashboard-wave-toggle span:after{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 1px 3px #3a365433;transition:transform .18s ease}
+.dashboard-wave-toggle input:checked+span{background:#6b5bdf}
+.dashboard-wave-toggle input:checked+span:after{transform:translateX(14px)}
 .dashboard-academic-loading{padding:42px;background:#fff;border-radius:24px;text-align:center;color:#92909d;font-size:12px}
 .dashboard-academic-head{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;margin-bottom:16px}
 .dashboard-academic-head .eyebrow,.dashboard-academic-trend .eyebrow{color:#6b5bdf;margin:0 0 6px;font-size:10px}
