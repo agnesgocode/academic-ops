@@ -1,1 +1,551 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#6b5bdf"/><title>Acops Indonesia Timur Center</title><link rel="stylesheet" href="styles.css"/></head><body><aside class="sidebar"><a class="brand" href="#dashboard"><span class="brand-mark">✦</span><span>acops<span class="brand-dot">.</span></span></a><nav aria-label="Main navigation"><a class="nav-link active" href="#dashboard" data-view="dashboard"><span>▦</span>Dashboard</a><a class="nav-link" href="#academic" data-view="academic"><span>▱</span>Academic</a><a class="nav-link" href="#sessions" data-view="sessions"><span>◫</span>Sessions</a><a class="nav-link" href="#operations" data-view="operations"><span>▤</span>Operations</a><a class="nav-link" href="#center" data-view="center"><span>⌘</span>Resources</a></nav></aside><main><header class="topbar"><button class="menu-button" aria-label="Open navigation">☰</button><div class="crumb" id="crumb">DASHBOARD</div><div class="topbar-right"><span class="live-dot"></span><span id="lastUpdated">Live sources</span></div></header><section class="view active" id="dashboard"><div class="dashboard-main"><div class="hero"><div><p class="eyebrow">ACOPS CENTER · EAST INDONESIA</p><h1>Welcome to <em>Acops Center.</em></h1></div></div><div class="dashboard-scope"><label class="dashboard-wave-toggle" title="Use the same Wave 1–5 scope as HQ"><input id="dashboardExcludeWave6" type="checkbox"/><span aria-hidden="true"></span><b>Exclude Wave 6</b></label><small>Match HQ reporting scope</small></div><div class="metrics" id="metrics"></div><section class="dashboard-academic" id="dashboardAcademic"><div class="dashboard-academic-loading">Loading academic performance…</div></section><section class="dashboard-analysis" id="dashboardAnalysis"><div class="dashboard-analysis-loading">Loading performance analysis…</div></section></div><aside class="dashboard-sessions" id="dashboardSessions"><div class="dashboard-sessions-loading">Loading today’s sessions…</div></aside></section><section class="view" id="academic"><div class="page-title"><div><p class="eyebrow">ACADEMIC PERFORMANCE</p><h1>Sessions by <em>Qualified Teachers.</em></h1><p>Live SQT performance calculated from SCMS (auto).</p></div><a class="outline-button" id="academicLink" target="_blank" rel="noreferrer">Open source ↗</a></div><div class="sheet-tabs sqt-tabs"><button class="sheet-tab active">SQT</button><button class="sheet-tab">Observation</button><button class="sheet-tab" disabled>SmartApp Usage</button></div><div class="sqt-controls"><div class="filter-switch" role="group" aria-label="SQT filter type"><button class="active" data-filter-mode="week">Filter by week</button><button data-filter-mode="period">Filter by period</button></div><div id="weekFilter"><select id="sqtWeek" aria-label="Select week"></select></div><div id="periodFilter" hidden><label>From <input id="sqtStart" type="date"/></label><label>To <input id="sqtEnd" type="date"/></label><button id="applyPeriod" class="control-button">Apply</button></div><input id="sqtSearch" type="search" placeholder="Search center" aria-label="Search center"/><select id="sqtSort" aria-label="Sort centers"><option value="name">A–Z</option><option value="high">SQT: high to low</option><option value="low">SQT: low to high</option></select><button id="exportSqt" class="control-button">Export CSV</button></div><div class="sqt-summary" id="sqtSummary"></div><div class="data-shell sqt-table-shell"><div class="table-wrap" id="sqtTable"><div class="loading">Loading live SQT data…</div></div></div><section class="sqt-progress"><div id="sqtChart" class="sqt-chart"></div></section><section class="sqt-analysis"><p class="eyebrow">DYNAMIC ANALYSIS</p><h2>What needs attention</h2><div id="sqtAnalysis"></div></section></section><section class="view" id="sessions"><div class="page-title"><div><p class="eyebrow">SESSION ACTIVITY</p><h1>Every session, <em>in one place.</em></h1><p>Explore session fulfillment and compare teaching volume.</p></div><a class="outline-button" id="sessionsLink" target="_blank" rel="noreferrer">Open source ↗</a></div><div class="sheet-tabs sessions-tabs" role="tablist" aria-label="Session views"><button class="sheet-tab active" data-session-view="live">Live Sessions</button><button class="sheet-tab" data-session-view="fulfillment">Fulfillment Rate</button><button class="sheet-tab" data-session-view="teachers">Teacher Totals</button></div><div id="allSessionsPanel"><div class="session-controls"><label class="session-date">Start date<input id="sessionStart" type="date" aria-label="Start date"/></label><label class="session-date">End date<input id="sessionEnd" type="date" aria-label="End date"/></label><div class="session-branch-search"><input id="sessionBranch" type="search" placeholder="Search branch" aria-label="Search branch" autocomplete="off"/><div id="sessionBranchMenu" class="session-branch-menu" hidden></div></div><select id="sessionType" aria-label="Filter by session type"><option value="all">All session types</option></select><select id="sessionProduct" aria-label="Filter by product"><option value="all">All products</option></select><select id="sessionClassStatus" aria-label="Filter by class status"><option value="all">All class statuses</option></select><div class="session-teacher-search"><input id="sessionSearch" type="search" placeholder="Search teacher" aria-label="Search teacher" autocomplete="off"/><div id="sessionTeacherMenu" class="session-teacher-menu" hidden></div></div></div><div class="session-summary" id="sessionSummary"></div><div class="data-shell session-table-shell"><div class="data-toolbar"><strong id="sessionTableTitle">Live Sessions</strong><span id="sessionRowCount"></span></div><div class="table-wrap" id="sessionTable"><div class="loading">Loading live session data…</div></div></div></div><div id="fulfillmentPanel" hidden><div class="session-controls fulfillment-controls"><div class="fulfillment-branch-search"><input id="fulfillmentBranch" type="search" placeholder="Search branch" aria-label="Filter Fulfillment Rate by branch" autocomplete="off"/><div id="fulfillmentBranchMenu" class="session-branch-menu" hidden></div></div><select id="fulfillmentProduct" aria-label="Filter Fulfillment Rate by product"><option value="all">All products</option></select><select id="fulfillmentStatus" aria-label="Filter Fulfillment Rate by class status"><option value="all">All class statuses</option></select></div><div class="session-summary" id="fulfillmentSummary"></div><div class="data-shell fulfillment-table-shell"><div class="data-toolbar"><strong>Fulfillment Rate</strong><span id="fulfillmentRowCount"></span></div><div class="table-wrap" id="fulfillmentTable"><div class="loading">Loading fulfillment data…</div></div></div></div><div id="teacherTotalsPanel" hidden><div class="teacher-total-controls"><div class="filter-switch" role="group" aria-label="Teacher totals date filter"><button class="active" data-teacher-mode="week">Filter by week</button><button data-teacher-mode="period">Filter by period</button></div><select id="teacherTotalWeek" aria-label="Select week"></select><div id="teacherTotalPeriod" class="teacher-total-period" hidden><label>From <input id="teacherTotalStart" type="date"/></label><label>To <input id="teacherTotalEnd" type="date"/></label><button id="applyTeacherTotalPeriod" class="control-button">Apply</button></div><div class="teacher-total-branch-search"><input id="teacherTotalBranch" type="search" placeholder="Search branch" aria-label="Search Teacher Totals branch" autocomplete="off"/><div id="teacherTotalBranchMenu" class="teacher-total-menu" hidden></div></div><div class="teacher-total-teacher-search"><input id="teacherTotalTeacher" type="search" placeholder="Search teacher" aria-label="Search Teacher Totals teacher" autocomplete="off"/><div id="teacherTotalTeacherMenu" class="teacher-total-menu" hidden></div></div><select id="teacherTotalWave" aria-label="Filter by branch wave"><option value="all">All branches</option><option value="wave1to5">Wave 1–5</option><option value="wave6">Wave 6</option></select><select id="teacherTotalScore" aria-label="Filter by latest observation score"><option value="all">All scores</option><option value="missing">No observation</option><option value="unqualified">Unqualified (&lt; 4.10)</option><option value="qualified">Qualified (≥ 4.10)</option></select><button id="exportTeacherTotals" class="control-button" type="button">Export CSV</button></div><div class="session-summary" id="teacherTotalSummary"></div><div class="teacher-total-layout"><aside class="teacher-total-overview" id="teacherTotalOverview"></aside><div class="data-shell teacher-total-table-shell"><div class="data-toolbar"><strong>Teacher Totals</strong><span id="teacherTotalCount"></span></div><div class="table-wrap" id="teacherTotalTable"><div class="loading">Loading teacher totals…</div></div></div></div></div></section><section class="view" id="operations"><div class="page-title"><div><p class="eyebrow">ACADEMIC OPERATIONS</p><h1>MPP <em>Needs.</em></h1><p>Master Teacher staffing requirements by branch.</p></div><a class="outline-button" id="operationsLink" target="_blank" rel="noreferrer">Open source ↗</a></div><div class="sheet-tabs mpp-main-tabs" role="tablist" aria-label="Operations views"><button class="sheet-tab active" data-operations-view="mpp">MPP Needs</button><button class="sheet-tab" data-operations-view="teachers">Teacher Database</button></div><section class="mpp-needs" id="mppNeedsPanel"><div class="mpp-controls"><div class="mpp-view-controls"><div class="filter-switch" role="group" aria-label="Master Teacher type"><button class="active" data-mpp-view="coach">MT Coach</button><button data-mpp-view="mitra">MT Mitra</button></div><button class="mpp-edit-toggle" id="mppEditToggle" type="button" aria-label="Unlock editing" title="Unlock editing">✎</button></div><div class="mpp-connection"><span class="mpp-save-note" id="mppSaveStatus">Loading saved needs…</span></div></div><div class="mpp-summary" id="mppSummary"></div><div class="mpp-needs-layout"><div class="data-shell mpp-table-shell"><div class="data-toolbar"><div class="mpp-table-heading"><strong id="mppTableTitle">MT Coach staffing needs</strong><span id="mppBranchCount"></span></div><select id="mppWave" aria-label="Filter MPP Needs by branch wave"><option value="all">All branch waves</option><option value="wave1to5">Wave 1–5</option><option value="wave6">Wave 6</option></select></div><div class="table-wrap" id="mppNeedsTable"><div class="loading">Loading All MPP…</div></div></div><aside class="mpp-overview" id="mppOverview"><div class="loading">Loading priority overview…</div></aside></div></section><section class="teacher-database" id="teacherDatabasePanel" hidden><div class="teacher-db-controls"><input id="teacherDbSearch" type="search" placeholder="Search teacher, email, or WhatsApp" aria-label="Search Teacher Database"/><select id="teacherDbCenter" aria-label="Filter by center"><option value="all">All centers</option></select><select id="teacherDbRole" aria-label="Filter by role"><option value="all">All roles</option></select><select id="teacherDbStatus" aria-label="Filter by teaching status"><option value="all">All teaching statuses</option></select><label class="teacher-db-action-filter"><input id="teacherDbNeedsAction" type="checkbox"/><span>Needs action</span></label><button class="control-button teacher-db-add-button" id="teacherDbAdd" type="button">＋ Add Teacher</button></div><div class="teacher-db-summary" id="teacherDbSummary"></div><div class="teacher-db-layout"><div class="data-shell teacher-db-list-shell"><div class="data-toolbar"><div><strong>Teachers</strong><span id="teacherDbCount"></span></div><span class="teacher-db-live-note">Live from TEACHERS + All MPP</span></div><div class="teacher-db-list" id="teacherDbList"><div class="loading">Loading Teacher Database…</div></div></div><aside class="teacher-db-detail" id="teacherDbDetail"><div class="teacher-db-detail-empty"><span>👤</span><strong>Select a teacher</strong><p>Contact details and operational fields will appear here.</p></div></aside></div></section><dialog class="teacher-db-add-dialog" id="teacherDbAddDialog"><form id="teacherDbAddForm"><header><div><p class="eyebrow">LOCAL DRAFT</p><h3>Add Teacher</h3><p>Create one combined teacher profile. Nothing will be sent to Google Sheets yet.</p></div><button class="teacher-db-dialog-close" type="button" aria-label="Close Add Teacher">×</button></header><div class="teacher-db-form-section"><div class="teacher-db-form-heading"><strong>Teacher information</strong><span>Future destination: TEACHERS</span></div><div class="teacher-db-form-grid"><label class="teacher-db-form-wide"><span>Name *</span><input name="name" required autocomplete="name"/></label><label><span>Center *</span><select name="center" required><option value="">Select center</option></select></label><label><span>Role *</span><select name="role" required><option value="">Select role</option></select></label><label><span>SCMS Email</span><input name="scmsEmail" type="email" autocomplete="email"/></label><label><span>Personal Email *</span><input name="personalEmail" type="email" required autocomplete="email"/></label><label><span>WhatsApp *</span><input name="whatsapp" type="tel" required inputmode="tel" placeholder="08… or 62…" autocomplete="tel"/></label><label><span>Start Date *</span><input name="startDate" type="date" required/></label><label><span>Teaching Status *</span><select name="teachingStatus" required><option value="">Select status</option></select></label></div></div><div class="teacher-db-form-section"><div class="teacher-db-form-heading"><strong>Hiring progress</strong><span>Future destination: All MPP</span></div><div class="teacher-db-form-grid"><label><span>Step Hiring</span><select name="stepHiring"><option value="">Not set</option></select></label><label><span>Onboarding Regional</span><select name="onboarding"><option value="">Not set</option></select></label></div></div><div class="teacher-db-form-error" id="teacherDbAddError" role="alert"></div><footer><button class="outline-button" id="teacherDbAddCancel" type="button">Cancel</button><button class="control-button" type="submit">Save Local Draft</button></footer></form></dialog><dialog class="mpp-edit-dialog" id="mppEditDialog"><form method="dialog" id="mppEditForm"><button class="mpp-dialog-close" value="cancel" aria-label="Close">×</button><p class="eyebrow">EDIT ACCESS</p><h3>Unlock MPP Needs</h3><p>Enter the six-digit access code to edit staffing needs and priorities.</p><input id="mppEditCode" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••" aria-label="Edit access code"/><small id="mppEditMessage"></small><button class="control-button" value="default" type="submit">Unlock editing</button></form></dialog></section><section class="view" id="center"><div class="page-title"><div><p class="eyebrow">WORKSPACE 03</p><h1>Acops <em>center.</em></h1><p>Important links, TAP, and hiring resources for the region.</p></div><a class="outline-button" id="centerLink" target="_blank" rel="noreferrer">Open spreadsheet ↗</a></div><div class="link-board" id="linkBoard"></div><div class="sheet-tabs" data-group="center"></div><div class="data-shell"><div class="data-toolbar"><strong id="centerTableTitle">Loading live sheet…</strong><input type="search" placeholder="Search rows" aria-label="Search Acops Center table"/></div><div class="table-wrap" id="centerTable"></div></div></section></main><template id="emptyTemplate"><div class="empty-state"><strong>Couldn’t load this sheet yet.</strong><p>Make sure the source is shared as “Anyone with the link — Viewer”, then refresh this page.</p></div></template><script src="config.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#6b5bdf"/>
+<title>Acops Indonesia Timur Center</title>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<aside class="sidebar">
+<a class="brand" href="#dashboard">
+<span class="brand-mark">✦</span>
+<span>acops<span class="brand-dot">.</span>
+</span>
+</a>
+<nav aria-label="Main navigation">
+<a class="nav-link active" href="#dashboard" data-view="dashboard">
+<span>▦</span>Dashboard</a>
+<a class="nav-link" href="#academic" data-view="academic">
+<span>▱</span>Academic</a>
+<a class="nav-link" href="#sessions" data-view="sessions">
+<span>◫</span>Sessions</a>
+<a class="nav-link" href="#operations" data-view="operations">
+<span>▤</span>Operations</a>
+<a class="nav-link" href="#revenue" data-view="revenue">
+<span>◒</span>Revenue</a>
+<a class="nav-link" href="#center" data-view="center">
+<span>⌘</span>Resources</a>
+</nav>
+</aside>
+<main>
+<header class="topbar">
+<button class="menu-button" aria-label="Open navigation">☰</button>
+<div class="crumb" id="crumb">DASHBOARD</div>
+<div class="topbar-right">
+<span class="live-dot">
+</span>
+<span id="lastUpdated">Live sources</span>
+</div>
+</header>
+<section class="view active" id="dashboard">
+<div class="dashboard-main">
+<div class="hero">
+<div>
+<p class="eyebrow">ACOPS CENTER · EAST INDONESIA</p>
+<h1>Welcome to <em>Acops Center.</em>
+</h1>
+</div>
+</div>
+<div class="dashboard-scope">
+<label class="dashboard-wave-toggle" title="Use the same Wave 1–5 scope as HQ">
+<input id="dashboardExcludeWave6" type="checkbox"/>
+<span aria-hidden="true">
+</span>
+<b>Exclude Wave 6</b>
+</label>
+<small>Match HQ reporting scope</small>
+</div>
+<div class="metrics" id="metrics">
+</div>
+<section class="dashboard-academic" id="dashboardAcademic">
+<div class="dashboard-academic-loading">Loading academic performance…</div>
+</section>
+<section class="dashboard-analysis" id="dashboardAnalysis">
+<div class="dashboard-analysis-loading">Loading performance analysis…</div>
+</section>
+</div>
+<aside class="dashboard-sessions" id="dashboardSessions">
+<div class="dashboard-sessions-loading">Loading today’s sessions…</div>
+</aside>
+</section>
+<section class="view" id="academic">
+<div class="page-title">
+<div>
+<p class="eyebrow">ACADEMIC PERFORMANCE</p>
+<h1>Sessions by <em>Qualified Teachers.</em>
+</h1>
+<p>Live SQT performance calculated from SCMS (auto).</p>
+</div>
+<a class="outline-button" id="academicLink" target="_blank" rel="noreferrer">Open source ↗</a>
+</div>
+<div class="sheet-tabs sqt-tabs">
+<button class="sheet-tab active">SQT</button>
+<button class="sheet-tab">Observation</button>
+<button class="sheet-tab" disabled>SmartApp Usage</button>
+</div>
+<div class="sqt-controls">
+<div class="filter-switch" role="group" aria-label="SQT filter type">
+<button class="active" data-filter-mode="week">Filter by week</button>
+<button data-filter-mode="period">Filter by period</button>
+</div>
+<div id="weekFilter">
+<select id="sqtWeek" aria-label="Select week">
+</select>
+</div>
+<div id="periodFilter" hidden>
+<label>From <input id="sqtStart" type="date"/>
+</label>
+<label>To <input id="sqtEnd" type="date"/>
+</label>
+<button id="applyPeriod" class="control-button">Apply</button>
+</div>
+<input id="sqtSearch" type="search" placeholder="Search center" aria-label="Search center"/>
+<select id="sqtSort" aria-label="Sort centers">
+<option value="name">A–Z</option>
+<option value="high">SQT: high to low</option>
+<option value="low">SQT: low to high</option>
+</select>
+<button id="exportSqt" class="control-button">Export CSV</button>
+</div>
+<div class="sqt-summary" id="sqtSummary">
+</div>
+<div class="data-shell sqt-table-shell">
+<div class="table-wrap" id="sqtTable">
+<div class="loading">Loading live SQT data…</div>
+</div>
+</div>
+<section class="sqt-progress">
+<div id="sqtChart" class="sqt-chart">
+</div>
+</section>
+<section class="sqt-analysis">
+<p class="eyebrow">DYNAMIC ANALYSIS</p>
+<h2>What needs attention</h2>
+<div id="sqtAnalysis">
+</div>
+</section>
+</section>
+<section class="view" id="sessions">
+<div class="page-title">
+<div>
+<p class="eyebrow">SESSION ACTIVITY</p>
+<h1>Every session, <em>in one place.</em>
+</h1>
+<p>Explore session fulfillment and compare teaching volume.</p>
+</div>
+<a class="outline-button" id="sessionsLink" target="_blank" rel="noreferrer">Open source ↗</a>
+</div>
+<div class="sheet-tabs sessions-tabs" role="tablist" aria-label="Session views">
+<button class="sheet-tab active" data-session-view="live">Live Sessions</button>
+<button class="sheet-tab" data-session-view="fulfillment">Fulfillment Rate</button>
+<button class="sheet-tab" data-session-view="teachers">Teacher Totals</button>
+</div>
+<div id="allSessionsPanel">
+<div class="session-controls">
+<label class="session-date">Start date<input id="sessionStart" type="date" aria-label="Start date"/>
+</label>
+<label class="session-date">End date<input id="sessionEnd" type="date" aria-label="End date"/>
+</label>
+<div class="session-branch-search">
+<input id="sessionBranch" type="search" placeholder="Search branch" aria-label="Search branch" autocomplete="off"/>
+<div id="sessionBranchMenu" class="session-branch-menu" hidden>
+</div>
+</div>
+<select id="sessionType" aria-label="Filter by session type">
+<option value="all">All session types</option>
+</select>
+<select id="sessionProduct" aria-label="Filter by product">
+<option value="all">All products</option>
+</select>
+<select id="sessionClassStatus" aria-label="Filter by class status">
+<option value="all">All class statuses</option>
+</select>
+<div class="session-teacher-search">
+<input id="sessionSearch" type="search" placeholder="Search teacher" aria-label="Search teacher" autocomplete="off"/>
+<div id="sessionTeacherMenu" class="session-teacher-menu" hidden>
+</div>
+</div>
+</div>
+<div class="session-summary" id="sessionSummary">
+</div>
+<div class="data-shell session-table-shell">
+<div class="data-toolbar">
+<strong id="sessionTableTitle">Live Sessions</strong>
+<span id="sessionRowCount">
+</span>
+</div>
+<div class="table-wrap" id="sessionTable">
+<div class="loading">Loading live session data…</div>
+</div>
+</div>
+</div>
+<div id="fulfillmentPanel" hidden>
+<div class="session-controls fulfillment-controls">
+<div class="fulfillment-branch-search">
+<input id="fulfillmentBranch" type="search" placeholder="Search branch" aria-label="Filter Fulfillment Rate by branch" autocomplete="off"/>
+<div id="fulfillmentBranchMenu" class="session-branch-menu" hidden>
+</div>
+</div>
+<select id="fulfillmentProduct" aria-label="Filter Fulfillment Rate by product">
+<option value="all">All products</option>
+</select>
+<select id="fulfillmentStatus" aria-label="Filter Fulfillment Rate by class status">
+<option value="all">All class statuses</option>
+</select>
+</div>
+<div class="session-summary" id="fulfillmentSummary">
+</div>
+<div class="data-shell fulfillment-table-shell">
+<div class="data-toolbar">
+<strong>Fulfillment Rate</strong>
+<span id="fulfillmentRowCount">
+</span>
+</div>
+<div class="table-wrap" id="fulfillmentTable">
+<div class="loading">Loading fulfillment data…</div>
+</div>
+</div>
+</div>
+<div id="teacherTotalsPanel" hidden>
+<div class="teacher-total-controls">
+<div class="filter-switch" role="group" aria-label="Teacher totals date filter">
+<button class="active" data-teacher-mode="week">Filter by week</button>
+<button data-teacher-mode="period">Filter by period</button>
+</div>
+<select id="teacherTotalWeek" aria-label="Select week">
+</select>
+<div id="teacherTotalPeriod" class="teacher-total-period" hidden>
+<label>From <input id="teacherTotalStart" type="date"/>
+</label>
+<label>To <input id="teacherTotalEnd" type="date"/>
+</label>
+<button id="applyTeacherTotalPeriod" class="control-button">Apply</button>
+</div>
+<div class="teacher-total-branch-search">
+<input id="teacherTotalBranch" type="search" placeholder="Search branch" aria-label="Search Teacher Totals branch" autocomplete="off"/>
+<div id="teacherTotalBranchMenu" class="teacher-total-menu" hidden>
+</div>
+</div>
+<div class="teacher-total-teacher-search">
+<input id="teacherTotalTeacher" type="search" placeholder="Search teacher" aria-label="Search Teacher Totals teacher" autocomplete="off"/>
+<div id="teacherTotalTeacherMenu" class="teacher-total-menu" hidden>
+</div>
+</div>
+<select id="teacherTotalWave" aria-label="Filter by branch wave">
+<option value="all">All branches</option>
+<option value="wave1to5">Wave 1–5</option>
+<option value="wave6">Wave 6</option>
+</select>
+<select id="teacherTotalScore" aria-label="Filter by latest observation score">
+<option value="all">All scores</option>
+<option value="missing">No observation</option>
+<option value="unqualified">Unqualified (&lt; 4.10)</option>
+<option value="qualified">Qualified (≥ 4.10)</option>
+</select>
+<button id="exportTeacherTotals" class="control-button" type="button">Export CSV</button>
+</div>
+<div class="session-summary" id="teacherTotalSummary">
+</div>
+<div class="teacher-total-layout">
+<aside class="teacher-total-overview" id="teacherTotalOverview">
+</aside>
+<div class="data-shell teacher-total-table-shell">
+<div class="data-toolbar">
+<strong>Teacher Totals</strong>
+<span id="teacherTotalCount">
+</span>
+</div>
+<div class="table-wrap" id="teacherTotalTable">
+<div class="loading">Loading teacher totals…</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="view" id="operations">
+<div class="page-title">
+<div>
+<p class="eyebrow">ACADEMIC OPERATIONS</p>
+<h1>MPP <em>Needs.</em>
+</h1>
+<p>Master Teacher staffing requirements by branch.</p>
+</div>
+<a class="outline-button" id="operationsLink" target="_blank" rel="noreferrer">Open source ↗</a>
+</div>
+<div class="sheet-tabs mpp-main-tabs" role="tablist" aria-label="Operations views">
+<button class="sheet-tab active" data-operations-view="mpp">MPP Needs</button>
+<button class="sheet-tab" data-operations-view="teachers">Teacher Database</button>
+</div>
+<section class="mpp-needs" id="mppNeedsPanel">
+<div class="mpp-controls">
+<div class="mpp-view-controls">
+<div class="filter-switch" role="group" aria-label="Master Teacher type">
+<button class="active" data-mpp-view="coach">MT Coach</button>
+<button data-mpp-view="mitra">MT Mitra</button>
+</div>
+<button class="mpp-edit-toggle" id="mppEditToggle" type="button" aria-label="Unlock editing" title="Unlock editing">✎</button>
+</div>
+<div class="mpp-connection">
+<span class="mpp-save-note" id="mppSaveStatus">Loading saved needs…</span>
+</div>
+</div>
+<div class="mpp-summary" id="mppSummary">
+</div>
+<div class="mpp-needs-layout">
+<div class="data-shell mpp-table-shell">
+<div class="data-toolbar">
+<div class="mpp-table-heading">
+<strong id="mppTableTitle">MT Coach staffing needs</strong>
+<span id="mppBranchCount">
+</span>
+</div>
+<select id="mppWave" aria-label="Filter MPP Needs by branch wave">
+<option value="all">All branch waves</option>
+<option value="wave1to5">Wave 1–5</option>
+<option value="wave6">Wave 6</option>
+</select>
+</div>
+<div class="table-wrap" id="mppNeedsTable">
+<div class="loading">Loading All MPP…</div>
+</div>
+</div>
+<aside class="mpp-overview" id="mppOverview">
+<div class="loading">Loading priority overview…</div>
+</aside>
+</div>
+</section>
+<section class="teacher-database" id="teacherDatabasePanel" hidden>
+<div class="teacher-db-controls">
+<input id="teacherDbSearch" type="search" placeholder="Search teacher, email, or WhatsApp" aria-label="Search Teacher Database"/>
+<select id="teacherDbCenter" aria-label="Filter by center">
+<option value="all">All centers</option>
+</select>
+<select id="teacherDbRole" aria-label="Filter by role">
+<option value="all">All roles</option>
+</select>
+<select id="teacherDbStatus" aria-label="Filter by teaching status">
+<option value="all">All teaching statuses</option>
+</select>
+<label class="teacher-db-action-filter">
+<input id="teacherDbNeedsAction" type="checkbox"/>
+<span>Needs action</span>
+</label>
+<button class="control-button teacher-db-add-button" id="teacherDbAdd" type="button">＋ Add Teacher</button>
+</div>
+<div class="teacher-db-summary" id="teacherDbSummary">
+</div>
+<div class="teacher-db-layout">
+<div class="data-shell teacher-db-list-shell">
+<div class="data-toolbar">
+<div>
+<strong>Teachers</strong>
+<span id="teacherDbCount">
+</span>
+</div>
+<span class="teacher-db-live-note">Live from TEACHERS + All MPP</span>
+</div>
+<div class="teacher-db-list" id="teacherDbList">
+<div class="loading">Loading Teacher Database…</div>
+</div>
+</div>
+<aside class="teacher-db-detail" id="teacherDbDetail">
+<div class="teacher-db-detail-empty">
+<span>👤</span>
+<strong>Select a teacher</strong>
+<p>Contact details and operational fields will appear here.</p>
+</div>
+</aside>
+</div>
+</section>
+<dialog class="teacher-db-add-dialog" id="teacherDbAddDialog">
+<form id="teacherDbAddForm">
+<header>
+<div>
+<p class="eyebrow">LOCAL DRAFT</p>
+<h3>Add Teacher</h3>
+<p>Create one combined teacher profile. Nothing will be sent to Google Sheets yet.</p>
+</div>
+<button class="teacher-db-dialog-close" type="button" aria-label="Close Add Teacher">×</button>
+</header>
+<div class="teacher-db-form-section">
+<div class="teacher-db-form-heading">
+<strong>Teacher information</strong>
+<span>Future destination: TEACHERS</span>
+</div>
+<div class="teacher-db-form-grid">
+<label class="teacher-db-form-wide">
+<span>Name *</span>
+<input name="name" required autocomplete="name"/>
+</label>
+<label>
+<span>Center *</span>
+<select name="center" required>
+<option value="">Select center</option>
+</select>
+</label>
+<label>
+<span>Role *</span>
+<select name="role" required>
+<option value="">Select role</option>
+</select>
+</label>
+<label>
+<span>SCMS Email</span>
+<input name="scmsEmail" type="email" autocomplete="email"/>
+</label>
+<label>
+<span>Personal Email *</span>
+<input name="personalEmail" type="email" required autocomplete="email"/>
+</label>
+<label>
+<span>WhatsApp *</span>
+<input name="whatsapp" type="tel" required inputmode="tel" placeholder="08… or 62…" autocomplete="tel"/>
+</label>
+<label>
+<span>Start Date *</span>
+<input name="startDate" type="date" required/>
+</label>
+<label>
+<span>Teaching Status *</span>
+<select name="teachingStatus" required>
+<option value="">Select status</option>
+</select>
+</label>
+</div>
+</div>
+<div class="teacher-db-form-section">
+<div class="teacher-db-form-heading">
+<strong>Hiring progress</strong>
+<span>Future destination: All MPP</span>
+</div>
+<div class="teacher-db-form-grid">
+<label>
+<span>Step Hiring</span>
+<select name="stepHiring">
+<option value="">Not set</option>
+</select>
+</label>
+<label>
+<span>Onboarding Regional</span>
+<select name="onboarding">
+<option value="">Not set</option>
+</select>
+</label>
+</div>
+</div>
+<div class="teacher-db-form-error" id="teacherDbAddError" role="alert">
+</div>
+<footer>
+<button class="outline-button" id="teacherDbAddCancel" type="button">Cancel</button>
+<button class="control-button" type="submit">Save Local Draft</button>
+</footer>
+</form>
+</dialog>
+<dialog class="mpp-edit-dialog" id="mppEditDialog">
+<form method="dialog" id="mppEditForm">
+<button class="mpp-dialog-close" value="cancel" aria-label="Close">×</button>
+<p class="eyebrow">EDIT ACCESS</p>
+<h3>Unlock MPP Needs</h3>
+<p>Enter the six-digit access code to edit staffing needs and priorities.</p>
+<input id="mppEditCode" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••" aria-label="Edit access code"/>
+<small id="mppEditMessage">
+</small>
+<button class="control-button" value="default" type="submit">Unlock editing</button>
+</form>
+</dialog>
+</section>
+<section class="view" id="revenue">
+<div class="page-title">
+<div>
+<p class="eyebrow">REGIONAL COMMERCIAL PERFORMANCE</p>
+<h1>Revenue <em>overview.</em>
+</h1>
+<p>A focused view of target attainment across East Indonesia centers.</p>
+</div>
+<a class="outline-button" id="revenueLink" target="_blank" rel="noreferrer">Open source ↗</a>
+</div>
+<div class="revenue-controls">
+<select id="revenueGroup" aria-label="Filter Revenue by center group">
+<option value="all">All center groups</option>
+<option value="standalone">Standalone</option>
+<option value="tagalong15">Tagalong Wave 1–5</option>
+<option value="tagalong6">Tagalong Wave 6</option>
+</select>
+<input id="revenueSearch" type="search" placeholder="Search center or captain" aria-label="Search Revenue centers"/>
+<select id="revenueStatus" aria-label="Filter Revenue by status">
+<option value="all">All statuses</option>
+<option value="ontrack">On track ≥ 100%</option>
+<option value="watch">Watch 80–99%</option>
+<option value="critical">Critical &lt; 80%</option>
+<option value="nodata">No target</option>
+</select>
+</div>
+<div class="revenue-kpis" id="revenueKpis">
+<div class="loading">Loading revenue overview…</div>
+</div>
+<div class="revenue-layout">
+<div>
+<section class="revenue-weekly" id="revenueWeekly">
+<div class="loading">Loading weekly performance…</div>
+</section>
+<section class="data-shell revenue-table-shell">
+<div class="data-toolbar">
+<div>
+<strong>Center performance</strong>
+<span id="revenueCount"></span>
+</div>
+<select id="revenueSort" aria-label="Sort Revenue centers">
+<option value="low">Needs attention</option>
+<option value="high">Highest achievement</option>
+<option value="gap">Largest gap</option>
+<option value="name">Center A–Z</option>
+</select>
+</div>
+<div class="table-wrap" id="revenueTable">
+<div class="loading">Loading center performance…</div>
+</div>
+</section>
+</div>
+<aside class="revenue-attention" id="revenueAttention">
+<div class="loading">Loading attention list…</div>
+</aside>
+</div>
+</section>
+<section class="view" id="center">
+<div class="page-title">
+<div>
+<p class="eyebrow">WORKSPACE 03</p>
+<h1>Acops <em>center.</em>
+</h1>
+<p>Important links, TAP, and hiring resources for the region.</p>
+</div>
+<a class="outline-button" id="centerLink" target="_blank" rel="noreferrer">Open spreadsheet ↗</a>
+</div>
+<div class="link-board" id="linkBoard">
+</div>
+<div class="sheet-tabs" data-group="center">
+</div>
+<div class="data-shell">
+<div class="data-toolbar">
+<strong id="centerTableTitle">Loading live sheet…</strong>
+<input type="search" placeholder="Search rows" aria-label="Search Acops Center table"/>
+</div>
+<div class="table-wrap" id="centerTable">
+</div>
+</div>
+</section>
+</main>
+<template id="emptyTemplate">
+<div class="empty-state">
+<strong>Couldn’t load this sheet yet.</strong>
+<p>Make sure the source is shared as “Anyone with the link — Viewer”, then refresh this page.</p>
+</div>
+</template>
+<script src="config.js">
+</script>
+<script src="app.js">
+</script>
+</body>
+</html>
