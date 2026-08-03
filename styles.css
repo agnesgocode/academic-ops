@@ -116,6 +116,8 @@
 .dashboard-session-copy strong,.dashboard-session-copy span,.dashboard-session-copy small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dashboard-session-copy span,.dashboard-session-copy small{display:block;font-size:10px;margin-top:3px}
 .dashboard-session-copy small{opacity:.75}
+.dashboard-session-type{display:inline-flex;margin-top:7px;padding:3px 7px;border-radius:999px;background:rgba(93,88,108,.1);color:inherit;font:800 8px Manrope;text-transform:uppercase;letter-spacing:.45px}
+.dashboard-session-type.additional{background:#eee9ff;color:#5e50cf}
 .dashboard-session-empty,.dashboard-sessions-loading{padding:42px 16px;text-align:center;color:#8d8a96;font-size:12px}
 .dashboard-session-empty strong{display:block;color:#484550;margin-bottom:5px}
 .dashboard-session-empty span{display:block}
