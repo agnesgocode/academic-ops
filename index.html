@@ -466,6 +466,11 @@
 </div>
 <a class="outline-button" id="revenueLink" target="_blank" rel="noreferrer">Open source ↗</a>
 </div>
+<div class="sheet-tabs revenue-main-tabs" role="tablist" aria-label="Revenue views">
+<button class="sheet-tab active" data-revenue-tab="overview">Overview</button>
+<button class="sheet-tab" data-revenue-tab="branch">Agents Performance</button>
+</div>
+<div id="revenueOverviewPanel">
 <div class="revenue-controls">
 <select id="revenueGroup" aria-label="Filter Revenue by center group">
 <option value="all">All center groups</option>
@@ -511,6 +516,43 @@
 <aside class="revenue-attention" id="revenueAttention">
 <div class="loading">Loading attention list…</div>
 </aside>
+</div>
+</div>
+<div id="revenueBranchPanel" hidden>
+<div class="revenue-branch-toolbar">
+<div>
+<label for="revenueBranchSelect">Branch</label>
+<select id="revenueBranchSelect" aria-label="Select Revenue branch">
+<option value="">Select a branch</option>
+</select>
+</div>
+<div class="filter-switch" role="group" aria-label="Agent performance views">
+<button class="active" data-revenue-branch-view="overall">Overall</button>
+<button data-revenue-branch-view="details">Details</button>
+</div>
+</div>
+<div id="revenueBranchOverall">
+<div class="revenue-branch-hero" id="revenueBranchHero">
+<div class="loading">Select a branch to view its performance.</div>
+</div>
+<div class="revenue-kpis" id="revenueBranchKpis">
+</div>
+<section class="revenue-weekly" id="revenueBranchWeekly">
+</section>
+</div>
+<div id="revenueBranchDetails" hidden>
+<div class="data-shell revenue-agent-shell">
+<div class="data-toolbar">
+<div>
+<strong>Agent revenue details</strong>
+<span id="revenueAgentCount"></span>
+</div>
+</div>
+<div class="table-wrap" id="revenueAgentTable">
+<div class="loading">Select a branch to view agent details.</div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section class="view" id="center">
