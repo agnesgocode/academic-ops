@@ -28,6 +28,8 @@
 <div class="nav-division administration-nav"><strong>Administration</strong>
 <a class="nav-link" href="#sessions" data-view="sessions">
 <span>◫</span>Sessions</a>
+<a class="nav-link" href="#fulfillment" data-view="fulfillment">
+<span>◩</span>Fulfillment Rate</a>
 </div>
 <div class="nav-division commercial-nav"><strong>Commercial</strong>
 <a class="nav-link" href="#commercial" data-view="commercial"><span>◇</span>Workspace</a>
@@ -139,13 +141,12 @@
 <p class="eyebrow">ADMINISTRATION · SESSION ACTIVITY</p>
 <h1>Every session, <em>in one place.</em>
 </h1>
-<p>Explore session fulfillment and compare teaching volume.</p>
+<p>Explore session activity and compare teaching volume.</p>
 </div>
 <a class="outline-button" id="sessionsLink" target="_blank" rel="noreferrer">Open source ↗</a>
 </div>
 <div class="sheet-tabs sessions-tabs" role="tablist" aria-label="Session views">
 <button class="sheet-tab active" data-session-view="live">Live Sessions</button>
-<button class="sheet-tab" data-session-view="fulfillment">Fulfillment Rate</button>
 <button class="sheet-tab" data-session-view="teachers">Teacher Totals</button>
 </div>
 <div id="allSessionsPanel">
@@ -269,6 +270,17 @@
 </div>
 </div>
 </div>
+</section>
+<section class="view" id="fulfillment">
+<div class="page-title">
+<div>
+<p class="eyebrow">ADMINISTRATION · CLASS CAPACITY</p>
+<h1>Fulfillment <em>rate.</em></h1>
+<p>Track active student capacity across branches and classes.</p>
+</div>
+<a class="outline-button" id="fulfillmentLink" target="_blank" rel="noreferrer">Open source ↗</a>
+</div>
+<div id="fulfillmentMount"></div>
 </section>
 <section class="view" id="operations">
 <div class="page-title">
