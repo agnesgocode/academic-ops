@@ -457,6 +457,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 
 /* Consistent custom select menus */
 .acops-native-select{position:absolute!important;width:1px!important;height:1px!important;margin:0!important;padding:0!important;opacity:0!important;pointer-events:none!important}
+.acops-native-select[hidden]+.acops-select{display:none}
 .acops-select{position:relative;display:inline-block;min-width:150px;color:#3d3947;font-family:'DM Sans',Arial,sans-serif}
 .acops-select-trigger{position:relative;width:100%;min-height:38px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:9px 35px 9px 12px;color:inherit;text-align:left;font:700 11px 'DM Sans';cursor:pointer}
 .acops-select-trigger>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
