@@ -163,6 +163,10 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 /* Full-row podium colors for the top three branches. */
 .regional-performance-table tr.regional-top-1{background:linear-gradient(90deg,#fff7cf 0%,#fffaf0 55%,#fffdf8 100%)}.regional-performance-table tr.regional-top-2{background:linear-gradient(90deg,#eef2f5 0%,#f8fafb 55%,#fcfdfe 100%)}.regional-performance-table tr.regional-top-3{background:linear-gradient(90deg,#ffeadc 0%,#fff6ef 55%,#fffaf7 100%)}.regional-performance-table tr.regional-top-1:hover{background:#fff4c4}.regional-performance-table tr.regional-top-2:hover{background:#e9eff3}.regional-performance-table tr.regional-top-3:hover{background:#ffe5d3}
 
+/* Academic dashboard is a dedicated division page. */
+.academic-division-dashboard{max-width:none!important}.academic-division-dashboard>.metrics{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:24px}.academic-division-dashboard>.metrics .metric{display:flex;min-height:118px;border:1px solid #ece9f8;border-top:4px solid #6b5bdf;border-radius:22px;text-decoration:none}.academic-division-dashboard>.metrics .metric:nth-child(2),.academic-division-dashboard>.metrics .metric:nth-child(3){display:flex}.academic-division-dashboard>.dashboard-academic,.academic-division-dashboard>.dashboard-analysis,.academic-division-dashboard>.dashboard-sessions{margin-top:24px}.academic-division-dashboard>.dashboard-sessions{position:static;max-height:none;background:#fff;border-radius:24px;padding:24px}.academic-nav .nav-link{margin-left:0}.academic-nav .nav-link span{width:19px}
+@media(max-width:900px){.academic-division-dashboard>.metrics{grid-template-columns:1fr}}
+
 /* Dashboard academic performance summary */
 .dashboard-academic{margin-top:34px}
 .dashboard-scope{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:0 2px 12px}

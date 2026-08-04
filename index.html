@@ -17,12 +17,11 @@
 <a class="nav-link active" href="#dashboard" data-view="dashboard">
 <span>▦</span>Regional Dashboard</a>
 <div class="nav-division academic-nav"><strong>Academic</strong>
-<a class="nav-link" href="#academic" data-view="academic">
-<span>▱</span>Dashboard &amp; Performance</a>
-<a class="nav-link nav-sub" href="#academic" data-view="academic" data-academic-tab="sqt"><span>·</span>SQT</a>
-<a class="nav-link nav-sub" href="#academic" data-view="academic" data-academic-tab="observation"><span>·</span>Observation</a>
-<a class="nav-link nav-sub" href="#academic" data-view="academic" data-academic-tab="smartapp"><span>·</span>SmartApp Usage</a>
-<a class="nav-link" href="#operations" data-view="operations"><span>▤</span>Other Academic Pages</a>
+<a class="nav-link" href="#academic-dashboard" data-view="academic-dashboard"><span>◉</span>Dashboard</a>
+<a class="nav-link" href="#academic" data-view="academic" data-academic-tab="sqt"><span>▱</span>SQT</a>
+<a class="nav-link" href="#academic" data-view="academic" data-academic-tab="observation"><span>◌</span>Observation</a>
+<a class="nav-link" href="#academic" data-view="academic" data-academic-tab="smartapp"><span>◫</span>SmartApp Usage</a>
+<a class="nav-link" href="#operations" data-view="operations"><span>▤</span>Operations</a>
 </div>
 <div class="nav-division marketing-nav"><strong>Marketing</strong>
 <a class="nav-link" href="#marketing" data-view="marketing"><span>◉</span>Dashboard</a>
@@ -62,7 +61,13 @@
 </label>
 </div>
 <section class="data-shell regional-performance-shell"><div class="table-wrap" id="regionalPerformance"><div class="loading">Combining live division metrics…</div></div></section>
-<div class="legacy-dashboard-data" hidden><div id="metrics"></div><section id="dashboardAcademic"></section><section id="dashboardAnalysis"></section><aside id="dashboardSessions"></aside></div>
+</section>
+<section class="view academic-division-dashboard" id="academic-dashboard">
+<div class="page-title"><div><p class="eyebrow">ACADEMIC DIVISION</p><h1>Academic <em>dashboard.</em></h1><p>Branch-level overview of SQT, observation progress, SmartApp usage, and session activity.</p></div></div>
+<div class="metrics" id="metrics"></div>
+<section class="dashboard-academic" id="dashboardAcademic"><div class="dashboard-academic-loading">Loading academic performance…</div></section>
+<section class="dashboard-analysis" id="dashboardAnalysis"><div class="dashboard-analysis-loading">Loading performance analysis…</div></section>
+<aside class="dashboard-sessions" id="dashboardSessions"><div class="dashboard-sessions-loading">Loading today’s sessions…</div></aside>
 </section>
 <section class="view" id="academic">
 <div class="page-title">
