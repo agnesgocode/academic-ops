@@ -98,6 +98,9 @@
 .dashboard-sessions-head div>span{display:block;color:#92909d;font-size:11px;margin-top:4px}
 .dashboard-sessions-head div>span b{color:#6b5bdf;font-weight:800;margin-left:5px}
 .dashboard-sessions-head>a{flex:0 0 auto;color:#6b5bdf;text-decoration:none;font-size:11px;font-weight:800;padding-top:5px}
+.dashboard-session-filter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:-2px 0 12px;padding:4px;border-radius:13px;background:#f2f1f7}
+.dashboard-session-filter button{min-width:0;border:0;border-radius:10px;background:transparent;padding:8px 5px;color:#85818f;font:800 9px 'DM Sans';cursor:pointer;white-space:nowrap}
+.dashboard-session-filter button.active{background:#fff;color:#5f50cf;box-shadow:0 2px 8px rgba(55,48,94,.1)}
 .dashboard-session-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:15px}
 .dashboard-session-summary>span{border-radius:13px;padding:9px 7px;text-align:center;font-size:9px;font-weight:700}
 .dashboard-session-summary b{display:block;font:800 17px Manrope}
