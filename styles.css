@@ -512,5 +512,16 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .teacher-total-table-shell th:nth-child(3),.teacher-total-table-shell td:nth-child(3){width:25%;text-align:left}
 .teacher-total-table-shell th:nth-child(4),.teacher-total-table-shell td:nth-child(4),.teacher-total-table-shell th:nth-child(5),.teacher-total-table-shell td:nth-child(5){width:14%;text-align:center}
 .teacher-total-table-shell tr.selected td{background:#f0eeff}
-.teacher-total-overview{margin-top:22px;max-height:none;overflow:visible}
+.teacher-total-overview{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:22px;padding:24px;max-height:none;overflow:visible}
+.teacher-total-overview>.eyebrow,.teacher-total-overview>h3{grid-column:1/-1}
+.teacher-total-overview>.eyebrow{margin-bottom:-8px}
+.teacher-total-overview>h3{margin-bottom:2px}
+.teacher-total-overview-stat{grid-column:span 2;display:block;padding:15px 16px;border:1px solid #eceaf2;border-radius:14px;background:#f8f8fc}
+.teacher-total-overview-stat span{display:block;margin-bottom:7px}
+.teacher-total-overview-stat strong{display:block;font-size:20px}
+.teacher-total-overview>.teacher-risk-section{grid-column:span 3;margin:2px 0 0;padding:18px;border:1px solid #eceaf2;border-radius:16px;background:#fbfbfd}
+.teacher-total-overview .teacher-risk-section ol{max-height:370px;overflow:auto;padding-right:6px;gap:0}
+.teacher-total-overview .teacher-risk-section li{padding:9px 0;border-top:1px solid #efedf4}
+.teacher-total-overview .teacher-risk-section li:first-child{border-top:0}
+@media(max-width:760px){.teacher-total-overview{grid-template-columns:1fr;padding:18px}.teacher-total-overview>.eyebrow,.teacher-total-overview>h3,.teacher-total-overview-stat,.teacher-total-overview>.teacher-risk-section{grid-column:1}.teacher-total-overview .teacher-risk-section ol{max-height:none}}
 @media(max-width:1050px){.teacher-total-layout{grid-template-columns:1fr;grid-template-areas:"table" "detail"}.teacher-total-detail{display:block;max-height:none;overflow:visible}.teacher-detail-table thead th{position:static}}
