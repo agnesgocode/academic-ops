@@ -297,6 +297,7 @@
 </div>
 <div class="sheet-tabs mpp-main-tabs" role="tablist" aria-label="Operations views">
 <button class="sheet-tab active" data-operations-view="mpp">MPP Needs</button>
+<button class="sheet-tab" data-operations-view="hiring">Hiring</button>
 <button class="sheet-tab" data-operations-view="teachers">Teacher Database</button>
 </div>
 <section class="mpp-needs" id="mppNeedsPanel">
@@ -336,6 +337,35 @@
 <div class="loading">Loading priority overview…</div>
 </aside>
 </div>
+</section>
+<section class="hiring-panel" id="hiringPanel" hidden>
+<div class="hiring-controls">
+<input id="hiringSearch" type="search" placeholder="Search candidate, center, email, or notes" aria-label="Search Hiring"/>
+<select id="hiringRole" aria-label="Filter Hiring by role">
+<option value="all">All roles</option>
+</select>
+<select id="hiringStep" aria-label="Filter Hiring by current step">
+<option value="all">All steps</option>
+</select>
+<select id="hiringCenter" aria-label="Filter Hiring by center">
+<option value="all">All centers</option>
+</select>
+</div>
+<div class="hiring-summary" id="hiringSummary">
+</div>
+<section class="data-shell hiring-table-shell">
+<div class="data-toolbar">
+<div>
+<strong>Hiring candidates</strong>
+<span id="hiringCount">
+</span>
+</div>
+<span class="hiring-live-note">Live from Hiring EA</span>
+</div>
+<div class="table-wrap" id="hiringTable">
+<div class="loading">Loading Hiring EA…</div>
+</div>
+</section>
 </section>
 <section class="teacher-database" id="teacherDatabasePanel" hidden>
 <div class="teacher-db-controls">

@@ -366,6 +366,42 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 @media(max-width:1100px){.mpp-needs-layout{grid-template-columns:1fr}.mpp-overview{position:static;max-height:none}}
 @media(max-width:760px){.mpp-controls{align-items:flex-start;flex-direction:column}.mpp-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+/* Academic operations · Hiring */
+.hiring-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.hiring-controls>input[type="search"]{flex:1 1 320px;min-height:39px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:9px 13px;color:#34313d;font:600 11px 'DM Sans';outline:none}
+.hiring-controls>input[type="search"]:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.hiring-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.hiring-summary>div{padding:18px 20px;background:#fff;border:1px solid #eeecf4;border-radius:19px}
+.hiring-summary span{display:block;color:#8a8793;font-size:10px;font-weight:700}
+.hiring-summary strong{display:block;margin-top:6px;color:#262330;font:800 25px Manrope}
+.hiring-summary .ready{background:#e8f6ed;border-color:#c6e9d2}
+.hiring-summary .ready strong{color:#27764e}
+.hiring-summary .rejected{background:#fff1ee;border-color:#ffd4cc}
+.hiring-summary .rejected strong{color:#c84e45}
+.hiring-table-shell .data-toolbar>div{display:flex;align-items:center;gap:9px}
+.hiring-table-shell .data-toolbar>div span{padding-left:9px;border-left:1px solid #e5e3eb;color:#8c8995;font-size:10px}
+.hiring-live-note{color:#898592;font-size:9px}
+.hiring-live-note:before{content:"●";margin-right:6px;color:#35a66a}
+.hiring-table-shell .table-wrap{max-height:calc(100vh - 190px);overflow:auto}
+.hiring-table-shell table{width:100%;min-width:1120px;table-layout:fixed}
+.hiring-table-shell thead th{position:sticky;top:0;z-index:2;background:#f8f8fc;box-shadow:0 1px 0 #e7e7ef}
+.hiring-table-shell th,.hiring-table-shell td{padding:13px 14px;vertical-align:top}
+.hiring-table-shell th:nth-child(1),.hiring-table-shell td:nth-child(1){width:20%}
+.hiring-table-shell th:nth-child(2),.hiring-table-shell td:nth-child(2){width:18%}
+.hiring-table-shell th:nth-child(3),.hiring-table-shell td:nth-child(3){width:10%}
+.hiring-table-shell th:nth-child(4),.hiring-table-shell td:nth-child(4){width:13%}
+.hiring-table-shell th:nth-child(5),.hiring-table-shell td:nth-child(5){width:10%}
+.hiring-table-shell th:nth-child(6),.hiring-table-shell td:nth-child(6){width:10%}
+.hiring-table-shell td strong,.hiring-table-shell td small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hiring-table-shell td small{margin-top:4px;color:#928e9b;font-size:9px}
+.hiring-table-shell td:nth-child(2),.hiring-table-shell td:nth-child(7){color:#625e6a;font-size:10px;line-height:1.45}
+.hiring-table-shell a{color:#5d4fd0;font-size:10px;font-weight:800;text-decoration:none}
+.hiring-step{display:inline-flex;justify-content:center;border-radius:99px;padding:6px 9px;background:#f0eff3;color:#74717a;font-size:8px;font-weight:800;text-transform:uppercase}
+.hiring-step.ready{background:#e8f6ed;color:#27764e}
+.hiring-step.progress{background:#fff3cd;color:#946b12}
+.hiring-step.rejected{background:#fde9e6;color:#bf4d44}
+@media(max-width:760px){.hiring-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.hiring-table-shell .table-wrap{max-height:none}}
+
 /* Academic operations · Teacher Database */
 .mpp-main-tabs .sheet-tab{pointer-events:auto}
 .teacher-db-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}
