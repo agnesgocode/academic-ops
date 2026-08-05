@@ -90,6 +90,15 @@ function handleHiringPost_(payload) {
       return json_({ ok: true, action, row });
     }
 
+    if (action === 'delete') {
+      const original = normalizeHiringCandidate_(payload.original || payload.candidate || {});
+      const row = findHiringRow_(sheet, original);
+      if (!row) throw new Error('Candidate was not found in Hiring EA');
+      sheet.deleteRow(row);
+      SpreadsheetApp.flush();
+      return json_({ ok: true, action, row });
+    }
+
     if (action !== 'update') throw new Error('Unsupported Hiring EA action');
     const original = normalizeHiringCandidate_(payload.original || {});
     const field = String(payload.field || '').trim();
@@ -146,10 +155,11 @@ function findHiringRow_(sheet, candidate) {
     const name = normalize_(row[1]);
     const email = normalize_(row[2]);
     const phone = normalizePhone_(row[3]);
-    return name === targetName
-      && center === targetCenter
-      && (!targetEmail || email === targetEmail)
-      && (!targetPhone || phone === targetPhone);
+    if (!name || name !== targetName) return false;
+    if (targetCenter && center && center !== targetCenter) return false;
+    if (targetEmail && email && email !== targetEmail) return false;
+    if (targetPhone && phone && phone !== targetPhone) return false;
+    return true;
   });
   return index < 0 ? 0 : index + 2;
 }

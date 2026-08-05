@@ -438,6 +438,9 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-detail-grid textarea{min-height:88px;resize:vertical;line-height:1.45}
 .hiring-detail-grid input:focus,.hiring-detail-grid select:focus,.hiring-detail-grid textarea:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
 .hiring-detail-wide{grid-column:1/-1}
+.hiring-detail-footer{margin-top:16px;padding-top:14px;border-top:1px solid #eeecf4;display:flex;justify-content:flex-end}
+.hiring-delete-button{padding:9px 15px;border:1px solid #fecaca;border-radius:12px;background:#fff5f5;color:#dc2626;font:700 11px/1 'DM Sans',sans-serif;cursor:pointer;transition:all .15s ease}
+.hiring-delete-button:hover{background:#fee2e2;border-color:#fca5a5;color:#b91c1c;box-shadow:0 2px 8px rgba(220,38,38,.12)}
 .hiring-step{display:inline-flex;justify-content:center;border-radius:99px;padding:6px 9px;background:#f0eff3;color:#74717a;font-size:8px;font-weight:800;text-transform:uppercase}
 .hiring-step.ready{background:#e8f6ed;color:#27764e}
 .hiring-step.progress{background:#fff3cd;color:#946b12}
