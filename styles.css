@@ -720,3 +720,57 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .teacher-total-overview .teacher-risk-section li:first-child{border-top:0}
 @media(max-width:760px){.teacher-total-overview{grid-template-columns:1fr;padding:18px}.teacher-total-overview>.eyebrow,.teacher-total-overview>h3,.teacher-total-overview-stat,.teacher-total-overview>.teacher-risk-section{grid-column:1}.teacher-total-overview .teacher-risk-section ol{max-height:none}}
 @media(max-width:1050px){.teacher-total-layout{grid-template-columns:1fr;grid-template-areas:"table" "detail"}.teacher-total-detail{display:block;max-height:none;overflow:visible}.teacher-detail-table thead th{position:static}}
+
+/* Event Dashboard Controls & Layout */
+.events-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px}
+.events-controls select,.events-controls input{border:1px solid #e2e1eb;background:#fff;border-radius:12px;padding:9px 12px;color:#33313e;font:600 12px 'DM Sans',sans-serif;transition:border-color .18s}
+.events-controls select:focus,.events-controls input:focus{border-color:var(--accent,#d55b43);outline:none}
+.events-controls input[type="search"]{min-width:240px;flex:1}
+
+/* Event KPIs */
+.events-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.events-kpi-card{padding:18px 20px;border:1px solid #ebe9f0;border-radius:18px;background:#fff;display:flex;flex-direction:column;gap:4px}
+.events-kpi-card span{color:#8b8793;font:800 10px 'DM Sans',sans-serif;letter-spacing:.5px}
+.events-kpi-card strong{font:800 24px 'Manrope',sans-serif;color:#24222d}
+.events-kpi-card small{color:#8b8793;font-size:11px}
+.events-kpi-card.positive strong{color:#278461}
+.events-kpi-card.warning strong{color:#d55b43}
+
+/* Event Summary Grid */
+.events-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.events-summary-card{background:#fff;border:1px solid #ebe9f0;border-radius:18px;padding:20px}
+.events-summary-card h3{margin:0 0 14px;font:700 15px 'Manrope',sans-serif;color:#24222d}
+.events-category-list,.events-branch-list{display:flex;flex-direction:column;gap:8px}
+.events-category-row,.events-branch-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid #f4f3f8}
+.events-category-row:last-child,.events-branch-row:last-child{border-bottom:none}
+.events-category-row strong,.events-branch-row strong{font-weight:700;color:#33313e}
+
+/* Category Pills */
+.category-pill{display:inline-block;padding:3px 9px;border-radius:99px;font:700 10px 'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.3px;background:#f0eeff;color:#6b5bdf}
+.category-pill.category-art{background:#fff2e8;color:#d55b43}
+.category-pill.category-food{background:#eef9f2;color:#278461}
+.category-pill.category-science{background:#eaf5ff;color:#287fb3}
+.category-pill.category-gamesadventure{background:#fef4e8;color:#c97918}
+.category-pill.category-reviewsession{background:#f0eeff;color:#6b5bdf}
+
+/* Rate Badges */
+.rate-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px}
+.rate-badge.good{background:#eaf7ef;color:#27764e}
+.rate-badge.watch{background:#fff8e6;color:#9e6e14}
+.rate-badge.low{background:#fff2ef;color:#c45443}
+
+/* Photo Links & Notes */
+.event-photo-link{display:inline-flex;align-items:center;gap:4px;color:var(--accent,#d55b43);font-weight:700;font-size:11px;text-decoration:none}
+.event-photo-link:hover{text-decoration:underline}
+.event-photo-text{font-size:11px;color:#8b8793;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.event-notes{display:block;color:#8b8793;font-size:10px;margin-top:2px;font-weight:400}
+
+/* Table Shell */
+.events-table-shell{background:#fff;border:1px solid #ebe9f0;border-radius:20px;overflow:hidden}
+.events-table{width:100%;border-collapse:collapse}
+.events-table th,.events-table td{padding:12px 14px;text-align:left;border-bottom:1px solid #f2f0f7;font-size:12px}
+.events-table th{background:#fafafa;font:800 11px 'DM Sans',sans-serif;color:#8b8793;text-transform:uppercase;letter-spacing:.5px}
+.events-table tbody tr:hover{background:#faf9fc}
+
+@media(max-width:900px){.events-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.events-summary-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.events-kpis{grid-template-columns:1fr}}

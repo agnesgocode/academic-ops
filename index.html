@@ -24,6 +24,7 @@
 <div class="nav-division marketing-nav"><strong>Marketing</strong>
 <a class="nav-link" href="#marketing" data-view="marketing"><span>◉</span>Dashboard</a>
 <a class="nav-link" href="#revenue" data-view="revenue"><span>◒</span>Revenue</a>
+<a class="nav-link" href="#events" data-view="events"><span>🗓</span>Event</a>
 </div>
 <div class="nav-division administration-nav"><strong>Administration</strong>
 <a class="nav-link" href="#sessions" data-view="sessions">
@@ -555,7 +556,7 @@
 </section>
 <section class="view division-home marketing-home" id="marketing">
 <div class="division-home-hero"><p class="eyebrow">MARKETING DIVISION</p><h1>Marketing <em>workspace.</em></h1><p>Monitor regional commercial momentum and continue into detailed revenue performance.</p></div>
-<div class="division-home-grid"><a href="#revenue"><span>LIVE PERFORMANCE</span><h2>Revenue Dashboard</h2><p>Targets, achievement, weekly movement, branch ranking, and agent contribution.</p><b>Open Revenue →</b></a><article><span>COMING NEXT</span><h2>Marketing tools</h2><p>Future marketing-specific pages will live here without overlapping other divisions.</p></article></div>
+<div class="division-home-grid"><a href="#revenue"><span>LIVE PERFORMANCE</span><h2>Revenue Dashboard</h2><p>Targets, achievement, weekly movement, branch ranking, and agent contribution.</p><b>Open Revenue →</b></a><a href="#events"><span>MARKETING EVENTS</span><h2>Event Dashboard</h2><p>Track marketing events, registrants, attendees, vendor partnerships, and attendance rates.</p><b>Open Event →</b></a></div>
 </section>
 <section class="view" id="revenue">
 <div class="page-title">
@@ -663,6 +664,75 @@
 </div>
 </div>
 </div>
+</section>
+<section class="view" id="events">
+<div class="page-title">
+<div>
+<p class="eyebrow">MARKETING · EVENTS TRACKER</p>
+<h1>Marketing Events <em>overview.</em>
+</h1>
+<p>Monitor event activity, registrants, attendance rates, and vendor collaborations across East Indonesia branches.</p>
+</div>
+<a class="outline-button" id="eventsLink" href="https://docs.google.com/spreadsheets/d/1vKgIiLIKPGrnDODNE0gpW5VZbcx3w8AEQL0FdlgKuck/edit?gid=1708249026#gid=1708249026" target="_blank" rel="noreferrer">Open source ↗</a>
+</div>
+<div class="events-controls">
+<select id="eventsYear" aria-label="Filter Events by Year">
+<option value="all">All Years</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+</select>
+<select id="eventsMonth" aria-label="Filter Events by Month">
+<option value="all">All Months</option>
+<option value="January">January</option>
+<option value="February">February</option>
+<option value="March">March</option>
+<option value="April">April</option>
+<option value="May">May</option>
+<option value="June">June</option>
+<option value="July">July</option>
+<option value="August">August</option>
+<option value="September">September</option>
+<option value="October">October</option>
+<option value="November">November</option>
+<option value="December">December</option>
+</select>
+<select id="eventsCategory" aria-label="Filter Events by Category">
+<option value="all">All Categories</option>
+<option value="Art">Art</option>
+<option value="Food">Food</option>
+<option value="Games & Adventure">Games & Adventure</option>
+<option value="Review Session">Review Session</option>
+<option value="Science">Science</option>
+</select>
+<select id="eventsBranch" aria-label="Filter Events by Branch">
+<option value="all">All Branches</option>
+</select>
+<input id="eventsSearch" type="search" placeholder="Search event, vendor, or branch..." aria-label="Search Events"/>
+<select id="eventsSort" aria-label="Sort Events">
+<option value="date-desc">Newest Date</option>
+<option value="date-asc">Oldest Date</option>
+<option value="registrants-high">Most Registrants</option>
+<option value="attendees-high">Most Attendees</option>
+<option value="rate-high">Highest Attendance Rate</option>
+</select>
+</div>
+<div class="events-kpis" id="eventsKpis">
+<div class="loading">Loading event metrics…</div>
+</div>
+<div class="events-summary-grid" id="eventsSummaryGrid">
+</div>
+<section class="data-shell events-table-shell">
+<div class="data-toolbar">
+<div>
+<strong>Event activity details</strong>
+<span id="eventsCount"></span>
+</div>
+<button class="outline-button" id="exportEvents">Export CSV</button>
+</div>
+<div class="table-wrap" id="eventsTable">
+<div class="loading">Loading marketing events…</div>
+</div>
+</section>
 </section>
 <section class="view division-home commercial-home" id="commercial">
 <div class="division-home-hero"><p class="eyebrow">COMMERCIAL DIVISION</p><h1>Commercial <em>workspace.</em></h1><p>This division has been separated and is ready for future commercial tools.</p></div>
