@@ -347,9 +347,11 @@
 <select id="hiringStep" aria-label="Filter Hiring by current step">
 <option value="all">All steps</option>
 </select>
-<select id="hiringCenter" aria-label="Filter Hiring by center">
-<option value="all">All centers</option>
-</select>
+<div class="hiring-center-search">
+<input id="hiringCenterSearch" type="search" placeholder="All centers" aria-label="Filter Hiring by center" autocomplete="off"/>
+<div id="hiringCenterMenu" class="hiring-center-menu" hidden>
+</div>
+</div>
 <button class="hiring-edit-toggle" id="hiringEditToggle" type="button" aria-label="Unlock Hiring editing" title="Unlock Hiring editing">✎</button>
 <button class="control-button hiring-add-button" id="hiringAdd" type="button">＋ Add Candidate</button>
 </div>

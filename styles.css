@@ -370,6 +370,13 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}
 .hiring-controls>input[type="search"]{flex:1 1 320px;min-height:39px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:9px 13px;color:#34313d;font:600 11px 'DM Sans';outline:none}
 .hiring-controls>input[type="search"]:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.hiring-center-search{position:relative}
+.hiring-center-search input{width:210px;min-height:39px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:9px 13px;color:#34313d;font:600 11px 'DM Sans';outline:none}
+.hiring-center-search input:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.hiring-center-menu{position:absolute;z-index:24;top:calc(100% + 6px);left:0;right:0;max-height:260px;overflow:auto;padding:6px;border:1px solid #e6e4eb;border-radius:12px;background:#fff;box-shadow:0 12px 30px rgba(31,27,48,.14)}
+.hiring-center-menu[hidden]{display:none}
+.hiring-center-menu button,.hiring-center-menu span{display:block;width:100%;border:0;border-radius:8px;background:none;padding:9px 10px;color:#4d4955;text-align:left;font:700 10px 'DM Sans'}
+.hiring-center-menu button:hover{background:#f1efff;color:#5c4dcc}
 .hiring-add-button{min-height:39px;white-space:nowrap}
 .hiring-edit-toggle{width:39px;height:39px;display:grid;place-items:center;border:1px solid #ddd9e8;border-radius:13px;background:#fff;color:#6b5bdf;font:800 17px Manrope;cursor:pointer;box-shadow:0 2px 7px #332b6820}
 .hiring-edit-toggle:hover{background:#f1efff}
@@ -378,10 +385,10 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-summary>div{padding:18px 20px;background:#fff;border:1px solid #eeecf4;border-radius:19px}
 .hiring-summary span{display:block;color:#8a8793;font-size:10px;font-weight:700}
 .hiring-summary strong{display:block;margin-top:6px;color:#262330;font:800 25px Manrope}
-.hiring-summary .ready{background:#e8f6ed;border-color:#c6e9d2}
-.hiring-summary .ready strong{color:#27764e}
-.hiring-summary .rejected{background:#fff1ee;border-color:#ffd4cc}
-.hiring-summary .rejected strong{color:#c84e45}
+.hiring-summary .offering{background:#e8f6ed;border-color:#c6e9d2}
+.hiring-summary .offering strong{color:#27764e}
+.hiring-summary .follow-up{background:#fff4e2;border-color:#f5dfb4}
+.hiring-summary .follow-up strong{color:#a87513}
 .hiring-table-shell .data-toolbar>div{display:flex;align-items:center;gap:9px}
 .hiring-table-shell .data-toolbar>div span{padding-left:9px;border-left:1px solid #e5e3eb;color:#8c8995;font-size:10px}
 .hiring-live-note{color:#898592;font-size:9px}
