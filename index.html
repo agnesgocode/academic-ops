@@ -350,6 +350,8 @@
 <select id="hiringCenter" aria-label="Filter Hiring by center">
 <option value="all">All centers</option>
 </select>
+<button class="hiring-edit-toggle" id="hiringEditToggle" type="button" aria-label="Unlock Hiring editing" title="Unlock Hiring editing">✎</button>
+<button class="control-button hiring-add-button" id="hiringAdd" type="button">＋ Add Candidate</button>
 </div>
 <div class="hiring-summary" id="hiringSummary">
 </div>
@@ -367,6 +369,44 @@
 </div>
 </section>
 </section>
+<dialog class="hiring-dialog" id="hiringAddDialog">
+<form id="hiringAddForm">
+<header>
+<div>
+<p class="eyebrow">HIRING EA</p>
+<h3>Add Candidate</h3>
+<p>Add a candidate to the live Hiring EA tracker.</p>
+</div>
+<button class="hiring-dialog-close" type="button" aria-label="Close Add Candidate">×</button>
+</header>
+<div class="hiring-form-grid">
+<label>
+<span>Candidate *</span>
+<input name="name" required autocomplete="name"/>
+</label>
+<label>
+<span>Branch *</span>
+<select name="center" required>
+<option value="">Select branch</option>
+</select>
+</label>
+<label>
+<span>Phone number *</span>
+<input name="phone" type="tel" required inputmode="tel" placeholder="08… or 62…" autocomplete="tel"/>
+</label>
+<label>
+<span>Email <small>optional</small></span>
+<input name="email" type="email" autocomplete="email"/>
+</label>
+</div>
+<div class="hiring-form-error" id="hiringAddError" role="alert">
+</div>
+<footer>
+<button class="outline-button" id="hiringAddCancel" type="button">Cancel</button>
+<button class="control-button" type="submit">Enter</button>
+</footer>
+</form>
+</dialog>
 <section class="teacher-database" id="teacherDatabasePanel" hidden>
 <div class="teacher-db-controls">
 <input id="teacherDbSearch" type="search" placeholder="Search teacher, email, or WhatsApp" aria-label="Search Teacher Database"/>

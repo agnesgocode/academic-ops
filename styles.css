@@ -370,6 +370,10 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}
 .hiring-controls>input[type="search"]{flex:1 1 320px;min-height:39px;border:1px solid #e2e0ea;border-radius:13px;background:#fff;padding:9px 13px;color:#34313d;font:600 11px 'DM Sans';outline:none}
 .hiring-controls>input[type="search"]:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.hiring-add-button{min-height:39px;white-space:nowrap}
+.hiring-edit-toggle{width:39px;height:39px;display:grid;place-items:center;border:1px solid #ddd9e8;border-radius:13px;background:#fff;color:#6b5bdf;font:800 17px Manrope;cursor:pointer;box-shadow:0 2px 7px #332b6820}
+.hiring-edit-toggle:hover{background:#f1efff}
+.hiring-edit-toggle.active{background:#e8f6ed;border-color:#bfe5cc;color:#27764e}
 .hiring-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
 .hiring-summary>div{padding:18px 20px;background:#fff;border:1px solid #eeecf4;border-radius:19px}
 .hiring-summary span{display:block;color:#8a8793;font-size:10px;font-weight:700}
@@ -389,17 +393,37 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-table-shell th:nth-child(1),.hiring-table-shell td:nth-child(1){width:20%}
 .hiring-table-shell th:nth-child(2),.hiring-table-shell td:nth-child(2){width:18%}
 .hiring-table-shell th:nth-child(3),.hiring-table-shell td:nth-child(3){width:10%}
-.hiring-table-shell th:nth-child(4),.hiring-table-shell td:nth-child(4){width:13%}
+.hiring-table-shell th:nth-child(4),.hiring-table-shell td:nth-child(4){width:14%}
 .hiring-table-shell th:nth-child(5),.hiring-table-shell td:nth-child(5){width:10%}
 .hiring-table-shell th:nth-child(6),.hiring-table-shell td:nth-child(6){width:10%}
 .hiring-table-shell td strong,.hiring-table-shell td small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hiring-table-shell td small{margin-top:4px;color:#928e9b;font-size:9px}
 .hiring-table-shell td:nth-child(2),.hiring-table-shell td:nth-child(7){color:#625e6a;font-size:10px;line-height:1.45}
 .hiring-table-shell a{color:#5d4fd0;font-size:10px;font-weight:800;text-decoration:none}
+.hiring-table-shell input,.hiring-table-shell select,.hiring-table-shell textarea{width:100%;border:1px solid #e0dde8;border-radius:11px;background:#fff;padding:8px 9px;color:#383540;font:700 10px 'DM Sans';outline:none}
+.hiring-table-shell input:focus,.hiring-table-shell select:focus,.hiring-table-shell textarea:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.hiring-edit-stack{display:grid;gap:7px}
+.hiring-table-shell textarea{min-height:58px;resize:vertical;line-height:1.45}
+.hiring-table-shell .editing-unlocked td{background:#fffdf8}
 .hiring-step{display:inline-flex;justify-content:center;border-radius:99px;padding:6px 9px;background:#f0eff3;color:#74717a;font-size:8px;font-weight:800;text-transform:uppercase}
 .hiring-step.ready{background:#e8f6ed;color:#27764e}
 .hiring-step.progress{background:#fff3cd;color:#946b12}
 .hiring-step.rejected{background:#fde9e6;color:#bf4d44}
+.hiring-dialog{width:min(560px,calc(100vw - 34px));border:0;border-radius:22px;padding:0;box-shadow:0 26px 70px #29254142}
+.hiring-dialog::backdrop{background:#24202f73;backdrop-filter:blur(4px)}
+.hiring-dialog form{position:relative;padding:28px}
+.hiring-dialog header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:19px}
+.hiring-dialog .eyebrow{color:#6b5bdf;margin:0 0 7px;font-size:10px}
+.hiring-dialog h3{font:800 23px Manrope;letter-spacing:-.7px;margin:0}
+.hiring-dialog header p:last-child{color:#85818e;font-size:11px;line-height:1.5;margin:7px 0 0}
+.hiring-dialog-close{border:0;background:transparent;color:#8d8995;font-size:23px;cursor:pointer}
+.hiring-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.hiring-form-grid label span{display:flex;align-items:center;gap:6px;margin-bottom:6px;color:#57535f;font-size:9px;font-weight:800}
+.hiring-form-grid label small{color:#9d99a5;font-size:8px}
+.hiring-form-grid input,.hiring-form-grid select{width:100%;border:1px solid #dedbe7;border-radius:13px;padding:11px 12px;color:#2e2b36;font:700 11px 'DM Sans';outline:none}
+.hiring-form-grid input:focus,.hiring-form-grid select:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.hiring-form-error{min-height:18px;margin:9px 0;color:#c34f46;font-size:10px}
+.hiring-dialog footer{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
 @media(max-width:760px){.hiring-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.hiring-table-shell .table-wrap{max-height:none}}
 
 /* Academic operations · Teacher Database */
