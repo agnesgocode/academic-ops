@@ -393,6 +393,8 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-table-shell .data-toolbar>div span{padding-left:9px;border-left:1px solid #e5e3eb;color:#8c8995;font-size:10px}
 .hiring-live-note{color:#898592;font-size:9px}
 .hiring-live-note:before{content:"●";margin-right:6px;color:#35a66a}
+.hiring-workspace{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.hiring-workspace.has-detail{grid-template-columns:minmax(0,1fr) 360px}
 .hiring-table-shell .table-wrap{max-height:calc(100vh - 190px);overflow:auto}
 .hiring-table-shell table{width:100%;min-width:1120px;table-layout:fixed}
 .hiring-table-shell thead th{position:sticky;top:0;z-index:2;background:#f8f8fc;box-shadow:0 1px 0 #e7e7ef}
@@ -411,7 +413,29 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-table-shell input:focus,.hiring-table-shell select:focus,.hiring-table-shell textarea:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
 .hiring-edit-stack{display:grid;gap:7px}
 .hiring-table-shell textarea{min-height:58px;resize:vertical;line-height:1.45}
-.hiring-table-shell .editing-unlocked td{background:#fffdf8}
+.hiring-table-shell tr.selected td{background:#f4f2ff}
+.hiring-row-edit{width:34px;height:34px;border:1px solid #e0ddea;border-radius:12px;background:#fff;color:#6b5bdf;font:800 16px Manrope;cursor:pointer;box-shadow:0 3px 9px rgba(42,37,68,.08)}
+.hiring-row-edit:hover,.hiring-row-edit.active{background:#6b5bdf;border-color:#6b5bdf;color:#fff}
+.hiring-detail{position:sticky;top:22px;max-height:calc(100vh - 44px);overflow:auto;padding:22px;background:#fff;border:1px solid #eeecf4;border-radius:20px;box-shadow:0 14px 35px rgba(34,29,58,.06)}
+.hiring-detail[hidden]{display:none}
+.hiring-detail-empty{min-height:300px;display:grid;place-content:center;text-align:center;color:#8e8a96}
+.hiring-detail-empty strong{color:#3b3845;font:800 18px Manrope}
+.hiring-detail-empty p{max-width:230px;margin:8px auto 0;font-size:11px;line-height:1.5}
+.hiring-detail-head{display:flex;justify-content:space-between;gap:14px;margin-bottom:14px}
+.hiring-detail-head .eyebrow{margin:0 0 7px;color:#6b5bdf;font-size:9px}
+.hiring-detail-head h3{margin:0;color:#282532;font:800 20px Manrope;letter-spacing:-.5px}
+.hiring-detail-head p:last-child{margin:6px 0 0;color:#8c8895;font-size:10px;line-height:1.35}
+.hiring-detail-close{flex:0 0 auto;width:31px;height:31px;border:0;border-radius:11px;background:#f2f1f6;color:#77727f;font-size:20px;cursor:pointer}
+.hiring-detail-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;padding:11px 12px;border-radius:14px;background:#f8f7fc}
+.hiring-detail-actions a{color:#5d4fd0;font-size:10px;font-weight:800;text-decoration:none}
+.hiring-detail-grid{display:grid;gap:11px}
+.hiring-detail-grid label{display:block}
+.hiring-detail-grid label>span{display:block;margin:0 0 6px;color:#5d5966;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.45px}
+.hiring-detail-grid input,.hiring-detail-grid select,.hiring-detail-grid textarea{width:100%;border:1px solid #dedbe7;border-radius:13px;background:#fff;padding:11px 12px;color:#2e2b36;font:700 11px 'DM Sans';outline:none}
+.hiring-detail-grid .acops-select{width:100%}
+.hiring-detail-grid textarea{min-height:88px;resize:vertical;line-height:1.45}
+.hiring-detail-grid input:focus,.hiring-detail-grid select:focus,.hiring-detail-grid textarea:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
+.hiring-detail-wide{grid-column:1/-1}
 .hiring-step{display:inline-flex;justify-content:center;border-radius:99px;padding:6px 9px;background:#f0eff3;color:#74717a;font-size:8px;font-weight:800;text-transform:uppercase}
 .hiring-step.ready{background:#e8f6ed;color:#27764e}
 .hiring-step.progress{background:#fff3cd;color:#946b12}
@@ -431,6 +455,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-form-grid input:focus,.hiring-form-grid select:focus{border-color:#6b5bdf;box-shadow:0 0 0 3px #6b5bdf18}
 .hiring-form-error{min-height:18px;margin:9px 0;color:#c34f46;font-size:10px}
 .hiring-dialog footer{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+@media(max-width:1180px){.hiring-workspace{grid-template-columns:1fr}.hiring-detail{position:static;max-height:none}}
 @media(max-width:760px){.hiring-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.hiring-table-shell .table-wrap{max-height:none}}
 
 /* Academic operations · Teacher Database */
