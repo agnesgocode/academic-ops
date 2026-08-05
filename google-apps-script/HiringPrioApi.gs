@@ -72,7 +72,7 @@ function handleHiringPost_(payload) {
       if (!candidate.name || !candidate.center || !candidate.phone) {
         throw new Error('Candidate, branch, and phone number are required');
       }
-      const row = Math.max(sheet.getLastRow() + 1, 2);
+      const row = findNextHiringRow_(sheet);
       sheet.getRange(row, 1, 1, 5).setValues([[
         candidate.address,
         candidate.center,
@@ -134,13 +134,13 @@ function normalizeHiringCandidate_(candidate) {
 }
 
 function findHiringRow_(sheet, candidate) {
-  const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return 0;
+  const maxRows = sheet.getMaxRows();
+  if (maxRows < 2) return 0;
   const targetName = normalize_(candidate.name);
   const targetEmail = normalize_(candidate.email);
   const targetPhone = normalizePhone_(candidate.phone);
   const targetCenter = normalize_(candidate.center);
-  const values = sheet.getRange(2, 2, lastRow - 1, 4).getDisplayValues();
+  const values = sheet.getRange(2, 2, maxRows - 1, 4).getDisplayValues();
   const index = values.findIndex(row => {
     const center = normalize_(row[0]);
     const name = normalize_(row[1]);
@@ -152,6 +152,16 @@ function findHiringRow_(sheet, candidate) {
       && (!targetPhone || phone === targetPhone);
   });
   return index < 0 ? 0 : index + 2;
+}
+
+function findNextHiringRow_(sheet) {
+  const firstDataRow = 2;
+  const maxRows = sheet.getMaxRows();
+  const names = sheet.getRange(firstDataRow, 3, maxRows - firstDataRow + 1, 1).getDisplayValues();
+  const index = names.findIndex(row => !String(row[0] || '').trim());
+  if (index >= 0) return firstDataRow + index;
+  sheet.insertRowAfter(maxRows);
+  return maxRows + 1;
 }
 
 function findBranchRow_(sheet, column, branch) {

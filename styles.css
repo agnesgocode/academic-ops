@@ -414,8 +414,10 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-edit-stack{display:grid;gap:7px}
 .hiring-table-shell textarea{min-height:58px;resize:vertical;line-height:1.45}
 .hiring-table-shell tr.selected td{background:#f4f2ff}
-.hiring-row-edit{width:34px;height:34px;border:1px solid #e0ddea;border-radius:12px;background:#fff;color:#6b5bdf;font:800 16px Manrope;cursor:pointer;box-shadow:0 3px 9px rgba(42,37,68,.08)}
-.hiring-row-edit:hover,.hiring-row-edit.active{background:#6b5bdf;border-color:#6b5bdf;color:#fff}
+.hiring-candidate-cell{display:flex;align-items:center;gap:9px;min-width:0}
+.hiring-candidate-cell>span{display:flex;flex-direction:column;min-width:0}
+.hiring-row-edit{flex:0 0 auto;width:28px;height:28px;border:1px solid #e0ddea;border-radius:10px;background:#fff;color:#6b5bdf;font:800 13px Manrope;cursor:pointer;box-shadow:0 3px 9px rgba(42,37,68,.08);display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s ease}
+.hiring-row-edit:hover,.hiring-row-edit.active{background:#6b5bdf;border-color:#6b5bdf;color:#fff;box-shadow:0 3px 10px rgba(107,91,223,.3)}
 .hiring-detail{position:sticky;top:22px;max-height:calc(100vh - 44px);overflow:auto;padding:22px;background:#fff;border:1px solid #eeecf4;border-radius:20px;box-shadow:0 14px 35px rgba(34,29,58,.06)}
 .hiring-detail[hidden]{display:none}
 .hiring-detail-empty{min-height:300px;display:grid;place-content:center;text-align:center;color:#8e8a96}
