@@ -812,20 +812,24 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 /* Events Table Shell & Sticky Freeze Styling */
 .events-table-shell{background:#fff;border:1px solid #ebe9f0;border-radius:20px;overflow:hidden}
 .events-table-shell .table-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 280px);position:relative}
-.events-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1120px}
-.events-table th,.events-table td{padding:9px 12px;text-align:left;border-bottom:1px solid #f2f0f7;font-size:12px}
+.events-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1200px}
+.events-table th,.events-table td{padding:12px 14px;border-bottom:1px solid #f2f0f7;font-size:12px}
 .events-table tbody tr:hover{background:#faf9fc}
 
+/* Alignment utilities */
+.events-table th.col-center,.events-table td.col-center{text-align:center!important}
+.events-table th.col-left,.events-table td.col-left{text-align:left!important}
+
 /* Vertical Sticky Header Freeze when scrolling down */
-.events-table thead th{position:sticky;top:0;z-index:4;padding:10px 12px}
+.events-table thead th{position:sticky;top:0;z-index:4;padding:12px 14px}
 
 /* Horizontal Freeze # and Branch columns */
-.events-table th.sticky-col-1,.events-table td.sticky-col-1{position:sticky;left:0;z-index:3;width:38px;min-width:38px;max-width:38px;background:#fff;text-align:center}
-.events-table th.sticky-col-2,.events-table td.sticky-col-2{position:sticky;left:38px;z-index:3;min-width:170px;background:#fff;box-shadow:8px 0 12px -12px rgba(34,31,48,.45)}
+.events-table th.sticky-col-1,.events-table td.sticky-col-1{position:sticky;left:0;z-index:3;width:44px;min-width:44px;max-width:44px;background:#fff;text-align:center!important}
+.events-table th.sticky-col-2,.events-table td.sticky-col-2{position:sticky;left:44px;z-index:3;min-width:190px;background:#fff;box-shadow:8px 0 12px -12px rgba(34,31,48,.45)}
 
 /* Top Left Corner Sticky Header Intersection */
 .events-table thead th.sticky-col-1{z-index:6;top:0;left:0;background:#eef4f8}
-.events-table thead th.sticky-col-2{z-index:6;top:0;left:38px;background:#eef4f8}
+.events-table thead th.sticky-col-2{z-index:6;top:0;left:44px;background:#eef4f8}
 
 /* Pre-Event vs Post-Event Mandatory Header Color Distinction */
 .events-table thead th.pre-event-header{background:#f0f4f8;color:#2d4373;border-bottom:3px solid #3b82f6}
@@ -835,6 +839,6 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .pre-event-header .mandatory-tag{color:#2563eb}
 .post-event-header .mandatory-tag{color:#d97706}
 
-.event-cell-name{display:flex;flex-direction:column;gap:1px}
-.event-cell-date{font-size:10.5px;color:#8b8793;font-weight:600;margin-top:1px}
+.event-cell-name{display:flex;flex-direction:column;gap:2px}
+.event-cell-date{font-size:11px;color:#8b8793;font-weight:600;margin-top:1px}
 .target-info-cell{font-size:11px;color:#555260;font-weight:600}
