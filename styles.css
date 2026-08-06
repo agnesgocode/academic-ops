@@ -548,11 +548,25 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .hiring-detail-wide{grid-column:1/-1}
 .hiring-detail-footer{margin-top:16px;padding-top:14px;border-top:1px solid #eeecf4;display:flex;justify-content:flex-end}
 .hiring-delete-button{padding:9px 15px;border:1px solid #fecaca;border-radius:12px;background:#fff5f5;color:#dc2626;font:700 11px/1 'DM Sans',sans-serif;cursor:pointer;transition:all .15s ease}
-.hiring-delete-button:hover{background:#fee2e2;border-color:#fca5a5;color:#b91c1c;box-shadow:0 2px 8px rgba(220,38,38,.12)}
-.hiring-step{display:inline-flex;justify-content:center;border-radius:99px;padding:6px 9px;background:#f0eff3;color:#74717a;font-size:8px;font-weight:800;text-transform:uppercase}
-.hiring-step.ready{background:#e8f6ed;color:#27764e}
-.hiring-step.progress{background:#fff3cd;color:#946b12}
-.hiring-step.rejected{background:#fde9e6;color:#bf4d44}
+.hiring-step{display:inline-flex;justify-content:center;align-items:center;border-radius:99px;padding:5px 9px;background:#f0eff3;color:#74717a;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.hiring-step.step-approached{background:#dbeafe;color:#1e40af}
+.hiring-step.step-pre-screening{background:#cff4fc;color:#055160}
+.hiring-step.step-online-test{background:#f3e8ff;color:#6b21a8}
+.hiring-step.step-online-test-new{background:#fce7f3;color:#9d174d}
+.hiring-step.step-onsite-assessment{background:#fef3c7;color:#b45309}
+.hiring-step.step-interview{background:#ccfbf1;color:#0f766e}
+.hiring-step.step-onsite-wave-6{background:#ffedd5;color:#c2410c}
+.hiring-step.step-offering-letter{background:#e0e7ff;color:#3730a3}
+.hiring-step.step-onboarding{background:#ecfccb;color:#3f6212}
+.hiring-step.step-video-ajar{background:#ede9fe;color:#5b21b6}
+.hiring-step.step-ready-to-teach{background:#d1fae5;color:#047857}
+.hiring-step.step-onboarding-regional{background:#e0f2fe;color:#0284c7}
+.hiring-step.step-nego{background:#ffe4e6;color:#be123c}
+.hiring-step.step-approval-hq{background:#fef9c3;color:#854d0e}
+.hiring-step.step-reference-check{background:#e2e8f0;color:#334155}
+.hiring-step.step-rejected-cancelled{background:#fee2e2;color:#991b1b}
+.hiring-step.step-postponed{background:#e5e7eb;color:#374151}
+.hiring-step.step-no-info{background:#f5f5f4;color:#57534e}
 .hiring-dialog{width:min(560px,calc(100vw - 34px));border:0;border-radius:22px;padding:0;box-shadow:0 26px 70px #29254142}
 .hiring-dialog::backdrop{background:#24202f73;backdrop-filter:blur(4px)}
 .hiring-dialog form{position:relative;padding:28px}
