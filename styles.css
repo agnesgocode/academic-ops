@@ -738,7 +738,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .events-controls input[type="search"]{min-width:240px;flex:1}
 
 /* Event KPIs */
-.events-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.events-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:24px}
 .events-kpi-card{padding:18px 20px;border:1px solid #ebe9f0;border-radius:18px;background:#fff;display:flex;flex-direction:column;gap:4px}
 .events-kpi-card span{color:#8b8793;font:800 10px 'DM Sans',sans-serif;letter-spacing:.5px}
 .events-kpi-card strong{font:800 24px 'Manrope',sans-serif;color:#24222d}
