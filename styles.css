@@ -52,6 +52,16 @@
   .brand{font-size:clamp(18px,5vw,22px)!important}
   .brand small{display:inline!important;font-size:11px!important;opacity:.8}
   .brand-mark{width:34px!important;height:34px!important;font-size:19px!important}
+  /* Disable layout transitions by default to prevent refresh glitch */
+  .sidebar, main, .nav-toggle, .academic-dock {
+    transition: none !important;
+  }
+  body.is-toggling .sidebar,
+  body.is-toggling main,
+  body.is-toggling .nav-toggle,
+  body.is-toggling .academic-dock {
+    transition: transform .28s cubic-bezier(0.16,1,0.3,1), margin-left .28s ease, left .28s ease !important;
+  }
   body.nav-hidden .sidebar{
     transform:translateX(-105%)!important;
     box-shadow:none!important;
