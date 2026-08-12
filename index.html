@@ -29,6 +29,7 @@
 </div>
 <div class="nav-division marketing-nav"><strong>Marketing</strong>
 <a class="nav-link" href="#events" data-view="events"><span>🗓</span>Event</a>
+<a class="nav-link" href="#gmb" data-view="gmb"><span>📍</span>GMB</a>
 </div>
 <div class="nav-division commercial-nav"><strong>Commercial</strong>
 <a class="nav-link" href="#revenue" data-view="revenue"><span>◒</span>Revenue</a>
@@ -577,7 +578,7 @@
 </section>
 <section class="view division-home marketing-home" id="marketing">
 <div class="division-home-hero"><p class="eyebrow">MARKETING DIVISION</p><h1>Marketing <em>workspace.</em></h1><p>Monitor regional commercial momentum and continue into detailed revenue performance.</p></div>
-<div class="division-home-grid"><a href="#revenue"><span>LIVE PERFORMANCE</span><h2>Revenue Dashboard</h2><p>Targets, achievement, weekly movement, branch ranking, and agent contribution.</p><b>Open Revenue →</b></a><a href="#events"><span>MARKETING EVENTS</span><h2>Event Dashboard</h2><p>Track marketing events, registrants, attendees, vendor partnerships, and attendance rates.</p><b>Open Event →</b></a></div>
+<div class="division-home-grid"><a href="#revenue"><span>LIVE PERFORMANCE</span><h2>Revenue Dashboard</h2><p>Targets, achievement, weekly movement, branch ranking, and agent contribution.</p><b>Open Revenue →</b></a><a href="#events"><span>MARKETING EVENTS</span><h2>Event Dashboard</h2><p>Track marketing events, registrants, attendees, vendor partnerships, and attendance rates.</p><b>Open Event →</b></a><a href="#gmb"><span>GOOGLE MY BUSINESS</span><h2>GMB Dashboard</h2><p>Track Google Business Profile reviews, response rates, and milestone goals (50/75/100).</p><b>Open GMB →</b></a></div>
 </section>
 <section class="view" id="revenue">
 <div class="page-title">
@@ -742,6 +743,97 @@
 </div>
 <div class="table-wrap" id="eventsTable">
 <div class="loading">Loading marketing events…</div>
+</div>
+</section>
+</section>
+<section class="view" id="gmb">
+<div class="page-title">
+<div>
+<p class="eyebrow">MARKETING · GOOGLE MY BUSINESS</p>
+<h1>GMB <em>overview.</em></h1>
+<p>Monitor branch Google Business Profile reviews, response rates, and milestone goals across East Indonesia centers.</p>
+</div>
+<a class="outline-button" id="gmbLink" href="https://docs.google.com/spreadsheets/d/1hsyp_kMuuqTJzpTzWhQPowr_k37ee-n3OSVo6-Lh2KY/edit?gid=653268831#gid=653268831" target="_blank" rel="noreferrer">Open source ↗</a>
+</div>
+<div class="gmb-controls sqt-controls">
+<div class="filter-switch gmb-goal-filter-switch" role="group" aria-label="GMB goal filter">
+<button class="active" data-gmb-goal="all">All Branches</button>
+<button data-gmb-goal="100">Goal 100+ (🌟)</button>
+<button data-gmb-goal="75">Goal 75+ (👍)</button>
+<button data-gmb-goal="50">Goal 50+ (🎯)</button>
+<button data-gmb-goal="low">Low GMB (<50 ⚠️)</button>
+</div>
+<input id="gmbSearch" type="search" placeholder="Search branch..." aria-label="Search GMB Branch"/>
+<select id="gmbSort" aria-label="Sort GMB Branches">
+<option value="reviews-high">Reviews: high to low</option>
+<option value="reviews-low">Reviews: low to high</option>
+<option value="name">Branch: A–Z</option>
+</select>
+<button id="exportGmb" class="control-button">Export CSV</button>
+</div>
+<div class="gmb-summary sqt-summary" id="gmbSummary">
+<div class="loading">Loading GMB metrics…</div>
+</div>
+<div class="gmb-main-layout">
+<div class="gmb-table-column">
+<section class="data-shell gmb-table-shell sqt-table-shell">
+<div class="data-toolbar">
+<div>
+<strong>Branch GMB Data & Reviews</strong>
+<span id="gmbCount"></span>
+</div>
+<span class="gmb-update-schedule-badge">📅 Updated W2 & W4 monthly</span>
+</div>
+<div class="table-wrap" id="gmbTable">
+<div class="loading">Loading live GMB data…</div>
+</div>
+</section>
+</div>
+<div class="gmb-overview-column">
+<div class="gmb-overview-card">
+<div class="gmb-overview-header">
+<div class="gmb-icon-badge">📍</div>
+<div>
+<h3>GMB Overview & Definition</h3>
+<p class="gmb-sub">Google My Business (Google Business Profile)</p>
+</div>
+</div>
+<div class="gmb-info-block">
+<div class="gmb-info-item">
+<span class="gmb-info-tag">DEFINITION</span>
+<h4>What is GMB?</h4>
+<p><strong>Google My Business (GMB)</strong> — officially known as <em>Google Business Profile</em> — is Google's platform for local business listings across Google Search and Google Maps.</p>
+</div>
+<div class="gmb-info-item">
+<span class="gmb-info-tag">SHORT EXPLANATION</span>
+<h4>Why GMB Matters for Branches</h4>
+<p>GMB showcases branch locations, contact channels, parent & student ratings, and customer reviews. Actively <strong>replying to reviews</strong> boosts local search rank and parent confidence.</p>
+</div>
+<div class="gmb-info-item">
+<span class="gmb-info-tag">STRATEGIC AIM</span>
+<h4>Goals & Key Objectives</h4>
+<ul>
+<li><strong>Local Search Visibility:</strong> Capture local parent searches for English learning centers in Regional Indonesia Timur.</li>
+<li><strong>Trust & Engagement:</strong> Maintain 100% review reply rate (Reply Ulasan) to build parent trust.</li>
+<li><strong>Milestone Attainment:</strong> Drive all branches to reach key review milestones: <strong>50</strong>, <strong>75</strong>, and <strong>100+</strong> reviews.</li>
+</ul>
+</div>
+<div class="gmb-info-item update-schedule-item">
+<span class="gmb-info-tag">DATA UPDATE SCHEDULE</span>
+<h4>Update Frequency</h4>
+<p>GMB review count and response tracking data are updated every <strong>2nd and 4th week of the month (W2 & W4)</strong> from the central Marketing Tracker spreadsheet.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<section class="gmb-goals-section">
+<div class="section-heading">
+<p class="eyebrow">MILESTONE TARGETS & LOW GMB BRANCHES</p>
+<h2>GMB Branch Milestone Goals (50 / 75 / 100)</h2>
+<p>Progress tracking across 3 review milestone goals and list of qualifying branches.</p>
+</div>
+<div class="gmb-goals-grid" id="gmbGoalsGrid">
 </div>
 </section>
 </section>
