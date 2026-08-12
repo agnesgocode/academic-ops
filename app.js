@@ -614,7 +614,8 @@ function regionalRevenue(monthKey=regionalState.month){
   const activeData=revenueMonthsMap[monthKey]||revenueMonthsMap[revenueState.month]||{centers:[]};
   const rows=activeData.centers||[];
   const grouped=new Map;
-  rows.forEach(row=>{
+  rows.forEach(centerRow=>{
+    const row=revenueCenterProduct(centerRow,'all');
     const branch=canonicalBranchName(row.shortName||row.center),key=dashboardCenterGroupKey(branch),entry=grouped.get(key)||{branch,amount:0,target:0};
     entry.amount+=row.revenue||0;
     entry.target+=row.target||0;
@@ -626,7 +627,8 @@ function regionalRevenueWeek(weekIndex,monthKey=regionalState.month){
   const activeData=revenueMonthsMap[monthKey]||revenueMonthsMap[revenueState.month]||{centers:[]};
   const rows=activeData.centers||[];
   const grouped=new Map;
-  rows.forEach(row=>{
+  rows.forEach(centerRow=>{
+    const row=revenueCenterProduct(centerRow,'all');
     const item=row.weekly?.find(entry=>entry.week===weekIndex);
     if(!item)return;
     const branch=canonicalBranchName(row.shortName||row.center),key=dashboardCenterGroupKey(branch),entry=grouped.get(key)||{branch,amount:0,target:0};
