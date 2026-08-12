@@ -383,97 +383,28 @@ const adminProfilesData=[
 {id:'tami',name:'Kak Tami',role:'Administration Officer',phone:'+62 896-7806-6919',rawPhone:'6289678066919',rows:'Rows 11–20',count:10,badgeClass:'badge-tami',centers:['Polewali Mandar - Andi Depu','Toli toli - KH Wahid Hasyim','Tomohon - Matani','Bitung - Girian','Gorontalo - Nani Wartabone','Kendari - Abdullah Silondae','Kolaka - Pramuka','Makassar - Hertasning Plus','Mamuju - Sultan Hasanuddin','Manado - Wenang Selatan Plus']},
 {id:'mia',name:'Kak Mia',role:'Administration Officer',phone:'+62 823-4925-2741',rawPhone:'6282349252741',rows:'Rows 21–31',count:11,badgeClass:'badge-mia',centers:['Bone - Ahmad Yani','Bulukumba - Jend. Sudirman','Gowa - Sungguminasa','Makassar - Baruga','Makassar - Cendrawasih','Palopo - Andi Kambo','Palu - Jenderal Sudirman Plus','Pangkep - Sultan Hasanuddin','Parepare - Mattirotasi','Pinrang - Jend. Sudirman','Soppeng - Lalabata']}
 ];
-const adminCenterMappings=[
-{row:2,center:'Baubau - Batara Guru',adminId:'ayu'},
-{row:3,center:'Toraja Utara - Poros Bolu',adminId:'ayu'},
-{row:4,center:'Sorong - Pramuka',adminId:'ayu'},
-{row:5,center:'Tana Toraja - Makale',adminId:'ayu'},
-{row:6,center:'Ternate - Kapitan Pattimura Plus',adminId:'ayu'},
-{row:7,center:'Parigi Moutong - Trans Sulawesi',adminId:'ayu'},
-{row:8,center:'Makassar - Sudiang Plus',adminId:'ayu'},
-{row:9,center:'Ambon - Said Perintah',adminId:'ayu'},
-{row:10,center:'Sidrap - Jenderal Sudirman',adminId:'ayu'},
-{row:11,center:'Polewali Mandar - Andi Depu',adminId:'tami'},
-{row:12,center:'Toli toli - KH Wahid Hasyim',adminId:'tami'},
-{row:13,center:'Tomohon - Matani',adminId:'tami'},
-{row:14,center:'Bitung - Girian',adminId:'tami'},
-{row:15,center:'Gorontalo - Nani Wartabone',adminId:'tami'},
-{row:16,center:'Kendari - Abdullah Silondae',adminId:'tami'},
-{row:17,center:'Kolaka - Pramuka',adminId:'tami'},
-{row:18,center:'Makassar - Hertasning Plus',adminId:'tami'},
-{row:19,center:'Mamuju - Sultan Hasanuddin',adminId:'tami'},
-{row:20,center:'Manado - Wenang Selatan Plus',adminId:'tami'},
-{row:21,center:'Bone - Ahmad Yani',adminId:'mia'},
-{row:22,center:'Bulukumba - Jend. Sudirman',adminId:'mia'},
-{row:23,center:'Gowa - Sungguminasa',adminId:'mia'},
-{row:24,center:'Makassar - Baruga',adminId:'mia'},
-{row:25,center:'Makassar - Cendrawasih',adminId:'mia'},
-{row:26,center:'Palopo - Andi Kambo',adminId:'mia'},
-{row:27,center:'Palu - Jenderal Sudirman Plus',adminId:'mia'},
-{row:28,center:'Pangkep - Sultan Hasanuddin',adminId:'mia'},
-{row:29,center:'Parepare - Mattirotasi',adminId:'mia'},
-{row:30,center:'Pinrang - Jend. Sudirman',adminId:'mia'},
-{row:31,center:'Soppeng - Lalabata',adminId:'mia'}
-];
-let adminProfileState={filter:'all',search:''};
+let adminProfileState={filter:'all'};
 
 function setAdminFilterTab(filter){
 adminProfileState.filter=filter;
-document.querySelectorAll('.admin-tab-switch button').forEach(btn=>{
-btn.classList.toggle('active',btn.dataset.adminFilter===filter);
-});
 syncAdminProfileDock(filter);
-renderAdminCenterTable();
+renderAdminCards();
 }
 
 function renderAdminCards(){
 const root=document.getElementById('adminProfileCards');
 if(!root)return;
-root.innerHTML=adminProfilesData.map(admin=>{
+const filter=adminProfileState.filter;
+const visibleData=adminProfilesData.filter(a=>filter==='all'||a.id===filter);
+root.innerHTML=visibleData.map(admin=>{
 const initials=admin.name.split(' ').map(n=>n[0]).join('');
 const waUrl=`https://wa.me/${admin.rawPhone}?text=${encodeURIComponent(`Halo ${admin.name}, mau bertanya terkait operasional cabang...`)}`;
-return`<article class="admin-profile-card ${admin.badgeClass}"><div class="admin-card-header"><div class="admin-avatar">${esc(initials)}</div><div class="admin-identity"><h3>${esc(admin.name)}</h3><span class="admin-role">${esc(admin.role)}</span></div><span class="admin-row-tag">${esc(admin.rows)}</span></div><div class="admin-contact-info"><span class="admin-phone">📱 ${esc(admin.phone)}</span><a class="admin-wa-btn" href="${waUrl}" target="_blank" rel="noreferrer"><span>💬</span> Chat WhatsApp</a></div><div class="admin-card-stats"><span class="stat-label">Assigned Centers</span><strong class="stat-value">${admin.count} centers</strong></div><div class="admin-centers-list"><p class="centers-eyebrow">COVERED CENTERS</p><div class="center-tags">${admin.centers.map(c=>`<span class="center-tag">${esc(c)}</span>`).join('')}</div></div></article>`;
+return`<article class="admin-profile-card ${admin.badgeClass}"><div class="admin-card-header"><div class="admin-avatar">${esc(initials)}</div><div class="admin-identity"><h3>${esc(admin.name)}</h3><span class="admin-role">${esc(admin.role)}</span></div><span class="admin-row-tag">${esc(admin.rows)}</span></div><div class="admin-contact-info"><span class="admin-phone">📱 ${esc(admin.phone)}</span><a class="admin-wa-btn" href="${waUrl}" target="_blank" rel="noreferrer"><span>💬</span> Chat WhatsApp</a></div><div class="admin-card-stats"><span class="stat-label">Assigned Centers</span><strong class="stat-value">${admin.count} centers</strong></div><div class="admin-centers-list"><p class="centers-eyebrow">COVERED CENTERS (${admin.count})</p><div class="center-tags">${admin.centers.map(c=>`<span class="center-tag">${esc(c)}</span>`).join('')}</div></div></article>`;
 }).join('');
-}
-
-function renderAdminCenterTable(){
-const root=document.getElementById('adminCenterTable'),countEl=document.getElementById('adminMappingCount');
-if(!root)return;
-const query=adminProfileState.search.trim().toLowerCase(),filter=adminProfileState.filter,adminMap=new Map(adminProfilesData.map(a=>[a.id,a]));
-const filtered=adminCenterMappings.filter(item=>{
-const admin=adminMap.get(item.adminId);
-const filterMatches=filter==='all'||item.adminId===filter;
-const queryMatches=!query||item.center.toLowerCase().includes(query)||admin.name.toLowerCase().includes(query)||admin.phone.toLowerCase().includes(query)||String(item.row).includes(query);
-return filterMatches&&queryMatches;
-});
-if(countEl)countEl.textContent=`Showing ${filtered.length} of ${adminCenterMappings.length} center mappings`;
-root.innerHTML=`<table><thead><tr><th class="col-row">Sheet Row #</th><th>Center Name</th><th>Assigned Admin</th><th>Contact Number</th><th>WhatsApp Action</th></tr></thead><tbody>${filtered.map(item=>{
-const admin=adminMap.get(item.adminId);
-const waUrl=`https://wa.me/${admin.rawPhone}?text=${encodeURIComponent(`Halo ${admin.name}, mau bertanya mengenai cabang ${item.center}...`)}`;
-return`<tr><td class="col-row"><strong>Row ${item.row}</strong></td><td><strong class="center-name-text">${esc(item.center)}</strong></td><td><span class="admin-badge ${admin.badgeClass}">${esc(admin.name)}</span></td><td><span class="admin-phone-text">${esc(admin.phone)}</span></td><td><a class="admin-wa-link" href="${waUrl}" target="_blank" rel="noreferrer"><span>💬</span> Contact ${esc(admin.name.split(' ')[1]||admin.name)}</a></td></tr>`;
-}).join('')||'<tr><td colspan="5" style="text-align:center;padding:24px;color:#85828d">No centers match the search filter.</td></tr>'}</tbody></table>`;
 }
 
 function initAdminProfile(){
 renderAdminCards();
-renderAdminCenterTable();
-const searchInput=document.getElementById('adminCenterSearch');
-if(searchInput&&!searchInput.dataset.bound){
-searchInput.dataset.bound='true';
-searchInput.addEventListener('input',e=>{
-adminProfileState.search=e.target.value;
-renderAdminCenterTable();
-});
-}
-const switcher=document.querySelector('.admin-tab-switch');
-if(switcher&&!switcher.dataset.bound){
-switcher.dataset.bound='true';
-switcher.querySelectorAll('[data-admin-filter]').forEach(btn=>{
-btn.addEventListener('click',()=>{
-setAdminFilterTab(btn.dataset.adminFilter);
-});
-});
-}
 }
 
 function setView(v){const available=new Set([...document.querySelectorAll('.view')].map(view=>view.id));if(!available.has(v))v='dashboard';const divisions={dashboard:'regional','academic-dashboard':'academic',academic:'academic',operations:'academic',marketing:'marketing',revenue:'commercial',events:'marketing',gmb:'marketing','admin-profile':'administration',sessions:'administration',fulfillment:'administration',commercial:'commercial',center:'regional'};document.body.dataset.division=divisions[v]||'regional';localStorage.setItem('acops-active-view',v);preserveLiveStatus();initLayoutControls();fixDockOffset();hideGlobalSearch();document.querySelectorAll('.view').forEach(e=>e.classList.toggle('active',e.id===v));document.querySelectorAll('.nav-link').forEach(e=>e.classList.toggle('active',e.dataset.view===v));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=v==='dashboard'?'REGIONAL DASHBOARD':`${(divisions[v]||'regional').toUpperCase()} · ${v.toUpperCase()}`;if(v==='dashboard'){initRegionalPerformance();initRegionalSticky();}if(v==='academic-dashboard'){initDashboardMetrics();renderDashboardAcademicPerformance();initAcademicDashboardSticky();}if(v==='academic'){updateSqtDescription();initAcademicSticky();initObservationDetails();initSmartAppUsage();watchObservationRoles();watchAcademicDock();switchAcademicTab(localStorage.getItem('acops-academic-tab')||'sqt')}if(v==='admin-profile'){initAdminProfile();initAdminProfileSticky();}if(v==='sessions'){initSessions();initSessionsSticky();}if(v==='fulfillment'){initFulfillmentPage();initFulfillmentSticky();}if(v==='operations'){initMppNeeds();initOperationsSticky();}if(v==='revenue'){initRevenue();initRevenueSticky();}if(v==='events'){initEvents();initEventsSticky();}if(v==='gmb'){initGmb();initGmbSticky();}if(v==='center')renderLinkBoard();updateAllStickyDocks()}
