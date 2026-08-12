@@ -550,7 +550,17 @@ async function loadRevenue(){
 }
 
 function revenuePeriodRow(item){if(revenueState.week==='all')return item;const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),target=entry?.target||0,revenue=entry?.actual||0;return{...item,target,revenue,achievement:target?revenue/target*100:null,gap:revenue-target}}
-function revenueFiltered(){const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));return rows.sort((a,b)=>revenueState.sort==='high'?(b.achievement??-1)-(a.achievement??-1):revenueState.sort==='gap'?a.gap-b.gap:revenueState.sort==='name'?a.shortName.localeCompare(b.shortName):(a.achievement??-1)-(b.achievement??-1))}
+function revenueFiltered(){
+  const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));
+  return rows.sort((a,b)=>{
+    if(revenueState.sort==='high') return (b.achievement??-1)-(a.achievement??-1);
+    if(revenueState.sort==='gap') return a.gap-b.gap;
+    if(revenueState.sort==='name') return a.shortName.localeCompare(b.shortName);
+    const achA = a.achievement!==null ? a.achievement : 999;
+    const achB = b.achievement!==null ? b.achievement : 999;
+    return achA - achB;
+  });
+}
 function revenuePeriodLabel(){
   const monthData=revenueMonthsMap[revenueState.month];
   const label=monthData?.monthLabel||(revenueState.month==='2026-08'?'August 2026':'July 2026');
