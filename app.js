@@ -363,9 +363,18 @@ function parseSingleMonthBlock(cells){
     centers.push({center,shortName:shortName.trim(),captain,group,groupKey:revenueGroupKey(center),target:targetTotal,revenue:revenueTotal,achievement:targetTotal?revenueTotal/targetTotal*100:null,gap:revenueTotal-targetTotal,weekly,agents});
     index=summaryIndex;
   }
-  const tail=cells.slice(-15),targetRow=tail.find(row=>String(row[2]).trim()==='TOTAL TARGET REGION'),actualRow=tail.find(row=>String(row[2]).trim()==='TOTAL REVENUE REGION');
-  const weeklyRegional=Array.from({length:weekCount},(_,index)=>({week:index+1,target:revenueNumber(targetRow?.[index+4]),actual:revenueNumber(actualRow?.[index+4])}));
-  const regionalTotal={target:revenueNumber(targetRow?.[targetCol])||weeklyRegional.reduce((sum,w)=>sum+w.target,0),revenue:revenueNumber(actualRow?.[totalCol])||weeklyRegional.reduce((sum,w)=>sum+w.actual,0)};
+  const tail=cells.slice(-30),targetRow=tail.find(row=>/TOTAL TARGET REGION/i.test(String(row[2])+' '+String(row[1]))),actualRow=tail.find(row=>/TOTAL REVENUE REGION/i.test(String(row[2])+' '+String(row[1])));
+  const weeklyRegional=Array.from({length:weekCount},(_,index)=>{
+    const centerTargetSum=centers.reduce((sum,c)=>sum+(c.weekly?.[index]?.target||0),0);
+    const centerActualSum=centers.reduce((sum,c)=>sum+(c.weekly?.[index]?.actual||0),0);
+    const target=revenueNumber(targetRow?.[index+4])||[4,12,20].reduce((sum,start)=>sum+revenueNumber(targetRow?.[start+index]),0)||centerTargetSum;
+    const actual=revenueNumber(actualRow?.[index+4])||[4,12,20].reduce((sum,start)=>sum+revenueNumber(actualRow?.[start+index]),0)||centerActualSum;
+    return{week:index+1,target,actual}
+  });
+  const regionalTotal={
+    target:revenueNumber(targetRow?.[targetCol])||revenueNumber(targetRow?.[9])||weeklyRegional.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.target||0),0),
+    revenue:revenueNumber(actualRow?.[totalCol])||revenueNumber(actualRow?.[9])||weeklyRegional.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.revenue||0),0)
+  };
   return{monthKey,monthLabel,weekCount,weekOffset,centers,weekly:weeklyRegional,regional:regionalTotal}
 }
 function revenueParse(table){
