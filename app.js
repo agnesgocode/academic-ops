@@ -326,13 +326,56 @@ function enhanceCustomSelect(select){if(select.dataset.acopsSelect||select.match
 function initCustomSelects(){document.querySelectorAll('select:not([data-mpp-priority])').forEach(enhanceCustomSelect);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.('select:not([data-mpp-priority])'))enhanceCustomSelect(node);node.querySelectorAll?.('select:not([data-mpp-priority])').forEach(enhanceCustomSelect)}))).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>document.querySelectorAll('.acops-select-options').forEach(menu=>{menu.hidden=true}))}
 initCustomSelects()
 const revenueSource={id:'1emMFv_OzONiUupCdmzF6nBP1wAWEt02w4Fu8phDgIa4',gid:'583329138'};
-let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',group:'all',status:'all',search:'',sort:'low',week:'all'};
+let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',product:'all',group:'all',status:'all',search:'',sort:'low',week:'all'};
 function revenueNumber(value){const number=Number(String(value??'').replace(/[^0-9-]/g,''));return Number.isFinite(number)?number:0}
 function revenueMoney(value){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(value||0)}
 function revenueShort(value){return value>=1e9?`Rp${(value/1e9).toLocaleString('id-ID',{maximumFractionDigits:2})} M`:value>=1e6?`Rp${(value/1e6).toLocaleString('id-ID',{maximumFractionDigits:1})} jt`:revenueMoney(value)}
 function revenueText(value){return String(value??'').replace(/\s*\n+\s*/g,' · ').trim()}
 function revenueGroupKey(group){const value=group.toLowerCase();return value.includes('standalone')?'standalone':value.includes('wave 6')?'tagalong6':'tagalong15'}
 function revenueStatus(item){return !item.target?'nodata':item.achievement>=100?'ontrack':item.achievement>=80?'watch':'critical'}
+
+function parseProductSet(cells, isAugust, productKey, weekCount, index, summaryIndex, row, nextSummary, targetRow){
+  let starts=[4,12,20], targetCol=isAugust?9:10, totalCol=isAugust?8:9;
+  if(productKey==='eac'){
+    starts=[4]; targetCol=isAugust?9:10; totalCol=isAugust?8:9;
+  }else if(productKey==='kids'){
+    starts=[12]; targetCol=isAugust?17:18; totalCol=isAugust?16:17;
+  }else if(productKey==='cwl'){
+    starts=[20]; targetCol=isAugust?25:27; totalCol=isAugust?24:25;
+  }
+  
+  const targetTotal=productKey==='all'
+    ?(revenueNumber(row[29])||[isAugust?9:10,isAugust?17:18,isAugust?25:27].reduce((sum,c)=>sum+revenueNumber(row[c]),0))
+    :revenueNumber(row[targetCol])||Array.from({length:weekCount},(_,w)=>starts.reduce((sum,s)=>sum+revenueNumber(row[s+w]),0)).reduce((a,b)=>a+b,0);
+    
+  const revenueTotal=productKey==='all'
+    ?(revenueNumber(row[30])||[isAugust?8:9,isAugust?16:17,isAugust?24:25].reduce((sum,c)=>sum+revenueNumber(nextSummary[c]),0))
+    :revenueNumber(nextSummary[totalCol])||Array.from({length:weekCount},(_,w)=>starts.reduce((sum,s)=>sum+revenueNumber(nextSummary[s+w]),0)).reduce((a,b)=>a+b,0);
+
+  const weekly=Array.from({length:weekCount},(_,week)=>({
+    week:week+1,
+    actual:starts.reduce((sum,start)=>sum+revenueNumber(nextSummary[start+week]),0),
+    target:starts.reduce((sum,start)=>sum+revenueNumber(targetRow?.[start+week]),0)
+  }));
+
+  const agents=cells.slice(index,summaryIndex).filter(agent=>agent[2]&&!['Others','TOTAL','Target/Week EAC','% Ach/Week'].includes(String(agent[2]).trim())).map(agent=>{
+    const weeks=Array.from({length:weekCount},(_,week)=>starts.reduce((sum,start)=>sum+revenueNumber(agent[start+week]),0));
+    const total=productKey==='all'
+      ?[isAugust?8:9,isAugust?16:17,isAugust?24:25].reduce((sum,col)=>sum+revenueNumber(agent[col]),0)||weeks.reduce((a,b)=>a+b,0)
+      :revenueNumber(agent[totalCol])||weeks.reduce((a,b)=>a+b,0);
+    return{name:revenueText(agent[2]),position:revenueText(agent[3])||'—',weeks,total}
+  });
+
+  return{
+    target:targetTotal,
+    revenue:revenueTotal,
+    achievement:targetTotal?revenueTotal/targetTotal*100:null,
+    gap:revenueTotal-targetTotal,
+    weekly,
+    agents
+  }
+}
+
 function parseSingleMonthBlock(cells){
   const blockText=cells.slice(0,15).map(r=>r.join(' ')).join(' ');
   const isAugust=/Agustus/i.test(blockText);
@@ -340,43 +383,81 @@ function parseSingleMonthBlock(cells){
   const monthLabel=isAugust?'August 2026':'July 2026';
   const weekCount=isAugust?4:5;
   const weekOffset=isAugust?31:26;
-  const totalCol=isAugust?8:9;
-  const targetCol=isAugust?9:10;
   const centers=[];
-  let group='';
+  
   for(let index=0;index<cells.length-4;index++){
     const row=cells[index];
+    let group='';
     if(row[0]&&/STANDALONE|TAGALONG/i.test(row[0]))group=revenueText(row[0]);
     if(!row[1])continue;
     const summaryIndex=cells.findIndex((candidate,candidateIndex)=>candidateIndex>index&&String(candidate[2]).trim()==='TOTAL');
     if(summaryIndex<0)continue;
     const nextSummary=cells[summaryIndex],targetRow=cells.slice(summaryIndex+1,summaryIndex+4).find(candidate=>String(candidate[2]).trim()==='Target/Week EAC');
-    const targetTotal=revenueNumber(row[29])||revenueNumber(row[targetCol])||Array.from({length:weekCount},(_,w)=>revenueNumber(row[4+w])).reduce((sum,v)=>sum+v,0);
-    const revenueTotal=revenueNumber(row[30])||revenueNumber(nextSummary[totalCol])||Array.from({length:weekCount},(_,w)=>revenueNumber(nextSummary[4+w])).reduce((sum,v)=>sum+v,0);
+    
     const center=revenueText(row[1]),parts=String(row[1]).split(/\n+/).map(part=>part.trim()).filter(Boolean),captain=parts.find(part=>/^Capt\./i.test(part))?.replace(/^Capt\.\s*/i,'')||'',shortName=parts.find(part=>!/^\d+$/.test(part)&&!/^Capt\./i.test(part)&&!/Standalone|Tagalong/i.test(part))||parts[0];
-    const weekly=Array.from({length:weekCount},(_,week)=>({week:week+1,actual:[4,12,20].reduce((sum,start)=>sum+revenueNumber(nextSummary[start+week]),0)||revenueNumber(nextSummary[4+week]),target:[4,12,20].reduce((sum,start)=>sum+revenueNumber(targetRow?.[start+week]),0)||revenueNumber(targetRow?.[4+week])}));
-    const agents=cells.slice(index,summaryIndex).filter(agent=>agent[2]&&!['Others','TOTAL','Target/Week EAC','% Ach/Week'].includes(String(agent[2]).trim())).map(agent=>{
-      const weeks=Array.from({length:weekCount},(_,week)=>[4,12,20].reduce((sum,start)=>sum+revenueNumber(agent[start+week]),0)||revenueNumber(agent[4+week]));
-      const total=revenueNumber(agent[totalCol])||[9,17,25].reduce((sum,column)=>sum+revenueNumber(agent[column]),0)||weeks.reduce((sum,v)=>sum+v,0);
-      return{name:revenueText(agent[2]),position:revenueText(agent[3])||'—',weeks,total}
-    });
-    centers.push({center,shortName:shortName.trim(),captain,group,groupKey:revenueGroupKey(center),target:targetTotal,revenue:revenueTotal,achievement:targetTotal?revenueTotal/targetTotal*100:null,gap:revenueTotal-targetTotal,weekly,agents});
+
+    const products={
+      all:parseProductSet(cells,isAugust,'all',weekCount,index,summaryIndex,row,nextSummary,targetRow),
+      eac:parseProductSet(cells,isAugust,'eac',weekCount,index,summaryIndex,row,nextSummary,targetRow),
+      kids:parseProductSet(cells,isAugust,'kids',weekCount,index,summaryIndex,row,nextSummary,targetRow),
+      cwl:parseProductSet(cells,isAugust,'cwl',weekCount,index,summaryIndex,row,nextSummary,targetRow)
+    };
+
+    centers.push({center,shortName:shortName.trim(),captain,group,groupKey:revenueGroupKey(center),products});
     index=summaryIndex;
   }
+
   const tail=cells.slice(-30),targetRow=tail.find(row=>/TOTAL TARGET REGION/i.test(String(row[2])+' '+String(row[1]))),actualRow=tail.find(row=>/TOTAL REVENUE REGION/i.test(String(row[2])+' '+String(row[1])));
-  const weeklyRegional=Array.from({length:weekCount},(_,index)=>{
-    const centerTargetSum=centers.reduce((sum,c)=>sum+(c.weekly?.[index]?.target||0),0);
-    const centerActualSum=centers.reduce((sum,c)=>sum+(c.weekly?.[index]?.actual||0),0);
-    const target=revenueNumber(targetRow?.[index+4])||[4,12,20].reduce((sum,start)=>sum+revenueNumber(targetRow?.[start+index]),0)||centerTargetSum;
-    const actual=revenueNumber(actualRow?.[index+4])||[4,12,20].reduce((sum,start)=>sum+revenueNumber(actualRow?.[start+index]),0)||centerActualSum;
-    return{week:index+1,target,actual}
-  });
-  const regionalTotal={
-    target:revenueNumber(targetRow?.[targetCol])||revenueNumber(targetRow?.[9])||weeklyRegional.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.target||0),0),
-    revenue:revenueNumber(actualRow?.[totalCol])||revenueNumber(actualRow?.[9])||weeklyRegional.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.revenue||0),0)
+
+  const buildRegionalProduct=(productKey)=>{
+    let starts=[4,12,20], targetCol=isAugust?9:10, totalCol=isAugust?8:9;
+    if(productKey==='eac'){ starts=[4]; targetCol=isAugust?9:10; totalCol=isAugust?8:9; }
+    else if(productKey==='kids'){ starts=[12]; targetCol=isAugust?17:18; totalCol=isAugust?16:17; }
+    else if(productKey==='cwl'){ starts=[20]; targetCol=isAugust?25:27; totalCol=isAugust?24:25; }
+
+    const weekly=Array.from({length:weekCount},(_,wIndex)=>{
+      const centerTargetSum=centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.weekly?.[wIndex]?.target||0),0);
+      const centerActualSum=centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.weekly?.[wIndex]?.actual||0),0);
+      const target=starts.reduce((sum,start)=>sum+revenueNumber(targetRow?.[start+wIndex]),0)||centerTargetSum;
+      const actual=starts.reduce((sum,start)=>sum+revenueNumber(actualRow?.[start+wIndex]),0)||centerActualSum;
+      return{week:wIndex+1,target,actual}
+    });
+
+    const regional={
+      target:productKey==='all'
+        ?(revenueNumber(targetRow?.[targetCol])||weekly.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.target||0),0))
+        :revenueNumber(targetRow?.[targetCol])||weekly.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.target||0),0),
+      revenue:productKey==='all'
+        ?(revenueNumber(actualRow?.[totalCol])||weekly.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.revenue||0),0))
+        :revenueNumber(actualRow?.[totalCol])||weekly.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.revenue||0),0)
+    };
+
+    return{weekly,regional}
   };
-  return{monthKey,monthLabel,weekCount,weekOffset,centers,weekly:weeklyRegional,regional:regionalTotal}
+
+  const regionalProducts={
+    all:buildRegionalProduct('all'),
+    eac:buildRegionalProduct('eac'),
+    kids:buildRegionalProduct('kids'),
+    cwl:buildRegionalProduct('cwl')
+  };
+
+  return{monthKey,monthLabel,weekCount,weekOffset,centers,regionalProducts}
 }
+
+function revenueCenterProduct(center,productKey=revenueState.product){
+  const productData=center.products?.[productKey||'all']||center.products?.all||{};
+  return{
+    center:center.center,
+    shortName:center.shortName,
+    captain:center.captain,
+    group:center.group,
+    groupKey:center.groupKey,
+    products:center.products,
+    ...productData
+  }
+}
+
 function revenueParse(table){
   const cells=table.rows.map(row=>Array.from({length:52},(_,index)=>row.c?.[index]?.f??row.c?.[index]?.v??''));
   const monthBlocks=[];
@@ -402,6 +483,7 @@ function revenueParse(table){
   switchRevenueMonth(activeKey||'2026-08');
   return revenueRows
 }
+
 function updateRevenueWeekSelect(monthData){
   const select=document.getElementById('revenueWeek');
   if(!select)return;
@@ -417,23 +499,40 @@ function updateRevenueWeekSelect(monthData){
   select.value=revenueState.week;
   renderCustomSelect(select);
 }
+
 function switchRevenueMonth(monthKey){
   revenueState.month=revenueMonthsMap[monthKey]?monthKey:Object.keys(revenueMonthsMap)[0]||'2026-08';
-  const monthData=revenueMonthsMap[revenueState.month]||{centers:[],weekly:[],regional:{target:0,revenue:0},weekCount:4,weekOffset:31,monthLabel:'August 2026'};
-  revenueRows=monthData.centers;
-  revenueWeekly=monthData.weekly;
-  revenueRegional=monthData.regional;
+  const monthData=revenueMonthsMap[revenueState.month]||{centers:[],regionalProducts:{all:{weekly:[],regional:{target:0,revenue:0}}},weekCount:4,weekOffset:31,monthLabel:'August 2026'};
+  const productKey=revenueState.product||'all';
+  revenueRows=(monthData.centers||[]).map(c=>revenueCenterProduct(c,productKey));
+  revenueWeekly=monthData.regionalProducts?.[productKey]?.weekly||[];
+  revenueRegional=monthData.regionalProducts?.[productKey]?.regional||{target:0,revenue:0};
   updateRevenueWeekSelect(monthData);
   const monthSelect=document.getElementById('revenueMonth');
   if(monthSelect){monthSelect.value=revenueState.month;renderCustomSelect(monthSelect)}
+  const productSelect=document.getElementById('revenueProduct');
+  if(productSelect){productSelect.value=revenueState.product;renderCustomSelect(productSelect)}
   fillRevenueBranches();
   if(revenueLoaded){renderRevenue();renderRevenueBranch()}
 }
+
+function applyRevenueProductFilter(){
+  const monthData=revenueMonthsMap[revenueState.month];
+  if(!monthData)return;
+  const productKey=revenueState.product||'all';
+  revenueRows=(monthData.centers||[]).map(c=>revenueCenterProduct(c,productKey));
+  revenueWeekly=monthData.regionalProducts?.[productKey]?.weekly||[];
+  revenueRegional=monthData.regionalProducts?.[productKey]?.regional||{target:0,revenue:0};
+  fillRevenueBranches();
+  if(revenueLoaded){renderRevenue();renderRevenueBranch()}
+}
+
 async function loadRevenue(){
   const response=await fetch(`https://docs.google.com/spreadsheets/d/${revenueSource.id}/gviz/tq?tqx=out:json&gid=${revenueSource.gid}&range=A460:AZ950`);
   if(!response.ok)throw Error('Revenue source unavailable');
   return revenueParse(parseGViz(await response.text()))
 }
+
 function revenuePeriodRow(item){if(revenueState.week==='all')return item;const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),target=entry?.target||0,revenue=entry?.actual||0;return{...item,target,revenue,achievement:target?revenue/target*100:null,gap:revenue-target}}
 function revenueFiltered(){const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));return rows.sort((a,b)=>revenueState.sort==='high'?(b.achievement??-1)-(a.achievement??-1):revenueState.sort==='gap'?a.gap-b.gap:revenueState.sort==='name'?a.shortName.localeCompare(b.shortName):(a.achievement??-1)-(b.achievement??-1))}
 function revenuePeriodLabel(){
@@ -459,6 +558,7 @@ function initRevenueControls(){
   if(document.body.dataset.revenueBound)return;
   document.body.dataset.revenueBound='true';
   document.getElementById('revenueMonth')?.addEventListener('change',event=>{switchRevenueMonth(event.target.value)});
+  document.getElementById('revenueProduct')?.addEventListener('change',event=>{revenueState.product=event.target.value;applyRevenueProductFilter()});
   [['revenueWeek','week'],['revenueGroup','group'],['revenueStatus','status'],['revenueSort','sort']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('change',event=>{revenueState[key]=event.target.value;renderRevenue()}));
   document.getElementById('revenueSearch')?.addEventListener('input',event=>{revenueState.search=event.target.value;renderRevenue()});
   document.querySelectorAll('[data-revenue-tab]').forEach(button=>button.addEventListener('click',()=>setRevenueTab(button.dataset.revenueTab)));
