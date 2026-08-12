@@ -22,6 +22,8 @@
 <a class="nav-link" href="#operations" data-view="operations"><span>▤</span>Operations</a>
 </div>
 <div class="nav-division administration-nav"><strong>Administration</strong>
+<a class="nav-link" href="#admin-profile" data-view="admin-profile">
+<span>👤</span>Admin Profile</a>
 <a class="nav-link" href="#sessions" data-view="sessions">
 <span>◫</span>Sessions</a>
 <a class="nav-link" href="#fulfillment" data-view="fulfillment">
@@ -147,6 +149,41 @@
 <div id="sqtAnalysis">
 </div>
 </section>
+</section>
+<section class="view" id="admin-profile">
+<div class="page-title">
+<div>
+<p class="eyebrow">ADMINISTRATION · ADMIN PROFILES</p>
+<h1>Admin <em>Profiles & Center Assignments</em></h1>
+<p>Overview of regional administration officers, contact numbers, and center coverage.</p>
+</div>
+</div>
+<div class="admin-profile-summary">
+<div><span>Total Admins</span><strong>3</strong></div>
+<div><span>Managed Centers</span><strong>30</strong></div>
+<div><span>Regional Coverage</span><strong>100%</strong></div>
+</div>
+<div class="admin-profile-grid" id="adminProfileCards">
+</div>
+<div class="admin-table-header">
+<div class="admin-table-title">
+<h2>Center Mapping Directory</h2>
+<p id="adminMappingCount">Showing 30 centers across 3 admins</p>
+</div>
+<div class="admin-table-controls">
+<div class="filter-switch admin-tab-switch" role="group" aria-label="Filter centers by admin">
+<button class="active" data-admin-filter="all">All Admins (30)</button>
+<button data-admin-filter="ayu">Kak Ayu (9)</button>
+<button data-admin-filter="tami">Kak Tami (10)</button>
+<button data-admin-filter="mia">Kak Mia (11)</button>
+</div>
+<input id="adminCenterSearch" type="search" placeholder="Search center name, admin, phone..." aria-label="Search centers or admins"/>
+</div>
+</div>
+<div class="data-shell admin-table-shell">
+<div class="table-wrap" id="adminCenterTable">
+</div>
+</div>
 </section>
 <section class="view" id="sessions">
 <div class="page-title">

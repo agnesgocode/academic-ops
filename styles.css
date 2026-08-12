@@ -949,3 +949,64 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .gmb-map-link{display:inline-flex;align-items:center;gap:4px;color:#2563eb;text-decoration:none;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;background:#eff6ff}
 .gmb-map-link:hover{background:#dbeafe;text-decoration:underline}
 
+/* Admin Profile Workspace Styles */
+.admin-profile-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.admin-profile-summary>div{background:#fff;border-radius:18px;padding:20px 22px;border:1px solid #eeedf4;box-shadow:0 4px 14px rgba(35,31,70,.03)}
+.admin-profile-summary span{display:block;color:#85828d;font-size:11px;margin-bottom:6px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.admin-profile-summary strong{font:800 24px Manrope,sans-serif;color:#287fb3}
+
+.admin-profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:30px}
+.admin-profile-card{position:relative;background:#fff;border-radius:22px;border:1px solid #e7e6ee;padding:24px;box-shadow:0 8px 22px rgba(36,31,70,.05);transition:transform .2s ease,box-shadow .2s ease;overflow:hidden}
+.admin-profile-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(36,31,70,.09)}
+.admin-profile-card::before{content:"";position:absolute;top:0;left:0;right:0;height:6px}
+.admin-profile-card.badge-ayu::before{background:linear-gradient(90deg,#028090,#00a896)}
+.admin-profile-card.badge-tami::before{background:linear-gradient(90deg,#f77f00,#e76f51)}
+.admin-profile-card.badge-mia::before{background:linear-gradient(90deg,#d81b60,#c2185b)}
+
+.admin-card-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.admin-avatar{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font:800 16px Manrope,sans-serif}
+.badge-ayu .admin-avatar{background:#e4f5f8;color:#028090}
+.badge-tami .admin-avatar{background:#fff3ec;color:#e76f51}
+.badge-mia .admin-avatar{background:#fce4ec;color:#d81b60}
+
+.admin-identity{flex:1}
+.admin-identity h3{margin:0;font:800 19px Manrope,sans-serif;color:#24222d}
+.admin-role{font-size:11px;color:#85828d;font-weight:600}
+.admin-row-tag{font:800 10px 'DM Sans',sans-serif;padding:4px 9px;border-radius:99px;background:#f1f0f7;color:#625f6e;white-space:nowrap}
+
+.admin-contact-info{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#f8f8fb;border-radius:14px;margin-bottom:16px}
+.admin-phone{font:700 12px 'DM Sans',sans-serif;color:#33303c}
+.admin-wa-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:10px;background:#25d366;color:#fff;font:700 11px 'DM Sans',sans-serif;text-decoration:none;transition:background .15s ease}
+.admin-wa-btn:hover{background:#1eb856}
+
+.admin-card-stats{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:1px solid #efeef5;border-bottom:1px solid #efeef5;margin-bottom:16px}
+.stat-label{font-size:11px;color:#85828d;font-weight:600}
+.stat-value{font:800 15px Manrope,sans-serif;color:#287fb3}
+
+.admin-centers-list .centers-eyebrow{margin:0 0 8px;font:800 9px 'DM Sans',sans-serif;color:#9d99a7;letter-spacing:1px}
+.center-tags{display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto;padding-right:4px}
+.center-tag{font-size:11px;font-weight:600;padding:5px 9px;border-radius:8px;background:#f2f1f8;color:#403d4a}
+
+.admin-table-header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:14px}
+.admin-table-title h2{margin:0 0 4px;font:800 20px Manrope,sans-serif;color:#24222d}
+.admin-table-title p{margin:0;color:#85828d;font-size:12px}
+
+.admin-table-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.admin-table-controls input[type="search"]{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 14px;color:var(--ink);font:600 12px 'DM Sans',sans-serif;min-width:260px;outline:none}
+.admin-table-controls input[type="search"]:focus{border-color:#287fb3;box-shadow:0 0 0 3px rgba(40,127,179,.15)}
+
+.admin-table-shell table{width:100%}
+.admin-table-shell th.col-row,.admin-table-shell td.col-row{width:110px;text-align:center}
+.admin-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font:800 11px 'DM Sans',sans-serif}
+.admin-badge.badge-ayu{background:#e4f5f8;color:#028090}
+.admin-badge.badge-tami{background:#fff3ec;color:#e76f51}
+.admin-badge.badge-mia{background:#fce4ec;color:#d81b60}
+
+.center-name-text{font-family:'Manrope',sans-serif;font-weight:700;color:#24222d}
+.admin-phone-text{font:600 12px 'DM Sans',sans-serif;color:#5d5968}
+
+.admin-wa-link{display:inline-flex;align-items:center;gap:4px;color:#1eb856;text-decoration:none;font-weight:700;font-size:11px;padding:5px 10px;border-radius:8px;background:#eafbf0;transition:background .15s ease}
+.admin-wa-link:hover{background:#d4f7de}
+
+@media(max-width:1050px){.admin-profile-grid{grid-template-columns:1fr}.admin-profile-summary{grid-template-columns:1fr}.admin-table-header{flex-direction:column;align-items:flex-start}}
+
