@@ -344,19 +344,36 @@ function parseProductSet(cells, isAugust, productKey, weekCount, index, summaryI
     starts=[20]; targetCol=isAugust?25:27; totalCol=isAugust?24:25;
   }
   
-  const targetTotal=productKey==='all'
-    ?(revenueNumber(row[29])||[isAugust?9:10,isAugust?17:18,isAugust?25:27].reduce((sum,c)=>sum+revenueNumber(row[c]),0))
-    :revenueNumber(row[targetCol])||Array.from({length:weekCount},(_,w)=>starts.reduce((sum,s)=>sum+revenueNumber(row[s+w]),0)).reduce((a,b)=>a+b,0);
+  let targetTotal=0;
+  if(productKey==='all'){
+    targetTotal=revenueNumber(row[30])||revenueNumber(row[29])||(
+      (isAugust?revenueNumber(row[9]):revenueNumber(row[10]))+
+      (isAugust?revenueNumber(row[17]):revenueNumber(row[18]))+
+      (isAugust?revenueNumber(row[25]):revenueNumber(row[27]))
+    );
+  }else{
+    targetTotal=revenueNumber(row[targetCol])||Array.from({length:weekCount},(_,w)=>starts.reduce((sum,s)=>sum+revenueNumber(row[s+w]),0)).reduce((a,b)=>a+b,0);
+  }
     
-  const revenueTotal=productKey==='all'
-    ?(revenueNumber(row[30])||[isAugust?8:9,isAugust?16:17,isAugust?24:25].reduce((sum,c)=>sum+revenueNumber(nextSummary[c]),0))
-    :revenueNumber(nextSummary[totalCol])||Array.from({length:weekCount},(_,w)=>starts.reduce((sum,s)=>sum+revenueNumber(nextSummary[s+w]),0)).reduce((a,b)=>a+b,0);
+  let revenueTotal=0;
+  if(productKey==='all'){
+    revenueTotal=revenueNumber(row[31])||revenueNumber(row[30])||revenueNumber(nextSummary[30])||(
+      (isAugust?revenueNumber(nextSummary[8]):revenueNumber(nextSummary[9]))+
+      (isAugust?revenueNumber(nextSummary[16]):revenueNumber(nextSummary[17]))+
+      (isAugust?revenueNumber(nextSummary[24]):revenueNumber(nextSummary[25]))
+    );
+  }else{
+    revenueTotal=revenueNumber(nextSummary[totalCol])||Array.from({length:weekCount},(_,w)=>starts.reduce((sum,s)=>sum+revenueNumber(nextSummary[s+w]),0)).reduce((a,b)=>a+b,0);
+  }
 
-  const weekly=Array.from({length:weekCount},(_,week)=>({
-    week:week+1,
-    actual:starts.reduce((sum,start)=>sum+revenueNumber(nextSummary[start+week]),0),
-    target:starts.reduce((sum,start)=>sum+revenueNumber(targetRow?.[start+week]),0)
-  }));
+  const weekly=Array.from({length:weekCount},(_,week)=>{
+    const actual=starts.reduce((sum,start)=>sum+revenueNumber(nextSummary[start+week]),0);
+    let target=starts.reduce((sum,start)=>sum+revenueNumber(targetRow?.[start+week]),0);
+    if(!target&&targetTotal){
+      target=targetTotal/weekCount;
+    }
+    return{week:week+1,actual,target}
+  });
 
   const agents=cells.slice(index,summaryIndex).filter(agent=>agent[2]&&!['Others','TOTAL','Target/Week EAC','% Ach/Week'].includes(String(agent[2]).trim())).map(agent=>{
     const weeks=Array.from({length:weekCount},(_,week)=>starts.reduce((sum,start)=>sum+revenueNumber(agent[start+week]),0));
@@ -423,16 +440,15 @@ function parseSingleMonthBlock(cells){
       return{week:wIndex+1,target,actual}
     });
 
-    const regional={
-      target:productKey==='all'
-        ?(revenueNumber(targetRow?.[targetCol])||weekly.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.target||0),0))
-        :revenueNumber(targetRow?.[targetCol])||weekly.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.target||0),0),
-      revenue:productKey==='all'
-        ?(revenueNumber(actualRow?.[totalCol])||weekly.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.revenue||0),0))
-        :revenueNumber(actualRow?.[totalCol])||weekly.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.revenue||0),0)
-    };
+    const regionalTarget=productKey==='all'
+      ?(revenueNumber(targetRow?.[30])||revenueNumber(targetRow?.[29])||weekly.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.products?.all?.target||0),0))
+      :(revenueNumber(targetRow?.[targetCol])||weekly.reduce((sum,w)=>sum+w.target,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.target||0),0));
 
-    return{weekly,regional}
+    const regionalRevenueVal=productKey==='all'
+      ?(revenueNumber(actualRow?.[31])||revenueNumber(actualRow?.[30])||weekly.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.products?.all?.revenue||0),0))
+      :(revenueNumber(actualRow?.[totalCol])||weekly.reduce((sum,w)=>sum+w.actual,0)||centers.reduce((sum,c)=>sum+(c.products?.[productKey]?.revenue||0),0));
+
+    return{weekly,regional:{target:regionalTarget,revenue:regionalRevenueVal}}
   };
 
   const regionalProducts={
@@ -544,7 +560,7 @@ function revenuePeriodLabel(){
 function renderRevenueKpis(rows){const regional=revenueState.group==='all'&&revenueState.status==='all'&&!revenueState.search,weekly=revenueState.week==='all'?null:revenueWeekly.find(item=>item.week===Number(revenueState.week)),target=regional?(weekly?.target??revenueRegional.target):rows.reduce((sum,item)=>sum+item.target,0),actual=regional?(weekly?.actual??revenueRegional.revenue):rows.reduce((sum,item)=>sum+item.revenue,0),achievement=target?actual/target*100:0,gap=actual-target,tracked=rows.filter(item=>item.target).length,period=revenuePeriodLabel();document.getElementById('revenueKpis').innerHTML=`<article><span>Revenue</span><strong>${revenueShort(actual)}</strong><small>${regional?`${period} regional total`:`Across ${rows.length} visible centers`}</small></article><article><span>Target</span><strong>${revenueShort(target)}</strong><small>${regional?`${period} regional target`:`${tracked} centers with targets`}</small></article><article class="${achievement>=100?'good':achievement>=80?'watch':'critical'}"><span>Achievement</span><strong>${achievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%</strong><small>${achievement>=100?'Target achieved':achievement>=80?'Close to target':'Needs intervention'}</small></article><article class="${gap>=0?'good':'critical'}"><span>Gap to target</span><strong>${gap>=0?'+':''}${revenueShort(gap)}</strong><small>${gap>=0?'Above target':'Remaining revenue needed'}</small></article>`}
 function renderRevenueWeekly(){const max=Math.max(...revenueWeekly.flatMap(item=>[item.target,item.actual]),1);const monthHeader=revenueMonthsMap[revenueState.month]?.monthLabel?.toUpperCase()||'AUGUST 2026';document.getElementById('revenueWeekly').innerHTML=`<div class="revenue-section-head"><div><p class="eyebrow">${monthHeader}</p><h2>Weekly performance</h2></div><span>${revenueState.week==='all'?'Actual vs target':`${revenuePeriodLabel()} selected`}</span></div><div class="revenue-week-grid">${revenueWeekly.map(item=>{const achievement=item.target?item.actual/item.target*100:0,selected=revenueState.week==='all'||Number(revenueState.week)===item.week;return `<article class="${selected?'selected':'muted'}"><div><strong>W${item.week}</strong><span class="${achievement>=100?'good':achievement>=80?'watch':'critical'}">${achievement.toLocaleString('id-ID',{maximumFractionDigits:0})}%</span></div><div class="revenue-bars"><i style="height:${Math.max(4,item.target/max*100)}%" title="Target ${revenueMoney(item.target)}"></i><b style="height:${Math.max(4,item.actual/max*100)}%" title="Revenue ${revenueMoney(item.actual)}"></b></div><small>${revenueShort(item.actual)}</small></article>`}).join('')}</div><div class="revenue-legend"><span><i></i>Target</span><span><b></b>Revenue</span></div>`}
 function renderRevenueTable(rows){document.getElementById('revenueCount').textContent=`${rows.length} centers`;document.getElementById('revenueTable').innerHTML=rows.length?`<table><thead><tr><th>Center</th><th>Group</th><th>Target</th><th>Revenue</th><th>Achievement</th><th>Gap</th></tr></thead><tbody>${rows.map(item=>{const status=revenueStatus(item);return `<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small></td><td><span class="revenue-group">${item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5'}</span></td><td>${item.target?revenueShort(item.target):'—'}</td><td><strong>${revenueShort(item.revenue)}</strong></td><td><span class="revenue-achievement ${status}">${item.achievement===null?'No target':`${item.achievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%`}</span></td><td class="${item.gap>=0?'positive':'negative'}">${item.target?`${item.gap>=0?'+':''}${revenueShort(item.gap)}`:'—'}</td></tr>`}).join('')}</tbody></table>`:'<div class="empty-state"><strong>No centers match these filters.</strong><p>Try another group, status, or search term.</p></div>'}
-function renderRevenueAttention(rows){const tracked=rows.filter(item=>item.target),critical=[...tracked].filter(item=>item.achievement<80).sort((a,b)=>a.achievement-b.achievement),zero=tracked.filter(item=>item.revenue===0),largest=[...tracked].sort((a,b)=>a.gap-b.gap).slice(0,5);document.getElementById('revenueAttention').innerHTML=`<p class="eyebrow">ACTION LIST</p><h2>Needs attention</h2><div class="revenue-attention-stats"><article><strong>${critical.length}</strong><span>Below 80%</span></article><article><strong>${zero.length}</strong><span>Zero revenue</span></article></div><h3>Largest gaps</h3><div class="revenue-gap-list">${largest.map(item=>`<article><div><strong>${esc(item.shortName)}</strong><small>${(item.achievement??0).toLocaleString('id-ID',{maximumFractionDigits:1})}% achieved</small></div><b>${revenueShort(Math.abs(item.gap))}</b></article>`).join('')||'<p>Nothing needs attention in this view.</p>'}</div><p class="revenue-note">Calculated from the center totals in the source sheet. Vacancies and agent-level details remain available in Google Sheets.</p>`}
+function renderRevenueAttention(rows){const tracked=rows.filter(item=>item.target),critical=[...tracked].filter(item=>item.achievement<80).sort((a,b)=>a.achievement-b.achievement),zero=tracked.filter(item=>item.revenue===0),largest=[...tracked].filter(item=>item.gap<0).sort((a,b)=>a.gap-b.gap).slice(0,5);document.getElementById('revenueAttention').innerHTML=`<p class="eyebrow">ACTION LIST</p><h2>Needs attention</h2><div class="revenue-attention-stats"><article><strong>${critical.length}</strong><span>Below 80%</span></article><article><strong>${zero.length}</strong><span>Zero revenue</span></article></div><h3>Largest gaps</h3><div class="revenue-gap-list">${largest.map(item=>`<article><div><strong>${esc(item.shortName)}</strong><small>${(item.achievement??0).toLocaleString('id-ID',{maximumFractionDigits:1})}% achieved</small></div><b>${revenueShort(Math.abs(item.gap))}</b></article>`).join('')||'<p class="revenue-empty-attention">All visible centers are on track (no revenue gap).</p>'}</div><p class="revenue-note">Calculated from the center totals in the source sheet. Vacancies and agent-level details remain available in Google Sheets.</p>`}
 function renderRevenue(){const rows=revenueFiltered();renderRevenueKpis(rows);renderRevenueWeekly();renderRevenueTable(rows);renderRevenueAttention(rows)}
 function revenueBranch(){return revenueRows.find(item=>item.center===revenueState.branch)||revenueRows[0]}
 function fillRevenueBranches(){const select=document.getElementById('revenueBranchSelect'),rows=[...revenueRows].sort((a,b)=>a.shortName.localeCompare(b.shortName));select.innerHTML=rows.map(item=>`<option value="${esc(item.center)}">${esc(item.shortName)}</option>`).join('');if(!revenueState.branch&&rows[0])revenueState.branch=rows[0].center;select.value=revenueState.branch;renderCustomSelect(select)}
