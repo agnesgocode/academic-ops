@@ -332,14 +332,9 @@ function revenueNumber(value){
   const str=String(value??'').trim();
   if(!str)return 0;
   const cleaned=str.replace(/[RprP\s]/g,'');
-  if(cleaned.includes(',')&&cleaned.includes('.')){
-    const num=Number(cleaned.replace(/\./g,'').replace(',','.'));
-    return Number.isFinite(num)?num:0;
-  }
-  const num=Number(cleaned.replace(/[^0-9.-]/g,''));
-  if(Number.isFinite(num))return num;
-  const digitsOnly=Number(cleaned.replace(/[^0-9-]/g,''));
-  return Number.isFinite(digitsOnly)?digitsOnly:0;
+  const normalized=cleaned.replace(/\./g,'').replace(',', me=>'.');
+  const num=Number(normalized.replace(/[^0-9.-]/g,''));
+  return Number.isFinite(num)?num:0;
 }
 function revenueMoney(value){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(value||0)}
 function revenueShort(value){return value>=1e9?`Rp${(value/1e9).toLocaleString('id-ID',{maximumFractionDigits:2})} M`:value>=1e6?`Rp${(value/1e6).toLocaleString('id-ID',{maximumFractionDigits:1})} jt`:revenueMoney(value)}
@@ -476,18 +471,17 @@ function revenueCenterProduct(center,productKey=revenueState.product){
 
 function revenueParse(table){
   const cells=table.rows.map(row=>Array.from({length:52},(_,index)=>row.c?.[index]?.v??row.c?.[index]?.f??''));
-  const monthBlocks=[];
-  let currentBlock=[];
-  for(let i=0;i<cells.length;i++){
-    const row=cells[i];
-    const text=row.slice(0,5).join(' ');
-    if(i>20&&/Agustus|Juli/i.test(text)&&currentBlock.length>50){
-      monthBlocks.push(currentBlock);
-      currentBlock=[];
-    }
-    currentBlock.push(row);
+  const augustSplitIndex=cells.findIndex((row,idx)=>idx>500&&(
+    row.slice(0,5).some(cell=>/Agustus/i.test(String(cell)))||
+    row.slice(0,5).some(cell=>typeof cell==='number'&&cell>46200&&cell<46300)||
+    (String(row[0]).trim()==='Center'&&String(row[2]).trim()==='Agents Name')
+  ));
+  let monthBlocks=[];
+  if(augustSplitIndex>0){
+    monthBlocks=[cells.slice(0,augustSplitIndex),cells.slice(augustSplitIndex)];
+  }else{
+    monthBlocks=[cells];
   }
-  if(currentBlock.length)monthBlocks.push(currentBlock);
   revenueMonthsMap={};
   monthBlocks.forEach(block=>{
     const parsed=parseSingleMonthBlock(block);
@@ -544,7 +538,7 @@ function applyRevenueProductFilter(){
 }
 
 async function loadRevenue(){
-  const response=await fetch(`https://docs.google.com/spreadsheets/d/${revenueSource.id}/gviz/tq?tqx=out:json&gid=${revenueSource.gid}&range=A460:AZ950`);
+  const response=await fetch(`https://docs.google.com/spreadsheets/d/${revenueSource.id}/gviz/tq?tqx=out:json&gid=${revenueSource.gid}&range=A1:AZ1000`);
   if(!response.ok)throw Error('Revenue source unavailable');
   return revenueParse(parseGViz(await response.text()))
 }
@@ -633,7 +627,7 @@ function regionalRevenueWeek(weekIndex,monthKey=regionalState.month){
     if(!item)return;
     const branch=canonicalBranchName(row.shortName||row.center),key=dashboardCenterGroupKey(branch),entry=grouped.get(key)||{branch,amount:0,target:0};
     entry.amount+=item.actual||0;
-    entry.target+=item.target||0;
+    entry.target+=row.target||0;
     grouped.set(key,entry)
   });
   return new Map([...grouped].map(([key,item])=>[key,{...item,value:item.target?item.amount/item.target*100:null}]))
