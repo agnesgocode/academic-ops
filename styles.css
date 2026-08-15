@@ -471,6 +471,23 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mpp-edit-dialog small{display:block;min-height:18px;margin:7px 0;color:#c34f46;font-size:10px}
 .mpp-edit-dialog form>.control-button{width:100%}
 .mpp-dialog-close{position:absolute;right:17px;top:15px;border:0;background:transparent;color:#8d8995;font-size:23px;cursor:pointer}
+.mpp-candidates-shell{margin-top:24px}
+.mpp-candidates-shell th:nth-child(1),.mpp-candidates-shell td:nth-child(1){width:18%}
+.mpp-candidates-shell th:nth-child(2),.mpp-candidates-shell td:nth-child(2){width:28%}
+.mpp-candidates-shell th:nth-child(3),.mpp-candidates-shell td:nth-child(3){width:34%}
+.mpp-candidates-shell th:nth-child(4),.mpp-candidates-shell td:nth-child(4){width:20%}
+.mpp-prio-badge{display:inline-flex;align-items:center;padding:5px 11px;border-radius:99px;font:800 10px Manrope;letter-spacing:-.2px}
+.mpp-prio-badge.p0{background:#fde9e6;color:#bf4d44}
+.mpp-prio-badge.p1{background:#fff3cd;color:#946b12}
+.mpp-prio-badge.filled,.mpp-prio-badge.p2{background:#e9efff;color:#4b64bd}
+.mpp-prio-badge.no-need{background:#efeff3;color:#6f6c77}
+.mpp-candidates-link-btn{display:inline-flex;align-items:center;gap:9px;padding:6px 12px;background:#f5f3ff;border:1px solid #e0d9fc;border-radius:12px;color:#5c47d2;font:700 12px/1 Manrope;cursor:pointer;transition:all .15s ease;text-decoration:none}
+.mpp-candidates-link-btn:hover{background:#6b5bdf;border-color:#6b5bdf;color:#fff;box-shadow:0 4px 12px #6b5bdf40;transform:translateY(-1px)}
+.mpp-candidates-count-pill{font-weight:800}
+.mpp-candidates-view-text{font-size:10px;opacity:.85}
+.mpp-candidates-link-btn:hover .mpp-candidates-view-text{opacity:1}
+.mpp-no-candidates{color:#a4a0ac;font-size:11px;font-weight:600}
+.mpp-timestamp{color:#7b7785;font:600 11px/1.4 Manrope;white-space:nowrap}
 @media(max-width:1100px){.mpp-needs-layout{grid-template-columns:1fr}.mpp-overview{position:static;max-height:none}}
 @media(max-width:760px){.mpp-controls{align-items:flex-start;flex-direction:column}.mpp-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
