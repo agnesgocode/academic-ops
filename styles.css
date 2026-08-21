@@ -698,6 +698,14 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 @media(max-width:1120px){.teacher-db-layout{grid-template-columns:1fr}.teacher-db-detail{position:static;max-height:none}.teacher-db-list{max-height:650px}.teacher-db-row{grid-template-columns:minmax(180px,1.3fr) minmax(90px,.7fr) 110px minmax(140px,1fr) 16px}}
 @media(max-width:760px){.teacher-db-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.teacher-db-controls>*{width:100%}.teacher-db-row{grid-template-columns:minmax(0,1fr) 95px 16px}.teacher-db-row .teacher-db-role,.teacher-db-row .teacher-db-progress{display:none}.teacher-db-contact{grid-template-columns:1fr}.teacher-db-form-grid{grid-template-columns:1fr}.teacher-db-form-wide{grid-column:auto}.teacher-db-form-heading{align-items:flex-start;flex-direction:column}.teacher-db-add-dialog form{padding:20px}}
 
+/* Keep both Observation progress columns visually aligned. */
+@media(min-width:1351px){
+  .obs-progress-layout{align-items:stretch}
+  .obs-progress-layout .obs-table-shell{position:relative;min-height:0}
+  .obs-progress-layout .obs-table-shell .table-wrap{position:absolute;inset:0;max-height:none;height:auto}
+  .obs-progress-layout .obs-progress-shell table{height:100%}
+}
+
 /* Consistent custom select menus */
 .acops-native-select{position:absolute!important;width:1px!important;height:1px!important;margin:0!important;padding:0!important;opacity:0!important;pointer-events:none!important}
 .acops-native-select[hidden]+.acops-select{display:none}
@@ -1030,4 +1038,3 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .admin-wa-link:hover{background:#d4f7de}
 
 @media(max-width:1050px){.admin-profile-grid{grid-template-columns:1fr}.admin-profile-summary{grid-template-columns:1fr}.admin-table-header{flex-direction:column;align-items:flex-start}}
-
