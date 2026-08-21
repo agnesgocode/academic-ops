@@ -1038,3 +1038,9 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .admin-wa-link:hover{background:#d4f7de}
 
 @media(max-width:1050px){.admin-profile-grid{grid-template-columns:1fr}.admin-profile-summary{grid-template-columns:1fr}.admin-table-header{flex-direction:column;align-items:flex-start}}
+
+/* Revenue table: explicitly separate selected-week and monthly figures. */
+.revenue-table-shell table{min-width:1120px}
+.revenue-table-shell th>small{display:block;margin-top:4px;color:#aaa7b2;font-size:8px;font-weight:700;letter-spacing:0;text-transform:none}
+.revenue-table-shell td:first-child .revenue-group{margin-top:7px}
+.revenue-week-prompt{color:#aaa7b2;font-size:9px;font-weight:700}

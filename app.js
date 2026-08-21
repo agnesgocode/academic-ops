@@ -407,11 +407,11 @@ function parseSingleMonthBlock(cells){
   const weekCount=isAugust?4:5;
   const weekOffset=isAugust?31:26;
   const centers=[];
+  let activeGroup='';
   
   for(let index=0;index<cells.length-4;index++){
     const row=cells[index];
-    let group='';
-    if(row[0]&&/STANDALONE|TAGALONG/i.test(row[0]))group=revenueText(row[0]);
+    if(row[0]&&/STANDALONE|TAGALONG/i.test(row[0]))activeGroup=revenueText(row[0]);
     if(!row[1])continue;
     const summaryIndex=cells.findIndex((candidate,candidateIndex)=>candidateIndex>index&&String(candidate[2]).trim()==='TOTAL');
     if(summaryIndex<0)continue;
@@ -426,7 +426,7 @@ function parseSingleMonthBlock(cells){
       cwl:parseProductSet(cells,isAugust,'cwl',weekCount,index,summaryIndex,row,nextSummary,targetRow)
     };
 
-    centers.push({center,shortName:shortName.trim(),captain,group,groupKey:revenueGroupKey(center),products});
+    centers.push({center,shortName:shortName.trim(),captain,group:activeGroup,groupKey:revenueGroupKey(activeGroup||center),products});
     index=summaryIndex;
   }
 
@@ -504,9 +504,10 @@ function updateRevenueWeekSelect(monthData){
   const select=document.getElementById('revenueWeek');
   if(!select)return;
   const count=monthData?.weekCount||4,offset=monthData?.weekOffset||31,label=monthData?.monthLabel||'August 2026';
+  const year=Number((monthData?.monthKey||revenueState.month).split('-')[0])||2026;
   let html=`<option value="all">All ${label}</option>`;
   for(let w=1;w<=count;w++){
-    html+=`<option value="${w}">Week ${offset+w} · 2026</option>`;
+    html+=`<option value="${w}">${esc(weekLabel(`${year}|Week ${offset+w}`))}</option>`;
   }
   select.innerHTML=html;
   if(!revenueState.week||(revenueState.week!=='all'&&Number(revenueState.week)>count)){
@@ -549,7 +550,7 @@ async function loadRevenue(){
   return revenueParse(parseGViz(await response.text()))
 }
 
-function revenuePeriodRow(item){if(revenueState.week==='all')return item;const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),target=entry?.target||0,revenue=entry?.actual||0;return{...item,target,revenue,achievement:target?revenue/target*100:null,gap:revenue-target}}
+function revenuePeriodRow(item){const monthlyTarget=item.target,monthlyRevenue=item.revenue,monthlyAchievement=item.achievement,monthlyGap=item.gap;if(revenueState.week==='all')return{...item,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget:null,weeklyRevenue:null};const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),weeklyTarget=entry?.target||0,weeklyRevenue=entry?.actual||0;return{...item,target:weeklyTarget,revenue:weeklyRevenue,achievement:monthlyAchievement,gap:monthlyGap,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget,weeklyRevenue}}
 function revenueFiltered(){
   const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));
   return rows.sort((a,b)=>{
@@ -565,11 +566,12 @@ function revenuePeriodLabel(){
   const monthData=revenueMonthsMap[revenueState.month];
   const label=monthData?.monthLabel||(revenueState.month==='2026-08'?'August 2026':'July 2026');
   const offset=monthData?.weekOffset||(revenueState.month==='2026-08'?31:26);
-  return revenueState.week==='all'?label:`Week ${Number(revenueState.week)+offset} · 2026`
+  const year=Number(revenueState.month.split('-')[0])||2026;
+  return revenueState.week==='all'?label:weekLabel(`${year}|Week ${Number(revenueState.week)+offset}`)
 }
 function renderRevenueKpis(rows){const regional=revenueState.group==='all'&&revenueState.status==='all'&&!revenueState.search,weekly=revenueState.week==='all'?null:revenueWeekly.find(item=>item.week===Number(revenueState.week)),target=regional?(weekly?.target??revenueRegional.target):rows.reduce((sum,item)=>sum+item.target,0),actual=regional?(weekly?.actual??revenueRegional.revenue):rows.reduce((sum,item)=>sum+item.revenue,0),achievement=target?actual/target*100:0,gap=actual-target,tracked=rows.filter(item=>item.target).length,period=revenuePeriodLabel();document.getElementById('revenueKpis').innerHTML=`<article><span>Revenue</span><strong>${revenueShort(actual)}</strong><small>${regional?`${period} regional total`:`Across ${rows.length} visible centers`}</small></article><article><span>Target</span><strong>${revenueShort(target)}</strong><small>${regional?`${period} regional target`:`${tracked} centers with targets`}</small></article><article class="${achievement>=100?'good':achievement>=80?'watch':'critical'}"><span>Achievement</span><strong>${achievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%</strong><small>${achievement>=100?'Target achieved':achievement>=80?'Close to target':'Needs intervention'}</small></article><article class="${gap>=0?'good':'critical'}"><span>Gap to target</span><strong>${gap>=0?'+':''}${revenueShort(gap)}</strong><small>${gap>=0?'Above target':'Remaining revenue needed'}</small></article>`}
 function renderRevenueWeekly(){const max=Math.max(...revenueWeekly.flatMap(item=>[item.target,item.actual]),1);const monthHeader=revenueMonthsMap[revenueState.month]?.monthLabel?.toUpperCase()||'AUGUST 2026';document.getElementById('revenueWeekly').innerHTML=`<div class="revenue-section-head"><div><p class="eyebrow">${monthHeader}</p><h2>Weekly performance</h2></div><span>${revenueState.week==='all'?'Actual vs target':`${revenuePeriodLabel()} selected`}</span></div><div class="revenue-week-grid">${revenueWeekly.map(item=>{const achievement=item.target?item.actual/item.target*100:0,selected=revenueState.week==='all'||Number(revenueState.week)===item.week;return `<article class="${selected?'selected':'muted'}"><div><strong>W${item.week}</strong><span class="${achievement>=100?'good':achievement>=80?'watch':'critical'}">${achievement.toLocaleString('id-ID',{maximumFractionDigits:0})}%</span></div><div class="revenue-bars"><i style="height:${Math.max(4,item.target/max*100)}%" title="Target ${revenueMoney(item.target)}"></i><b style="height:${Math.max(4,item.actual/max*100)}%" title="Revenue ${revenueMoney(item.actual)}"></b></div><small>${revenueShort(item.actual)}</small></article>`}).join('')}</div><div class="revenue-legend"><span><i></i>Target</span><span><b></b>Revenue</span></div>`}
-function renderRevenueTable(rows){document.getElementById('revenueCount').textContent=`${rows.length} centers`;document.getElementById('revenueTable').innerHTML=rows.length?`<table><thead><tr><th>Center</th><th>Group</th><th>Target</th><th>Revenue</th><th>Achievement</th><th>Gap</th></tr></thead><tbody>${rows.map(item=>{const status=revenueStatus(item);return `<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small></td><td><span class="revenue-group">${item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5'}</span></td><td>${item.target?revenueShort(item.target):'—'}</td><td><strong>${revenueShort(item.revenue)}</strong></td><td><span class="revenue-achievement ${status}">${item.achievement===null?'No target':`${item.achievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%`}</span></td><td class="${item.gap>=0?'positive':'negative'}">${item.target?`${item.gap>=0?'+':''}${revenueShort(item.gap)}`:'—'}</td></tr>`}).join('')}</tbody></table>`:'<div class="empty-state"><strong>No centers match these filters.</strong><p>Try another group, status, or search term.</p></div>'}
+function renderRevenueTable(rows){document.getElementById('revenueCount').textContent=`${rows.length} centers`;document.getElementById('revenueTable').innerHTML=rows.length?`<table><thead><tr><th>Branch <small>Center · BM · Group</small></th><th>Weekly revenue <small>${revenueState.week==='all'?'Select a week':esc(revenuePeriodLabel())}</small></th><th>Weekly target <small>${revenueState.week==='all'?'Select a week':esc(revenuePeriodLabel())}</small></th><th>Monthly revenue <small>${esc(revenueMonthsMap[revenueState.month]?.monthLabel||'Selected month')}</small></th><th>Monthly target <small>${esc(revenueMonthsMap[revenueState.month]?.monthLabel||'Selected month')}</small></th><th>Achievement <small>Monthly</small></th><th>Gap <small>Monthly</small></th></tr></thead><tbody>${rows.map(item=>{const status=revenueStatus(item),group=item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5',weeklyRevenue=item.weeklyRevenue===null?'<span class="revenue-week-prompt">Select week</span>':`<strong>${revenueShort(item.weeklyRevenue)}</strong>`,weeklyTarget=item.weeklyTarget===null?'<span class="revenue-week-prompt">Select week</span>':revenueShort(item.weeklyTarget);return `<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small><span class="revenue-group">${group}</span></td><td>${weeklyRevenue}</td><td>${weeklyTarget}</td><td><strong>${revenueShort(item.monthlyRevenue)}</strong></td><td>${item.monthlyTarget?revenueShort(item.monthlyTarget):'—'}</td><td><span class="revenue-achievement ${status}">${item.monthlyAchievement===null?'No target':`${item.monthlyAchievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%`}</span></td><td class="${item.monthlyGap>=0?'positive':'negative'}">${item.monthlyTarget?`${item.monthlyGap>=0?'+':''}${revenueShort(item.monthlyGap)}`:'—'}</td></tr>`}).join('')}</tbody></table>`:'<div class="empty-state"><strong>No centers match these filters.</strong><p>Try another group, status, or search term.</p></div>'}
 function renderRevenueAttention(rows){const tracked=rows.filter(item=>item.target),critical=[...tracked].filter(item=>item.achievement<80).sort((a,b)=>a.achievement-b.achievement),zero=tracked.filter(item=>item.revenue===0),largest=[...tracked].filter(item=>item.gap<0).sort((a,b)=>a.gap-b.gap).slice(0,5);document.getElementById('revenueAttention').innerHTML=`<p class="eyebrow">ACTION LIST</p><h2>Needs attention</h2><div class="revenue-attention-stats"><article><strong>${critical.length}</strong><span>Below 80%</span></article><article><strong>${zero.length}</strong><span>Zero revenue</span></article></div><h3>Largest gaps</h3><div class="revenue-gap-list">${largest.map(item=>`<article><div><strong>${esc(item.shortName)}</strong><small>${(item.achievement??0).toLocaleString('id-ID',{maximumFractionDigits:1})}% achieved</small></div><b>${revenueShort(Math.abs(item.gap))}</b></article>`).join('')||'<p class="revenue-empty-attention">All visible centers are on track (no revenue gap).</p>'}</div><p class="revenue-note">Calculated from the center totals in the source sheet. Vacancies and agent-level details remain available in Google Sheets.</p>`}
 function renderRevenue(){const rows=revenueFiltered();renderRevenueKpis(rows);renderRevenueWeekly();renderRevenueTable(rows);renderRevenueAttention(rows)}
 function revenueBranch(){return revenueRows.find(item=>item.center===revenueState.branch)||revenueRows[0]}
