@@ -1040,7 +1040,11 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 @media(max-width:1050px){.admin-profile-grid{grid-template-columns:1fr}.admin-profile-summary{grid-template-columns:1fr}.admin-table-header{flex-direction:column;align-items:flex-start}}
 
 /* Revenue table: explicitly separate selected-week and monthly figures. */
-.revenue-table-shell table{min-width:1120px}
+.revenue-table-shell table{min-width:1450px}
 .revenue-table-shell th>small{display:block;margin-top:4px;color:#aaa7b2;font-size:8px;font-weight:700;letter-spacing:0;text-transform:none}
 .revenue-table-shell td:first-child .revenue-group{margin-top:7px}
 .revenue-week-prompt{color:#aaa7b2;font-size:9px;font-weight:700}
+.revenue-table-shell th:first-child,
+.revenue-table-shell td:first-child{position:sticky;left:0;min-width:270px;max-width:270px}
+.revenue-table-shell th:first-child{z-index:5;background:#f8f8fc}
+.revenue-table-shell td:first-child{z-index:3;background:#fff;box-shadow:8px 0 12px -12px rgba(35,31,70,.55)}

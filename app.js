@@ -332,7 +332,7 @@ function enhanceCustomSelect(select){if(select.dataset.acopsSelect||select.match
 function initCustomSelects(){document.querySelectorAll('select:not([data-mpp-priority])').forEach(enhanceCustomSelect);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.('select:not([data-mpp-priority])'))enhanceCustomSelect(node);node.querySelectorAll?.('select:not([data-mpp-priority])').forEach(enhanceCustomSelect)}))).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>document.querySelectorAll('.acops-select-options').forEach(menu=>{menu.hidden=true}))}
 initCustomSelects()
 const revenueSource={id:'1emMFv_OzONiUupCdmzF6nBP1wAWEt02w4Fu8phDgIa4',gid:'583329138'};
-let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',product:'all',group:'all',status:'all',search:'',sort:'high',week:''};
+let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',product:'eac',group:'all',status:'all',search:'',sort:'high',week:''};
 function revenueNumber(value){
   if(typeof value==='number')return Number.isFinite(value)?value:0;
   const str=String(value??'').trim();
@@ -419,12 +419,7 @@ function parseSingleMonthBlock(cells){
     
     const center=revenueText(row[1]),parts=String(row[1]).split(/\n+/).map(part=>part.trim()).filter(Boolean),captain=parts.find(part=>/^Capt\./i.test(part))?.replace(/^Capt\.\s*/i,'')||'',shortName=parts.find(part=>!/^\d+$/.test(part)&&!/^Capt\./i.test(part)&&!/Standalone|Tagalong/i.test(part))||parts[0];
 
-    const products={
-      all:parseProductSet(cells,isAugust,'all',weekCount,index,summaryIndex,row,nextSummary,targetRow),
-      eac:parseProductSet(cells,isAugust,'eac',weekCount,index,summaryIndex,row,nextSummary,targetRow),
-      kids:parseProductSet(cells,isAugust,'kids',weekCount,index,summaryIndex,row,nextSummary,targetRow),
-      cwl:parseProductSet(cells,isAugust,'cwl',weekCount,index,summaryIndex,row,nextSummary,targetRow)
-    };
+    const eac=parseProductSet(cells,isAugust,'eac',weekCount,index,summaryIndex,row,nextSummary,targetRow),products={eac,all:eac};
 
     const parsedCenter={center,shortName:shortName.trim(),captain,group:activeGroup,groupKey:revenueGroupKey(activeGroup||center),products},duplicateIndex=centers.findIndex(item=>branchKey(item.shortName)===branchKey(parsedCenter.shortName));
     if(duplicateIndex>=0)centers[duplicateIndex]=parsedCenter;else centers.push(parsedCenter);
@@ -453,18 +448,13 @@ function parseSingleMonthBlock(cells){
     return{weekly,regional:{target:regionalTarget,revenue:regionalRevenueVal}}
   };
 
-  const regionalProducts={
-    all:buildRegionalProduct('all'),
-    eac:buildRegionalProduct('eac'),
-    kids:buildRegionalProduct('kids'),
-    cwl:buildRegionalProduct('cwl')
-  };
+  const regionalEac=buildRegionalProduct('eac'),regionalProducts={eac:regionalEac,all:regionalEac};
 
   return{monthKey,monthLabel,weekCount,weekOffset,centers,regionalProducts}
 }
 
-function revenueCenterProduct(center,productKey=revenueState.product){
-  const productData=center.products?.[productKey||'all']||center.products?.all||{};
+function revenueCenterProduct(center,productKey='eac'){
+  const productData=center.products?.eac||center.products?.all||{};
   return{
     center:center.center,
     shortName:center.shortName,
@@ -543,20 +533,20 @@ function applyRevenueProductFilter(){
 }
 
 async function loadRevenue(){
-  const response=await fetch(`https://docs.google.com/spreadsheets/d/${revenueSource.id}/gviz/tq?tqx=out:json&gid=${revenueSource.gid}&range=A1:AZ1000`);
+  const response=await fetch(`https://docs.google.com/spreadsheets/d/${revenueSource.id}/gviz/tq?tqx=out:json&gid=${revenueSource.gid}&range=A1:L1000`);
   if(!response.ok)throw Error('Revenue source unavailable');
   return revenueParse(parseGViz(await response.text()))
 }
 
-function revenuePeriodRow(item){const monthlyTarget=item.target,monthlyRevenue=item.revenue,monthlyAchievement=item.achievement,monthlyGap=item.gap;if(revenueState.week==='all')return{...item,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget:null,weeklyRevenue:null};const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),weeklyTarget=entry?.target||0,weeklyRevenue=entry?.actual||0;return{...item,target:weeklyTarget,revenue:weeklyRevenue,achievement:monthlyAchievement,gap:monthlyGap,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget,weeklyRevenue}}
+function revenuePeriodRow(item){const monthlyTarget=item.target,monthlyRevenue=item.revenue,monthlyAchievement=item.achievement,monthlyGap=item.gap;if(revenueState.week==='all')return{...item,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget:null,weeklyRevenue:null,weeklyAchievement:null,weeklyGap:null};const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),weeklyTarget=entry?.target||0,weeklyRevenue=entry?.actual||0,weeklyAchievement=weeklyTarget?weeklyRevenue/weeklyTarget*100:null,weeklyGap=weeklyRevenue-weeklyTarget;return{...item,target:weeklyTarget,revenue:weeklyRevenue,achievement:monthlyAchievement,gap:monthlyGap,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget,weeklyRevenue,weeklyAchievement,weeklyGap}}
 function revenueFiltered(){
   const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));
   return rows.sort((a,b)=>{
-    if(revenueState.sort==='high') return (b.achievement??-1)-(a.achievement??-1);
-    if(revenueState.sort==='gap') return a.gap-b.gap;
+    if(revenueState.sort==='high') return (b.weeklyAchievement??-1)-(a.weeklyAchievement??-1);
+    if(revenueState.sort==='gap') return (a.weeklyGap??Infinity)-(b.weeklyGap??Infinity);
     if(revenueState.sort==='name') return a.shortName.localeCompare(b.shortName);
-    const achA = a.achievement!==null ? a.achievement : 999;
-    const achB = b.achievement!==null ? b.achievement : 999;
+    const achA = a.weeklyAchievement!==null ? a.weeklyAchievement : 999;
+    const achB = b.weeklyAchievement!==null ? b.weeklyAchievement : 999;
     return achA - achB;
   });
 }
@@ -569,7 +559,15 @@ function revenuePeriodLabel(){
 }
 function renderRevenueKpis(rows){const regional=revenueState.group==='all'&&revenueState.status==='all'&&!revenueState.search,weekly=revenueState.week==='all'?null:revenueWeekly.find(item=>item.week===Number(revenueState.week)),target=regional?(weekly?.target??revenueRegional.target):rows.reduce((sum,item)=>sum+item.target,0),actual=regional?(weekly?.actual??revenueRegional.revenue):rows.reduce((sum,item)=>sum+item.revenue,0),achievement=target?actual/target*100:0,gap=actual-target,tracked=rows.filter(item=>item.target).length,period=revenuePeriodLabel();document.getElementById('revenueKpis').innerHTML=`<article><span>Revenue</span><strong>${revenueShort(actual)}</strong><small>${regional?`${period} regional total`:`Across ${rows.length} visible centers`}</small></article><article><span>Target</span><strong>${revenueShort(target)}</strong><small>${regional?`${period} regional target`:`${tracked} centers with targets`}</small></article><article class="${achievement>=100?'good':achievement>=80?'watch':'critical'}"><span>Achievement</span><strong>${achievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%</strong><small>${achievement>=100?'Target achieved':achievement>=80?'Close to target':'Needs intervention'}</small></article><article class="${gap>=0?'good':'critical'}"><span>Gap to target</span><strong>${gap>=0?'+':''}${revenueShort(gap)}</strong><small>${gap>=0?'Above target':'Remaining revenue needed'}</small></article>`}
 function renderRevenueWeekly(){const max=Math.max(...revenueWeekly.flatMap(item=>[item.target,item.actual]),1);const monthHeader=revenueMonthsMap[revenueState.month]?.monthLabel?.toUpperCase()||'AUGUST 2026';document.getElementById('revenueWeekly').innerHTML=`<div class="revenue-section-head"><div><p class="eyebrow">${monthHeader}</p><h2>Weekly performance</h2></div><span>${revenueState.week==='all'?'Actual vs target':`${revenuePeriodLabel()} selected`}</span></div><div class="revenue-week-grid">${revenueWeekly.map(item=>{const achievement=item.target?item.actual/item.target*100:0,selected=revenueState.week==='all'||Number(revenueState.week)===item.week;return `<article class="${selected?'selected':'muted'}"><div><strong>W${item.week}</strong><span class="${achievement>=100?'good':achievement>=80?'watch':'critical'}">${achievement.toLocaleString('id-ID',{maximumFractionDigits:0})}%</span></div><div class="revenue-bars"><i style="height:${Math.max(4,item.target/max*100)}%" title="Target ${revenueMoney(item.target)}"></i><b style="height:${Math.max(4,item.actual/max*100)}%" title="Revenue ${revenueMoney(item.actual)}"></b></div><small>${revenueShort(item.actual)}</small></article>`}).join('')}</div><div class="revenue-legend"><span><i></i>Target</span><span><b></b>Revenue</span></div>`}
-function renderRevenueTable(rows){document.getElementById('revenueCount').textContent=`${rows.length} centers`;document.getElementById('revenueTable').innerHTML=rows.length?`<table><thead><tr><th>Branch <small>Center · BM · Group</small></th><th>Weekly revenue <small>${revenueState.week==='all'?'Select a week':esc(revenuePeriodLabel())}</small></th><th>Weekly target <small>${revenueState.week==='all'?'Select a week':esc(revenuePeriodLabel())}</small></th><th>Monthly revenue <small>${esc(revenueMonthsMap[revenueState.month]?.monthLabel||'Selected month')}</small></th><th>Monthly target <small>${esc(revenueMonthsMap[revenueState.month]?.monthLabel||'Selected month')}</small></th><th>Achievement <small>Monthly</small></th><th>Gap <small>Monthly</small></th></tr></thead><tbody>${rows.map(item=>{const status=revenueStatus(item),group=item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5',weeklyRevenue=item.weeklyRevenue===null?'<span class="revenue-week-prompt">Select week</span>':`<strong>${revenueShort(item.weeklyRevenue)}</strong>`,weeklyTarget=item.weeklyTarget===null?'<span class="revenue-week-prompt">Select week</span>':revenueShort(item.weeklyTarget);return `<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small><span class="revenue-group">${group}</span></td><td>${weeklyRevenue}</td><td>${weeklyTarget}</td><td><strong>${revenueShort(item.monthlyRevenue)}</strong></td><td>${item.monthlyTarget?revenueShort(item.monthlyTarget):'—'}</td><td><span class="revenue-achievement ${status}">${item.monthlyAchievement===null?'No target':`${item.monthlyAchievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%`}</span></td><td class="${item.monthlyGap>=0?'positive':'negative'}">${item.monthlyTarget?`${item.monthlyGap>=0?'+':''}${revenueShort(item.monthlyGap)}`:'—'}</td></tr>`}).join('')}</tbody></table>`:'<div class="empty-state"><strong>No centers match these filters.</strong><p>Try another group, status, or search term.</p></div>'}
+function renderRevenueTable(rows){
+  const root=document.getElementById('revenueTable'),period=revenueState.week==='all'?'Select a week':esc(revenuePeriodLabel()),month=esc(revenueMonthsMap[revenueState.month]?.monthLabel||'Selected month');
+  document.getElementById('revenueCount').textContent=`${rows.length} centers`;
+  if(!rows.length){root.innerHTML='<div class="empty-state"><strong>No centers match these filters.</strong><p>Try another group, status, or search term.</p></div>';return}
+  root.innerHTML=`<table><thead><tr><th>Branch <small>Center · BM · Group</small></th><th>Weekly revenue <small>${period}</small></th><th>Weekly target <small>${period}</small></th><th>Weekly achievement <small>Selected week</small></th><th>Weekly gap <small>Selected week</small></th><th>Monthly revenue <small>${month}</small></th><th>Monthly target <small>${month}</small></th><th>Monthly achievement <small>${month}</small></th><th>Monthly gap <small>${month}</small></th></tr></thead><tbody>${rows.map(item=>{
+    const monthlyStatus=revenueStatus(item),weeklyStatus=revenueStatus({target:item.weeklyTarget,achievement:item.weeklyAchievement}),group=item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5',prompt='<span class="revenue-week-prompt">Select week</span>';
+    return`<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small><span class="revenue-group">${group}</span></td><td>${item.weeklyRevenue===null?prompt:`<strong>${revenueShort(item.weeklyRevenue)}</strong>`}</td><td>${item.weeklyTarget===null?prompt:revenueShort(item.weeklyTarget)}</td><td>${item.weeklyAchievement===null?prompt:`<span class="revenue-achievement ${weeklyStatus}">${item.weeklyAchievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%</span>`}</td><td class="${item.weeklyGap>=0?'positive':'negative'}">${item.weeklyGap===null?prompt:`${item.weeklyGap>=0?'+':''}${revenueShort(item.weeklyGap)}`}</td><td><strong>${revenueShort(item.monthlyRevenue)}</strong></td><td>${item.monthlyTarget?revenueShort(item.monthlyTarget):'—'}</td><td><span class="revenue-achievement ${monthlyStatus}">${item.monthlyAchievement===null?'No target':`${item.monthlyAchievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%`}</span></td><td class="${item.monthlyGap>=0?'positive':'negative'}">${item.monthlyTarget?`${item.monthlyGap>=0?'+':''}${revenueShort(item.monthlyGap)}`:'—'}</td></tr>`
+  }).join('')}</tbody></table>`
+}
 function renderRevenueAttention(rows){const tracked=rows.filter(item=>item.target),critical=[...tracked].filter(item=>item.achievement<80).sort((a,b)=>a.achievement-b.achievement),zero=tracked.filter(item=>item.revenue===0),largest=[...tracked].filter(item=>item.gap<0).sort((a,b)=>a.gap-b.gap).slice(0,5);document.getElementById('revenueAttention').innerHTML=`<p class="eyebrow">ACTION LIST</p><h2>Needs attention</h2><div class="revenue-attention-stats"><article><strong>${critical.length}</strong><span>Below 80%</span></article><article><strong>${zero.length}</strong><span>Zero revenue</span></article></div><h3>Largest gaps</h3><div class="revenue-gap-list">${largest.map(item=>`<article><div><strong>${esc(item.shortName)}</strong><small>${(item.achievement??0).toLocaleString('id-ID',{maximumFractionDigits:1})}% achieved</small></div><b>${revenueShort(Math.abs(item.gap))}</b></article>`).join('')||'<p class="revenue-empty-attention">All visible centers are on track (no revenue gap).</p>'}</div><p class="revenue-note">Calculated from the center totals in the source sheet. Vacancies and agent-level details remain available in Google Sheets.</p>`}
 function renderRevenue(){const rows=revenueFiltered();renderRevenueKpis(rows);renderRevenueWeekly();renderRevenueTable(rows);renderRevenueAttention(rows)}
 function revenueBranch(){return revenueRows.find(item=>item.center===revenueState.branch)||revenueRows[0]}
