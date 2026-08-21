@@ -1044,6 +1044,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .revenue-table-shell th>small{display:block;margin-top:4px;color:#aaa7b2;font-size:8px;font-weight:700;letter-spacing:0;text-transform:none}
 .revenue-table-shell td:first-child .revenue-group{margin-top:7px}
 .revenue-week-prompt{color:#aaa7b2;font-size:9px;font-weight:700}
+.revenue-wave-toggle{padding:0 4px}
 .revenue-table-shell th:first-child,
 .revenue-table-shell td:first-child{position:sticky;left:0;min-width:270px;max-width:270px}
 .revenue-table-shell th:first-child{z-index:5;background:#f8f8fc}

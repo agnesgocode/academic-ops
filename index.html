@@ -670,9 +670,11 @@
 <span id="revenueCount"></span>
 </div>
 <div style="display:flex;gap:10px;align-items:center;">
-<select id="revenueProduct" aria-label="Filter Revenue by product">
-<option value="eac" selected>EAC Product · Columns E–L</option>
-</select>
+<label class="dashboard-wave-toggle revenue-wave-toggle" title="Exclude Wave 6 branches from Revenue">
+<input id="revenueExcludeWave6" type="checkbox"/>
+<span aria-hidden="true"></span>
+<b>Exclude Wave 6</b>
+</label>
 <select id="revenueSort" aria-label="Sort Revenue centers">
 <option value="high" selected>Highest weekly achievement</option>
 <option value="low">Lowest weekly achievement</option>

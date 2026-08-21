@@ -332,7 +332,7 @@ function enhanceCustomSelect(select){if(select.dataset.acopsSelect||select.match
 function initCustomSelects(){document.querySelectorAll('select:not([data-mpp-priority])').forEach(enhanceCustomSelect);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.('select:not([data-mpp-priority])'))enhanceCustomSelect(node);node.querySelectorAll?.('select:not([data-mpp-priority])').forEach(enhanceCustomSelect)}))).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>document.querySelectorAll('.acops-select-options').forEach(menu=>{menu.hidden=true}))}
 initCustomSelects()
 const revenueSource={id:'1emMFv_OzONiUupCdmzF6nBP1wAWEt02w4Fu8phDgIa4',gid:'583329138'};
-let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',product:'eac',group:'all',status:'all',search:'',sort:'high',week:''};
+let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',product:'eac',group:'all',status:'all',search:'',sort:'high',week:'',excludeWave6:localStorage.getItem('acops-revenue-exclude-wave6')==='true'};
 function revenueNumber(value){
   if(typeof value==='number')return Number.isFinite(value)?value:0;
   const str=String(value??'').trim();
@@ -515,8 +515,6 @@ function switchRevenueMonth(monthKey){
   updateRevenueWeekSelect(monthData);
   const monthSelect=document.getElementById('revenueMonth');
   if(monthSelect){monthSelect.value=revenueState.month;renderCustomSelect(monthSelect)}
-  const productSelect=document.getElementById('revenueProduct');
-  if(productSelect){productSelect.value=revenueState.product;renderCustomSelect(productSelect)}
   fillRevenueBranches();
   if(revenueLoaded){renderRevenue();renderRevenueBranch()}
 }
@@ -540,7 +538,7 @@ async function loadRevenue(){
 
 function revenuePeriodRow(item){const monthlyTarget=item.target,monthlyRevenue=item.revenue,monthlyAchievement=item.achievement,monthlyGap=item.gap;if(revenueState.week==='all')return{...item,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget:null,weeklyRevenue:null,weeklyAchievement:null,weeklyGap:null};const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),weeklyTarget=entry?.target||0,weeklyRevenue=entry?.actual||0,weeklyAchievement=weeklyTarget?weeklyRevenue/weeklyTarget*100:null,weeklyGap=weeklyRevenue-weeklyTarget;return{...item,target:weeklyTarget,revenue:weeklyRevenue,achievement:monthlyAchievement,gap:monthlyGap,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget,weeklyRevenue,weeklyAchievement,weeklyGap}}
 function revenueFiltered(){
-  const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));
+  const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(!revenueState.excludeWave6||item.groupKey!=='tagalong6')&&(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));
   return rows.sort((a,b)=>{
     if(revenueState.sort==='high') return (b.weeklyAchievement??-1)-(a.weeklyAchievement??-1);
     if(revenueState.sort==='gap') return (a.weeklyGap??Infinity)-(b.weeklyGap??Infinity);
@@ -582,7 +580,8 @@ function initRevenueControls(){
   if(document.body.dataset.revenueBound)return;
   document.body.dataset.revenueBound='true';
   document.getElementById('revenueMonth')?.addEventListener('change',event=>{switchRevenueMonth(event.target.value)});
-  document.getElementById('revenueProduct')?.addEventListener('change',event=>{revenueState.product=event.target.value;applyRevenueProductFilter()});
+  const waveToggle=document.getElementById('revenueExcludeWave6');
+  if(waveToggle){waveToggle.checked=revenueState.excludeWave6;waveToggle.addEventListener('change',event=>{revenueState.excludeWave6=event.target.checked;localStorage.setItem('acops-revenue-exclude-wave6',String(revenueState.excludeWave6));renderRevenue()})}
   [['revenueWeek','week'],['revenueGroup','group'],['revenueStatus','status'],['revenueSort','sort']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('change',event=>{revenueState[key]=event.target.value;renderRevenue()}));
   document.getElementById('revenueSearch')?.addEventListener('input',event=>{revenueState.search=event.target.value;renderRevenue()});
   document.querySelectorAll('[data-revenue-tab]').forEach(button=>button.addEventListener('click',()=>setRevenueTab(button.dataset.revenueTab)));
