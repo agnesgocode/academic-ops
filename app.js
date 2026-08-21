@@ -332,7 +332,7 @@ function enhanceCustomSelect(select){if(select.dataset.acopsSelect||select.match
 function initCustomSelects(){document.querySelectorAll('select:not([data-mpp-priority])').forEach(enhanceCustomSelect);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.('select:not([data-mpp-priority])'))enhanceCustomSelect(node);node.querySelectorAll?.('select:not([data-mpp-priority])').forEach(enhanceCustomSelect)}))).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>document.querySelectorAll('.acops-select-options').forEach(menu=>{menu.hidden=true}))}
 initCustomSelects()
 const revenueSource={id:'1emMFv_OzONiUupCdmzF6nBP1wAWEt02w4Fu8phDgIa4',gid:'583329138'};
-let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',product:'all',group:'all',status:'all',search:'',sort:'high',week:'all'};
+let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-08',product:'all',group:'all',status:'all',search:'',sort:'high',week:''};
 function revenueNumber(value){
   if(typeof value==='number')return Number.isFinite(value)?value:0;
   const str=String(value??'').trim();
@@ -401,7 +401,7 @@ function parseProductSet(cells, isAugust, productKey, weekCount, index, summaryI
 
 function parseSingleMonthBlock(cells){
   const blockText=cells.slice(0,15).map(r=>r.join(' ')).join(' ');
-  const isAugust=/Agustus/i.test(blockText);
+  const isAugust=/Agustus|August|Date\(2026,\s*7,/i.test(blockText)||cells.slice(0,15).some(row=>row.slice(0,12).some(cell=>typeof cell==='number'&&cell>46200&&cell<46300));
   const monthKey=isAugust?'2026-08':'2026-07';
   const monthLabel=isAugust?'August 2026':'July 2026';
   const weekCount=isAugust?4:5;
@@ -426,7 +426,8 @@ function parseSingleMonthBlock(cells){
       cwl:parseProductSet(cells,isAugust,'cwl',weekCount,index,summaryIndex,row,nextSummary,targetRow)
     };
 
-    centers.push({center,shortName:shortName.trim(),captain,group:activeGroup,groupKey:revenueGroupKey(activeGroup||center),products});
+    const parsedCenter={center,shortName:shortName.trim(),captain,group:activeGroup,groupKey:revenueGroupKey(activeGroup||center),products},duplicateIndex=centers.findIndex(item=>branchKey(item.shortName)===branchKey(parsedCenter.shortName));
+    if(duplicateIndex>=0)centers[duplicateIndex]=parsedCenter;else centers.push(parsedCenter);
     index=summaryIndex;
   }
 
@@ -477,11 +478,7 @@ function revenueCenterProduct(center,productKey=revenueState.product){
 
 function revenueParse(table){
   const cells=table.rows.map(row=>Array.from({length:52},(_,index)=>row.c?.[index]?.v??row.c?.[index]?.f??''));
-  const augustSplitIndex=cells.findIndex((row,idx)=>idx>100&&(
-    row.slice(0,5).some(cell=>/Agustus/i.test(String(cell)))||
-    row.slice(0,5).some(cell=>typeof cell==='number'&&cell>46200&&cell<46300)||
-    (String(row[0]).trim()==='Center'&&String(row[2]).trim()==='Agents Name')
-  ));
+  const augustSplitIndex=cells.findIndex((row,idx)=>idx>100&&row.slice(0,12).some(cell=>/Agustus|August|Date\(2026,\s*7,/i.test(String(cell))||(typeof cell==='number'&&cell>46200&&cell<46300)));
   let monthBlocks=[];
   if(augustSplitIndex>0){
     monthBlocks=[cells.slice(0,augustSplitIndex),cells.slice(augustSplitIndex)];
@@ -510,8 +507,9 @@ function updateRevenueWeekSelect(monthData){
     html+=`<option value="${w}">${esc(weekLabel(`${year}|Week ${offset+w}`))}</option>`;
   }
   select.innerHTML=html;
+  const weekly=monthData?.regionalProducts?.[revenueState.product||'all']?.weekly||[],latestWithRevenue=[...weekly].reverse().find(item=>item.actual>0)?.week||count;
   if(!revenueState.week||(revenueState.week!=='all'&&Number(revenueState.week)>count)){
-    revenueState.week='all';
+    revenueState.week=String(latestWithRevenue);
   }
   select.value=revenueState.week;
   renderCustomSelect(select);
