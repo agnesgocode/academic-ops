@@ -1005,8 +1005,8 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 
 .admin-contact-info{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#f8f8fb;border-radius:14px;margin-bottom:16px}
 .admin-phone{font:700 12px 'DM Sans',sans-serif;color:#33303c}
-.admin-wa-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:10px;background:#25d366;color:#fff;font:700 11px 'DM Sans',sans-serif;text-decoration:none;transition:background .15s ease}
-.admin-wa-btn:hover{background:#1eb856}
+.admin-wa-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:10px;background:#00a896;color:#fff;font:700 11px 'DM Sans',sans-serif;text-decoration:none;transition:background .15s ease}
+.admin-wa-btn:hover{background:#028090}
 
 .admin-card-stats{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:1px solid #efeef5;border-bottom:1px solid #efeef5;margin-bottom:16px}
 .stat-label{font-size:11px;color:#85828d;font-weight:600}
