@@ -621,6 +621,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .teacher-db-summary strong{display:block;margin-top:6px;color:#262330;font:800 25px Manrope}
 .teacher-db-summary .attention{background:#fff4e2;border-color:#f5dfb4}
 .teacher-db-summary .attention strong{color:#a87513}
+.teacher-db-summary .attention[role="button"]{cursor:pointer;transition:border-color .16s,box-shadow .16s,transform .16s}.teacher-db-summary .attention[role="button"]:hover{transform:translateY(-1px);box-shadow:0 8px 20px #8d651314}.teacher-db-summary .attention.filter-active{border-color:#d89d28;box-shadow:inset 0 0 0 2px #d89d2826}.teacher-db-summary .attention.filter-active:after{content:"Filtering list";display:block;margin-top:5px;color:#a87513;font-size:8px;font-weight:800}
 .teacher-db-layout{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:20px;align-items:start}
 .teacher-db-list-shell{margin:0;overflow:hidden}
 .teacher-db-list-shell .data-toolbar>div{display:flex;align-items:center;gap:9px}
