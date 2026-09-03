@@ -32,6 +32,7 @@
 <div class="nav-division marketing-nav"><strong>Marketing</strong>
 <a class="nav-link" href="#events" data-view="events"><span>🗓</span>Event</a>
 <a class="nav-link" href="#gmb" data-view="gmb"><span>📍</span>GMB</a>
+<a class="nav-link" href="#sosmed-monitor" data-view="sosmed-monitor"><span>📱</span>Sosmed Monitor</a>
 </div>
 <div class="nav-division commercial-nav"><strong>Commercial</strong>
 <a class="nav-link" href="#revenue" data-view="revenue"><span>◒</span>Revenue</a>
@@ -610,7 +611,28 @@
 </section>
 <section class="view division-home marketing-home" id="marketing">
 <div class="division-home-hero"><p class="eyebrow">MARKETING DIVISION</p><h1>Marketing <em>workspace.</em></h1><p>Monitor regional commercial momentum and continue into detailed revenue performance.</p></div>
-<div class="division-home-grid"><a href="#revenue"><span>LIVE PERFORMANCE</span><h2>Revenue Dashboard</h2><p>Targets, achievement, weekly movement, branch ranking, and agent contribution.</p><b>Open Revenue →</b></a><a href="#events"><span>MARKETING EVENTS</span><h2>Event Dashboard</h2><p>Track marketing events, registrants, attendees, vendor partnerships, and attendance rates.</p><b>Open Event →</b></a><a href="#gmb"><span>GOOGLE MY BUSINESS</span><h2>GMB Dashboard</h2><p>Track Google Business Profile reviews, response rates, and milestone goals (50/75/100).</p><b>Open GMB →</b></a></div>
+<div class="division-home-grid"><a href="#revenue"><span>LIVE PERFORMANCE</span><h2>Revenue Dashboard</h2><p>Targets, achievement, weekly movement, branch ranking, and agent contribution.</p><b>Open Revenue →</b></a><a href="#events"><span>MARKETING EVENTS</span><h2>Event Dashboard</h2><p>Track marketing events, registrants, attendees, vendor partnerships, and attendance rates.</p><b>Open Event →</b></a><a href="#gmb"><span>GOOGLE MY BUSINESS</span><h2>GMB Dashboard</h2><p>Track Google Business Profile reviews, response rates, and milestone goals (50/75/100).</p><b>Open GMB →</b></a><a href="#sosmed-monitor"><span>SOCIAL MEDIA</span><h2>Sosmed Monitor</h2><p>Monitor Instagram performance and recent content across branch accounts.</p><b>Open Sosmed Monitor →</b></a></div>
+</section>
+<section class="view" id="sosmed-monitor">
+<div class="page-title">
+<div>
+<p class="eyebrow">MARKETING · BRANCH SOCIAL MEDIA</p>
+<h1>Sosmed <em>monitor.</em></h1>
+<p>Track Instagram performance, recent posts, and engagement across branch accounts.</p>
+</div>
+</div>
+<div class="sosmed-controls">
+<input id="sosmedSearch" type="search" placeholder="Search branch or Instagram username..." aria-label="Search social media branches"/>
+<select id="sosmedRegion" aria-label="Filter social media region"><option value="all">All regions</option><option value="makassar">Makassar</option><option value="sulsel">South & Southeast Sulawesi</option><option value="sulteng">Central & West Sulawesi</option><option value="sulut">North Sulawesi & Gorontalo</option><option value="maluku">Maluku & Papua</option></select>
+<select id="sosmedSort" aria-label="Sort social media branches"><option value="likes">Most likes</option><option value="followers">Most followers</option><option value="content">Most content</option><option value="name">Branch A–Z</option></select>
+<button id="exportSosmed" class="control-button" type="button">Export CSV</button>
+</div>
+<div class="sosmed-kpis" id="sosmedKpis"><div class="loading">Loading social media analytics…</div></div>
+<section class="data-shell sosmed-table-shell">
+<div class="data-toolbar"><div><strong>Branch Instagram performance</strong><span id="sosmedCount"></span></div><span class="sosmed-period" id="sosmedPeriod"></span></div>
+<div class="table-wrap" id="sosmedTable"><div class="loading">Loading branch analytics…</div></div>
+</section>
+<section class="sosmed-leaderboard"><div class="section-heading"><div><p class="eyebrow">CONTENT LEADERBOARD</p><h2>Top performing content</h2></div></div><div id="sosmedLeaders" class="sosmed-leaders"><div class="loading">Loading content leaderboard…</div></div></section>
 </section>
 <section class="view" id="revenue">
 <div class="page-title">
