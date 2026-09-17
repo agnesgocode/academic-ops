@@ -786,35 +786,35 @@ function exportEvents(){const filtered=getFilteredEvents(),headers=['No','Region
 const gmbSource={id:'1hsyp_kMuuqTJzpTzWhQPowr_k37ee-n3OSVo6-Lh2KY',gid:'653268831',name:'Google My Business',sheet:'GMB'};
 let gmbRows=[],gmbLoaded=false,gmbLoading=false;
 let gmbState={search:'',goalFilter:'all',sort:'reviews-high'};
-const GMB_CACHE_KEY='acops-gmb-rows-cache-v2';
+const GMB_CACHE_KEY='acops-gmb-rows-cache-v3';
 function gmbDefaultRows(){const raw=[
-  {branch:"Makassar - Hertasning Plus",link:"",replyUlasan:true,juli:43,agustusW2:43,agustusW4:43},
-  {branch:"Manado - Wenang Selatan Plus",link:"",replyUlasan:true,juli:67,agustusW2:67,agustusW4:72},
-  {branch:"Makassar - Sudiang Plus",link:"",replyUlasan:true,juli:57,agustusW2:86,agustusW4:78},
-  {branch:"Ternate - Kapt. Pattimura Plus",link:"",replyUlasan:true,juli:54,agustusW2:114,agustusW4:79},
-  {branch:"Palu - Jend Sudirman Plus",link:"",replyUlasan:true,juli:47,agustusW2:49,agustusW4:59},
-  {branch:"Tomohon - Matani",link:"",replyUlasan:true,juli:50,agustusW2:60,agustusW4:102},
-  {branch:"Bitung - Girian",link:"",replyUlasan:true,juli:53,agustusW2:93,agustusW4:101},
-  {branch:"Palopo - Andi Kambo",link:"",replyUlasan:true,juli:55,agustusW2:71,agustusW4:49},
-  {branch:"Kendari - Abd. Silondae",link:"",replyUlasan:false,juli:55,agustusW2:57,agustusW4:83},
-  {branch:"Makassar - Baruga",link:"",replyUlasan:true,juli:18,agustusW2:18,agustusW4:18},
-  {branch:"Toli-toli - Wahid Hasyim",link:"",replyUlasan:true,juli:43,agustusW2:43,agustusW4:48},
-  {branch:"Parepare - Mattirotasi",link:"",replyUlasan:false,juli:22,agustusW2:50,agustusW4:56},
-  {branch:"Gorontalo - Nani Wartabone",link:"",replyUlasan:true,juli:52,agustusW2:71,agustusW4:102},
-  {branch:"Gowa - Sungguminasa",link:"",replyUlasan:true,juli:28,agustusW2:27,agustusW4:28},
-  {branch:"Makassar - Cendrawasih",link:"",replyUlasan:true,juli:82,agustusW2:82,agustusW4:84},
-  {branch:"Mamuju - Sultan Hasanuddin",link:"",replyUlasan:true,juli:43,agustusW2:44,agustusW4:55},
-  {branch:"Toraja Utara - Poros Bolu",link:"",replyUlasan:false,juli:47,agustusW2:56,agustusW4:58},
-  {branch:"Sorong - Pramuka",link:"",replyUlasan:false,juli:4,agustusW2:4,agustusW4:5},
-  {branch:"Polman - Andi Depu",link:"",replyUlasan:true,juli:45,agustusW2:45,agustusW4:45},
-  {branch:"Tana Toraja - Makale",link:"",replyUlasan:true,juli:51,agustusW2:51,agustusW4:54},
-  {branch:"Soppeng - Lalabbata",link:"",replyUlasan:false,juli:14,agustusW2:14,agustusW4:14},
-  {branch:"Bulukumba - Jend.Sudirman",link:"",replyUlasan:true,juli:8,agustusW2:8,agustusW4:8},
-  {branch:"Kolaka - Pramuka",link:"",replyUlasan:false,juli:1,agustusW2:1,agustusW4:2},
-  {branch:"Pangkep - Sultan Hasanuddin",link:"",replyUlasan:false,juli:2,agustusW2:2,agustusW4:2},
-  {branch:"Ambon",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0},
-  {branch:"Parigi Moutong - Trans Sulawesi",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0},
-  {branch:"Sidrap - Jend. Sudirman",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0}
+  {branch:"Makassar - Hertasning Plus",link:"",replyUlasan:true,juli:43,agustusW2:43,agustusW4:43,septemberW2:43},
+  {branch:"Manado - Wenang Selatan Plus",link:"",replyUlasan:true,juli:67,agustusW2:67,agustusW4:72,septemberW2:71},
+  {branch:"Makassar - Sudiang Plus",link:"",replyUlasan:true,juli:57,agustusW2:86,agustusW4:78,septemberW2:78},
+  {branch:"Ternate - Kapt. Pattimura Plus",link:"",replyUlasan:true,juli:54,agustusW2:114,agustusW4:79,septemberW2:91},
+  {branch:"Palu - Jend Sudirman Plus",link:"",replyUlasan:true,juli:47,agustusW2:49,agustusW4:59,septemberW2:59},
+  {branch:"Tomohon - Matani",link:"",replyUlasan:true,juli:50,agustusW2:60,agustusW4:102,septemberW2:104},
+  {branch:"Bitung - Girian",link:"",replyUlasan:true,juli:53,agustusW2:93,agustusW4:101,septemberW2:68},
+  {branch:"Palopo - Andi Kambo",link:"",replyUlasan:true,juli:55,agustusW2:71,agustusW4:49,septemberW2:52},
+  {branch:"Kendari - Abd. Silondae",link:"",replyUlasan:false,juli:55,agustusW2:57,agustusW4:83,septemberW2:80},
+  {branch:"Makassar - Baruga",link:"",replyUlasan:true,juli:18,agustusW2:18,agustusW4:18,septemberW2:20},
+  {branch:"Toli-toli - Wahid Hasyim",link:"",replyUlasan:true,juli:43,agustusW2:43,agustusW4:48,septemberW2:47},
+  {branch:"Parepare - Mattirotasi",link:"",replyUlasan:false,juli:22,agustusW2:50,agustusW4:56,septemberW2:56},
+  {branch:"Gorontalo - Nani Wartabone",link:"",replyUlasan:true,juli:52,agustusW2:71,agustusW4:102,septemberW2:114},
+  {branch:"Gowa - Sungguminasa",link:"",replyUlasan:true,juli:28,agustusW2:27,agustusW4:28,septemberW2:36},
+  {branch:"Makassar - Cendrawasih",link:"",replyUlasan:true,juli:82,agustusW2:82,agustusW4:84,septemberW2:84},
+  {branch:"Mamuju - Sultan Hasanuddin",link:"",replyUlasan:true,juli:43,agustusW2:44,agustusW4:55,septemberW2:53},
+  {branch:"Toraja Utara - Poros Bolu",link:"",replyUlasan:false,juli:47,agustusW2:56,agustusW4:58,septemberW2:85},
+  {branch:"Sorong - Pramuka",link:"",replyUlasan:false,juli:4,agustusW2:4,agustusW4:5,septemberW2:9},
+  {branch:"Polman - Andi Depu",link:"",replyUlasan:true,juli:45,agustusW2:45,agustusW4:45,septemberW2:45},
+  {branch:"Tana Toraja - Makale",link:"",replyUlasan:true,juli:51,agustusW2:51,agustusW4:54,septemberW2:60},
+  {branch:"Soppeng - Lalabbata",link:"",replyUlasan:false,juli:14,agustusW2:14,agustusW4:14,septemberW2:14},
+  {branch:"Bulukumba - Jend.Sudirman",link:"",replyUlasan:true,juli:8,agustusW2:8,agustusW4:8,septemberW2:8},
+  {branch:"Kolaka - Pramuka",link:"",replyUlasan:false,juli:1,agustusW2:1,agustusW4:2,septemberW2:2},
+  {branch:"Pangkep - Sultan Hasanuddin",link:"",replyUlasan:false,juli:2,agustusW2:2,agustusW4:2,septemberW2:2},
+  {branch:"Ambon",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:0},
+  {branch:"Parigi Moutong - Trans Sulawesi",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:0},
+  {branch:"Sidrap - Jend. Sudirman",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:0}
 ];return raw.map((item,idx)=>{const latestReviews=item.septemberW4??item.septemberW2??item.agustusW4??item.agustusW2??item.juli??0;let goalStatus='<50';if(latestReviews>=100)goalStatus='100+';else if(latestReviews>=75)goalStatus='75+';else if(latestReviews>=50)goalStatus='50+';return{id:`gmb-${idx}`,branch:canonicalBranchName(item.branch)||item.branch,rawBranch:item.branch,link:item.link||'',replyUlasan:item.replyUlasan,juli:item.juli,agustusW2:item.agustusW2,agustusW4:item.agustusW4,septemberW2:item.septemberW2??null,septemberW4:item.septemberW4??null,latestReviews,goalStatus}})}
 function loadGmbCache(){try{const raw=localStorage.getItem(GMB_CACHE_KEY);return raw?JSON.parse(raw):null}catch(e){return null}}
 function saveGmbCache(rows){try{localStorage.setItem(GMB_CACHE_KEY,JSON.stringify(rows))}catch(e){}}
