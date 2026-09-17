@@ -786,7 +786,7 @@ function exportEvents(){const filtered=getFilteredEvents(),headers=['No','Region
 const gmbSource={id:'1hsyp_kMuuqTJzpTzWhQPowr_k37ee-n3OSVo6-Lh2KY',gid:'653268831',name:'Google My Business',sheet:'GMB'};
 let gmbRows=[],gmbLoaded=false,gmbLoading=false;
 let gmbState={search:'',goalFilter:'all',sort:'reviews-high'};
-const GMB_CACHE_KEY='acops-gmb-rows-cache-v4';
+const GMB_CACHE_KEY='acops-gmb-rows-cache-v5';
 function formatGmbLink(rawLink,branch){let link=String(rawLink||'').trim();if(link.startsWith('http://')||link.startsWith('https://'))return link;if(link.startsWith('//'))return'https:'+link;if(link.includes('google.com')||link.includes('goo.gl')||link.includes('maps'))return'https://'+link.replace(/^\/+/,'');if(link.startsWith('data=')||link.startsWith('!')||link.includes('1s0x')||link.includes('3m5'))return`https://www.google.com/maps/place/?${link.startsWith('data=')?link:'data='+link}`;if(branch)return`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch+' English Academy')}`;return''}
 function gmbDefaultRows(){const raw=[
   {branch:"Makassar - Hertasning Plus",link:"",replyUlasan:true,juli:43,agustusW2:43,agustusW4:43,septemberW2:43},
@@ -813,9 +813,10 @@ function gmbDefaultRows(){const raw=[
   {branch:"Bulukumba - Jend.Sudirman",link:"",replyUlasan:true,juli:8,agustusW2:8,agustusW4:8,septemberW2:8},
   {branch:"Kolaka - Pramuka",link:"",replyUlasan:false,juli:1,agustusW2:1,agustusW4:2,septemberW2:2},
   {branch:"Pangkep - Sultan Hasanuddin",link:"",replyUlasan:false,juli:2,agustusW2:2,agustusW4:2,septemberW2:2},
-  {branch:"Ambon",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:0},
-  {branch:"Parigi Moutong - Trans Sulawesi",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:0},
-  {branch:"Sidrap - Jend. Sudirman",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:0}
+  {branch:"Baubau - Batara Guru",link:"https://www.google.com/maps/",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:null,septemberW4:8},
+  {branch:"Ambon - Said parentah",link:"https://maps.app.goo.gl/REr24gh4Fcsme1tm7",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:null,septemberW4:7},
+  {branch:"Parigi Moutong - Trans Sulawesi",link:"",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:null,septemberW4:0},
+  {branch:"Sidrap - Jend. Sudirman",link:"https://maps.app.goo.gl/yZJsAxaEt8PBLma9",replyUlasan:false,juli:0,agustusW2:0,agustusW4:0,septemberW2:null,septemberW4:4}
 ];return raw.map((item,idx)=>{const bName=canonicalBranchName(item.branch)||item.branch;const latestReviews=item.septemberW4??item.septemberW2??item.agustusW4??item.agustusW2??item.juli??0;let goalStatus='<50';if(latestReviews>=100)goalStatus='100+';else if(latestReviews>=75)goalStatus='75+';else if(latestReviews>=50)goalStatus='50+';return{id:`gmb-${idx}`,branch:bName,rawBranch:item.branch,link:formatGmbLink(item.link,bName),replyUlasan:item.replyUlasan,juli:item.juli,agustusW2:item.agustusW2,agustusW4:item.agustusW4,septemberW2:item.septemberW2??null,septemberW4:item.septemberW4??null,latestReviews,goalStatus}})}
 function loadGmbCache(){try{const raw=localStorage.getItem(GMB_CACHE_KEY);return raw?JSON.parse(raw):null}catch(e){return null}}
 function saveGmbCache(rows){try{localStorage.setItem(GMB_CACHE_KEY,JSON.stringify(rows))}catch(e){}}
