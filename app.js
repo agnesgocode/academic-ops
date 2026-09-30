@@ -1227,17 +1227,18 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         </aside>
       </div>
 
-      <section class="mtc-analysis">
-        <p class="eyebrow">WORKLOAD ANALYSIS</p>
-        <h2>What drives the working hours</h2>
-        <p class="mtc-analysis-lead">Across all active coaches in <strong>${esc(scopeLabel())}</strong>, teaching accounts for <strong>${teachingShare.toFixed(0)}%</strong> of logged working hours. ${nonTeachTop.length?`The biggest non-teaching load comes from <strong>${nonTeachTop.map(([t,v])=>`${esc(t)} (${(v/totalWorkAll*100).toFixed(0)}%)`).join(', ')}</strong> — these are the activities to review when a coach is overworked.`:''}</p>
-        <div class="mtc-pie-wrap">
-          ${pieChart(pieSlices,totalWorkAll)}
-          <ul class="mtc-pie-legend">
-            ${pieSlices.length?pieSlices.map(s=>`<li><span class="mtc-legend-dot" style="background:${s.color}"></span><span class="mtc-legend-label">${esc(s.label)}</span><b>${fmtHrs(s.value)} hrs · ${(s.value/totalWorkAll*100).toFixed(0)}%</b></li>`).join(''):'<li class="mtc-empty-line">No working hours logged in this range.</li>'}
-          </ul>
+      <section class="mtc-analysis-layout">
+        <div class="mtc-bars-outside">
+          ${pieSlices.length?`<div class="mtc-bars">
+            ${pieSlices.map(s=>{const pct=totalWorkAll?s.value/totalWorkAll*100:0;return `<div class="mtc-bar"><span class="mtc-bar-name">${esc(s.label)}</span><div class="mtc-bar-track"><i style="width:${pct.toFixed(1)}%;background:${s.color}"></i></div><b class="mtc-bar-val">${fmtHrs(s.value)} hrs · ${pct.toFixed(0)}%</b></div>`;}).join('')}
+          </div>`:'<p class="mtc-empty-line">No working hours logged in this range.</p>'}
         </div>
-        ${overworked.length?`<p class="mtc-analysis-note over">⚠ ${overworked.length} coach${overworked.length===1?'':'es'} over ${MAX_WORK} hrs: ${overworked.map(t=>`${esc(t.name)} (${fmtHrs(t.work)})`).join(', ')}. Overload is usually non-teaching time (Admin, Planning, Coordination) piling up on top of a full teaching load.</p>`:''}
+        <div class="mtc-analysis-card">
+          <p class="eyebrow">WORKLOAD ANALYSIS</p>
+          <h2>What drives the working hours</h2>
+          <p class="mtc-analysis-lead">Across all active coaches in <strong>${esc(scopeLabel())}</strong>, teaching accounts for <strong>${teachingShare.toFixed(0)}%</strong> of logged working hours. ${nonTeachTop.length?`The biggest non-teaching load comes from <strong>${nonTeachTop.map(([t,v])=>`${esc(t)} (${(v/totalWorkAll*100).toFixed(0)}%)`).join(', ')}</strong> — these are the activities to review when a coach is overworked.`:''}</p>
+          ${overworked.length?`<p class="mtc-analysis-note over">⚠ ${overworked.length} coach${overworked.length===1?'':'es'} over ${MAX_WORK} hrs: ${overworked.map(t=>`${esc(t.name)} (${fmtHrs(t.work)})`).join(', ')}. Overload is usually non-teaching time (Admin, Planning, Coordination) piling up on top of a full teaching load.</p>`:''}
+        </div>
       </section>
 
       <section class="mtc-stale">
