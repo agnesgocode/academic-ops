@@ -1102,7 +1102,8 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     const sortFn={
       'name':(a,b)=>String(a.center||'').localeCompare(String(b.center||''))||a.name.localeCompare(b.name),
       'high':(a,b)=>b.work-a.work||b.teach-a.teach,
-      'low':(a,b)=>a.work-b.work||a.teach-b.teach
+      'low':(a,b)=>a.work-b.work||a.teach-b.teach,
+      'recent':(a,b)=>{const da=(a.lastDays==null||a.lastDays===Infinity)?9e9:a.lastDays,db=(b.lastDays==null||b.lastDays===Infinity)?9e9:b.lastDays;return da-db||a.name.localeCompare(b.name);}
     }[state.sort]||((a,b)=>a.name.localeCompare(b.name));
     tableRows.sort(sortFn);
 
@@ -1148,6 +1149,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
           <option value="name" ${state.sort==='name'?'selected':''}>Sort: A–Z (by branch)</option>
           <option value="high" ${state.sort==='high'?'selected':''}>Working hrs: high → low</option>
           <option value="low" ${state.sort==='low'?'selected':''}>Working hrs: low → high</option>
+          <option value="recent" ${state.sort==='recent'?'selected':''}>Last entry: updated → not</option>
         </select>
         <span class="live-pulse-badge" title="Auto-refreshes every 30 seconds"><i class="pulse-dot"></i> Live · Refreshed ${esc(mtcLastRefreshedAt?mtcLastRefreshedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'Just now')}</span>
       </div>
