@@ -1239,7 +1239,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mtc-table thead th{position:sticky;top:0;z-index:2;background:#fafaff;box-shadow:0 1px 0 #e7e7ef;text-align:left;padding:14px 17px;font:600 10px Manrope;letter-spacing:.6px;text-transform:uppercase;color:#817f8b}
 .mtc-table th.num,.mtc-table td.num{text-align:center}
 .mtc-table thead th:last-child,.mtc-table tbody td:last-child{text-align:center}
-.mtc-table tbody td{padding:13px 15px;border-bottom:1px solid #f0f0f5;color:#3e3d49;font-size:12px;white-space:nowrap;vertical-align:middle}
+.mtc-table tbody td{height:48px;padding:0 15px;border-bottom:1px solid #f0f0f5;color:#3e3d49;font-size:12px;white-space:nowrap;vertical-align:middle;line-height:1.3}
 .mtc-table tbody tr:hover{background:#faf9ff}
 .mtc-table .mtc-branch{font-weight:700;color:#3e3d49}
 .mtc-table .mtc-name strong{font-weight:700;color:#2c2b36}
@@ -1256,7 +1256,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mtc-txt-amber{color:#a5661a!important}
 .mtc-txt-red{color:#c23c28!important}
 .mtc-last-today{font-weight:800;font-size:12px;color:#1f7a4d}
-.mtc-table td.num .mtc-tag{margin-left:8px;vertical-align:middle}
+.mtc-table td.num .mtc-tag{margin-left:8px;vertical-align:middle;line-height:1;display:inline-block}
 .mtc-last{display:flex;flex-direction:column;line-height:1.3;font-weight:700;color:#3e3d49}
 .mtc-last small{font-weight:600;color:#9a97a3}
 .mtc-last.warn small{color:#a86b18}
