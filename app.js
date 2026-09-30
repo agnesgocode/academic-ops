@@ -843,3 +843,509 @@ function exportGmb(){const filtered=getFilteredGmb(),headers=['Branch','Link Map
 async function initGmb(){if(!document.getElementById('gmbSearch')?.dataset.bound){const searchEl=document.getElementById('gmbSearch');if(searchEl){searchEl.dataset.bound='true';searchEl.addEventListener('input',e=>{gmbState.search=e.target.value;renderGmb()})}const sortEl=document.getElementById('gmbSort');if(sortEl){sortEl.dataset.bound='true';sortEl.addEventListener('change',e=>{gmbState.sort=e.target.value;renderGmb()})}const exportBtn=document.getElementById('exportExport')||document.getElementById('exportGmb');if(exportBtn){exportBtn.dataset.bound='true';exportBtn.addEventListener('click',exportGmb)}}const cached=loadGmbCache();if(cached&&cached.length){gmbRows=cached;renderGmb()}if(gmbLoading)return;gmbLoading=true;const root=document.getElementById('gmbTable');try{const fresh=await loadGmbRecords(true);gmbRows=fresh;gmbLoaded=true;saveGmbCache(fresh);renderGmb()}catch(error){console.warn('GMB data load issue',error);if(!gmbRows.length&&root){root.innerHTML='<div class="empty-state"><strong>Couldn’t load GMB data.</strong><br/><button onclick="gmbLoading=false;initGmb()" class="outline-button" style="margin-top:10px;">Retry Loading ↻</button></div>'}}finally{gmbLoading=false}}
 Object.entries(sources).forEach(([k,s])=>{const l=document.getElementById(`${k}Link`);if(l)l.href=sheetUrl(s)});document.getElementById('sessionsLink').href=`https://docs.google.com/spreadsheets/d/${allSessionsSource.id}/edit?gid=${allSessionsSource.gid}#gid=${allSessionsSource.gid}`;makeDashboard();['center'].forEach(buildTabs);const sqtInitPromise=initSqt();document.getElementById('sqtWeek').addEventListener('change',e=>{sqtState.week=e.target.value;renderSqt()});document.querySelectorAll('[data-filter-mode]').forEach(b=>b.addEventListener('click',()=>{sqtState.mode=b.dataset.filterMode;document.querySelectorAll('[data-filter-mode]').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('weekFilter').hidden=sqtState.mode!=='week';document.getElementById('periodFilter').hidden=sqtState.mode!=='period';renderSqt()}));document.getElementById('applyPeriod').addEventListener('click',()=>{sqtState.start=document.getElementById('sqtStart').value;sqtState.end=document.getElementById('sqtEnd').value;renderSqt()});document.getElementById('sqtSearch').addEventListener('input',e=>{sqtState.search=e.target.value;renderSqt()});document.getElementById('sqtSort').addEventListener('change',e=>{sqtState.sort=e.target.value;renderSqt()});document.getElementById('exportSqt').addEventListener('click',exportSqt);syncEventsFilterElements();window.addEventListener('hashchange',()=>setView(location.hash.slice(1)||'dashboard'));setView(location.hash.slice(1)||'dashboard');
 document.addEventListener('click',event=>{const card=event.target.closest('[data-dashboard-tab],[data-academic-tab]');if(!card)return;const tab=card.dataset.dashboardTab||card.dataset.academicTab;if(!tab)return;localStorage.setItem('acops-academic-tab',tab);if(location.hash==='#academic'||card.getAttribute('href')==='#academic'){switchAcademicTab(tab)}});
+
+/* ===================== MTC PRODUCTIVITY MODULE ===================== */
+(function(){
+  const MTC_SOURCE_ID='15w0P4kdhESHASecrKRQFQxrG9xvrJMtRpEk_dKsEwtk';
+  const MTC_SHEET='Recap 2026';
+  const TEACHER_DB_ID='1XeRWlPwZS2otSj8oICiOmRddYm1C0oN4khkRD3ehM3Q';
+  const TEACHER_DB_GID='430685672';
+  // Recap 2026 column indexes (0-based)
+  const COL={name:0,email:1,branch:2,date:3,week:4,start:5,end:6,hours:7,product:8,category:9,level:10,task:11,desc:12,evidence:13,status:14,notes:15};
+  const TEACHING_TASKS=new Set(['teaching','opt','ptc / stc','event / school visit']);
+  const NON_WORK_TASKS=new Set(['break / off','break','leave']);
+  const MIN_WORK=30, MAX_WORK=40, MIN_TEACH=18;
+  const STALE_DAYS=2; // spreadsheet expected updated daily; flag if last entry older than this many days
+
+  const esc=window.esc||(s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+
+  let state={view:'summary',mode:'week',week:'',start:'',end:'',search:'',branchSearch:'',sort:'name',calendarCoach:'',calendarWeek:''};
+  let loaded=false, loading=false;
+  let mtcLastRefreshedAt=null;   // timestamp of last successful data load/refresh
+  let mtcRefreshTimer=0;         // auto-refresh interval id
+  let rawRows=[];        // all Done rows for active coaches
+  let coaches=[];        // [{name, center}] active MT Coaches present in recap
+  let weeks=[];          // sorted week keys e.g. "Week 39"
+  let weekNums=new Map();// week label -> number
+  let weekKeyMap=new Map();// week label "Week 39" -> full key "2026|Week 39" for weekLabel()
+  let lastEntry=new Map();// coachName -> latest Date seen (any status)
+
+  function normName(s){return String(s||'').trim().toLowerCase().replace(/[.,]/g,'').replace(/\s+/g,' ');}
+  function parseSheetDate(cell){
+    if(!cell) return null;
+    const v=cell.v;
+    if(typeof v==='string'){const m=v.match(/Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)/);if(m)return new Date(+m[1],+m[2],+m[3]);const d=new Date(v);return isNaN(+d)?null:d;}
+    if(v instanceof Date) return v;
+    return null;
+  }
+  function cellVal(row,i){const c=row.c&&row.c[i];return c?c.v:null;}
+  function cellStr(row,i){const v=cellVal(row,i);return v==null?'':String(v).trim();}
+  function cellNum(row,i){const v=cellVal(row,i);const n=Number(v);return Number.isFinite(n)?n:0;}
+  function weekNumber(label){const m=String(label||'').match(/(\d+)/);return m?+m[1]:null;}
+  function fmtHrs(n){return (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function fmtDate(d){return d?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';}
+  function toInputDate(d){if(!d)return'';const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
+
+  async function gvizFetch(id,params){
+    const url=`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&${params}`;
+    const r=await fetch(url);
+    if(!r.ok) throw new Error('Sheet unavailable');
+    const t=await r.text();
+    const m=t.match(/setResponse\(([\s\S]*)\)\s*;?\s*$/);
+    if(!m) throw new Error('Unexpected sheet response');
+    return JSON.parse(m[1]).table;
+  }
+
+  async function loadActiveCoaches(){
+    const table=await gvizFetch(TEACHER_DB_ID,`gid=${TEACHER_DB_GID}`);
+    const rows=table.rows||[];
+    const list=[];
+    rows.forEach(r=>{
+      const name=cellStr(r,0), role=cellStr(r,1), status=cellStr(r,5), center=cellStr(r,13);
+      if(!name) return;
+      if(!/coach/i.test(role)) return;
+      if(status.toUpperCase().includes('INACTIVE')) return;
+      list.push({name,center,key:normName(name)});
+    });
+    return list;
+  }
+
+  // Match a recap name to an active coach (exact -> contains -> startsWith on tokens)
+  function buildMatcher(activeCoaches){
+    const byKey=new Map();
+    activeCoaches.forEach(c=>byKey.set(c.key,c));
+    return function(recapName){
+      const k=normName(recapName);
+      if(byKey.has(k)) return byKey.get(k);
+      // fuzzy: recap name contains db name, or db name contains recap name, or shared first+last token
+      for(const c of activeCoaches){
+        if(k.includes(c.key)||c.key.includes(k)) return c;
+      }
+      const kt=k.split(' ');
+      for(const c of activeCoaches){
+        const ct=c.key.split(' ');
+        if(kt[0]===ct[0] && kt[kt.length-1]===ct[ct.length-1]) return c;
+      }
+      return null;
+    };
+  }
+
+  async function loadData(force){
+    if((loaded&&!force)||loading) return;
+    loading=true;
+    try{
+      const bust=force?`&_=${Date.now()}`:'';
+      const [activeCoaches, table]=await Promise.all([
+        loadActiveCoaches().catch(()=>[]),
+        gvizFetch(MTC_SOURCE_ID,`sheet=${encodeURIComponent(MTC_SHEET)}${bust}`)
+      ]);
+      const match=buildMatcher(activeCoaches);
+      const allRows=(table.rows||[]).slice(1); // skip header row
+      const coachMap=new Map(); // key -> {name(display), center}
+      const kept=[];
+      const seenLast=new Map();
+      allRows.forEach(r=>{
+        const rawName=cellStr(r,COL.name);
+        if(!rawName) return;
+        const coach=match(rawName);
+        if(!coach) return; // dismiss inactive / non-coach names
+        const date=parseSheetDate(r.c&&r.c[COL.date]);
+        // track latest entry per coach for stale detection (any status)
+        if(date){const prev=seenLast.get(coach.key);if(!prev||date>prev) seenLast.set(coach.key,date);}
+        const status=cellStr(r,COL.status).toLowerCase();
+        if(status!=='done') return;
+        const task=cellStr(r,COL.task).toLowerCase();
+        const week=cellStr(r,COL.week);
+        const hours=cellNum(r,COL.hours);
+        const display=coach.name; // canonical name from Teacher DB
+        if(!coachMap.has(coach.key)) coachMap.set(coach.key,{name:display,center:coach.center||cellStr(r,COL.branch)});
+        kept.push({
+          key:coach.key,
+          name:display,
+          center:coachMap.get(coach.key).center,
+          date, week,
+          task:cellStr(r,COL.task),
+          taskLc:task,
+          hours,
+          start:cellStr(r,COL.start),
+          end:cellStr(r,COL.end),
+          desc:cellStr(r,COL.desc),
+          product:cellStr(r,COL.product),
+          isWork: !NON_WORK_TASKS.has(task),
+          isTeach: TEACHING_TASKS.has(task)
+        });
+      });
+      rawRows=kept;
+      coaches=[...coachMap.values()].sort((a,b)=>a.name.localeCompare(b.name));
+      lastEntry=seenLast;
+      // weeks present in data, sorted by number
+      const wset=new Set(kept.map(r=>r.week).filter(Boolean));
+      weeks=[...wset].sort((a,b)=>(weekNumber(a)||0)-(weekNumber(b)||0));
+      weeks.forEach(w=>weekNums.set(w,weekNumber(w)));
+      // map each week label to a full "year|Week N" key so we can reuse the global weekLabel() (→ "Week 39 · September Week 4 · 2026")
+      weekKeyMap=new Map();
+      weeks.forEach(w=>{
+        const sample=kept.find(r=>r.week===w&&r.date);
+        const year=sample&&sample.date?sample.date.getFullYear():new Date().getFullYear();
+        const num=weekNumber(w);
+        weekKeyMap.set(w, num!=null?`${year}|Week ${num}`:w);
+      });
+      if(!state.week) state.week=weeks[weeks.length-1]||'';
+      // period defaults = full data range
+      const dates=kept.map(r=>r.date).filter(Boolean).sort((a,b)=>a-b);
+      if(!state.start) state.start=toInputDate(dates[0]);
+      if(!state.end) state.end=toInputDate(dates[dates.length-1]);
+      if(!state.calendarCoach) state.calendarCoach=coaches[0]?.name||'';
+      if(!state.calendarWeek) state.calendarWeek=state.week;
+      loaded=true;
+      mtcLastRefreshedAt=new Date();
+    }catch(err){
+      console.warn('MTC Productivity could not load',err);
+      const panel=document.getElementById('mtcSummaryPanel');
+      if(panel) panel.innerHTML='<div class="obs-empty"><strong>MTC productivity could not load yet.</strong><p>Make sure the Recap 2026 sheet is shared as “Anyone with the link — Viewer”, then refresh.</p></div>';
+    }finally{loading=false;}
+  }
+
+  // ---- filtering ----
+  function rowsInScope(){
+    if(state.mode==='week'){
+      return rawRows.filter(r=>r.week===state.week);
+    }
+    const s=state.start?new Date(state.start):null, e=state.end?new Date(state.end):null;
+    return rawRows.filter(r=>r.date&&(!s||r.date>=s)&&(!e||r.date<=new Date(e.getFullYear(),e.getMonth(),e.getDate(),23,59,59)));
+  }
+  function scopeLabel(){
+    return state.mode==='week'?(mtcWeekLabel(state.week)||'—'):`${state.start||'…'} → ${state.end||'…'}`;
+  }
+  // Rich week label reusing the app's global weekLabel(): "Week 39 · September Week 4 · 2026"
+  function mtcWeekLabel(w){
+    if(!w) return '';
+    const key=weekKeyMap.get(w)||w;
+    try{ return (typeof weekLabel==='function')?weekLabel(key):w; }catch(e){ return w; }
+  }
+  // per-coach aggregation for the selected scope
+  function coachTotals(){
+    const scoped=rowsInScope();
+    const map=new Map();
+    coaches.forEach(c=>map.set(c.name,{name:c.name,center:c.center,work:0,teach:0,byTask:{}}));
+    scoped.forEach(r=>{
+      const m=map.get(r.name); if(!m) return;
+      if(r.isWork) m.work+=r.hours;
+      if(r.isTeach) m.teach+=r.hours;
+      m.byTask[r.task]=(m.byTask[r.task]||0)+r.hours;
+    });
+    // only coaches that have any activity in scope OR always show (keep all active coaches)
+    return [...map.values()];
+  }
+
+  // ---- render: summary ----
+  // Build a stable color per task category for the pie + legend
+  const TASK_COLORS=['#6b5bdf','#8f83e8','#b3abef','#33b478','#5ac596','#f2a54a','#ef6f6f','#4aa3f2','#c77dff','#f5c542','#7d8597','#20c4c4'];
+  function taskColor(i){return TASK_COLORS[i%TASK_COLORS.length];}
+  function pieChart(slices,total){
+    // slices: [{label,value,color}] ; returns SVG donut
+    const size=190, r=80, cx=size/2, cy=size/2, inner=48;
+    if(!total){return `<svg viewBox="0 0 ${size} ${size}" class="mtc-pie"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${r-inner}"/></svg>`;}
+    let a0=-Math.PI/2; const arcs=slices.map(s=>{
+      const frac=s.value/total, a1=a0+frac*Math.PI*2;
+      const large=frac>0.5?1:0;
+      const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0), x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+      const xi1=cx+inner*Math.cos(a1), yi1=cy+inner*Math.sin(a1), xi0=cx+inner*Math.cos(a0), yi0=cy+inner*Math.sin(a0);
+      a0=a1;
+      return `<path d="M${x0} ${y0} A${r} ${r} 0 ${large} 1 ${x1} ${y1} L${xi1} ${yi1} A${inner} ${inner} 0 ${large} 0 ${xi0} ${yi0} Z" fill="${s.color}"><title>${esc(s.label)}: ${fmtHrs(s.value)} hrs (${(frac*100).toFixed(0)}%)</title></path>`;
+    }).join('');
+    return `<svg viewBox="0 0 ${size} ${size}" class="mtc-pie">${arcs}<text x="${cx}" y="${cy-4}" class="mtc-pie-total">${fmtHrs(total)}</text><text x="${cx}" y="${cy+13}" class="mtc-pie-sub">total hrs</text></svg>`;
+  }
+
+  function renderSummary(){
+    const panel=document.getElementById('mtcSummaryPanel');
+    if(!panel) return;
+    const totals=coachTotals();
+    const active=totals.filter(t=>t.work>0||t.teach>0);
+    const avgWork=active.length?active.reduce((s,t)=>s+t.work,0)/active.length:0;
+    const avgTeach=active.length?active.reduce((s,t)=>s+t.teach,0)/active.length:0;
+
+    const overworked=[...active].filter(t=>t.work>MAX_WORK).sort((a,b)=>b.work-a.work);
+    const lowTeach=[...active].filter(t=>t.teach<MIN_TEACH).sort((a,b)=>a.teach-b.teach);
+
+    // at-a-glance side card: top 3 lowest / highest teaching hours (with totals)
+    const teachSorted=[...active].sort((a,b)=>b.teach-a.teach);
+    const topHighTeach=teachSorted.slice(0,3);
+    const topLowTeach=[...active].sort((a,b)=>a.teach-b.teach).slice(0,3);
+
+    // overload analysis: aggregate hours per task across all active coaches (working tasks only)
+    const taskAgg={};
+    rowsInScope().forEach(r=>{ const label=(r.task||'').trim(); if(r.isWork && label) taskAgg[label]=(taskAgg[label]||0)+r.hours; });
+    const totalWorkAll=Object.values(taskAgg).reduce((s,v)=>s+v,0)||0;
+    const taskRanked=Object.entries(taskAgg).sort((a,b)=>b[1]-a[1]);
+    const teachingShare=totalWorkAll?(taskAgg['Teaching']||0)/totalWorkAll*100:0;
+    const nonTeachTop=taskRanked.filter(([t])=>t.toLowerCase()!=='teaching').slice(0,3);
+    const pieSlices=taskRanked.map(([label,value],i)=>({label,value,color:taskColor(i)}));
+
+    // stale spreadsheets (based on latest ANY entry vs today)
+    const today=new Date(); today.setHours(0,0,0,0);
+    const staleMap=new Map(coaches.map(c=>{
+      const last=lastEntry.get(normName(c.name))||null;
+      const days=last?Math.floor((today-new Date(last.getFullYear(),last.getMonth(),last.getDate()))/86400000):Infinity;
+      return [c.name,{last,days}];
+    }));
+    const stale=coaches.map(c=>({name:c.name,center:c.center,...staleMap.get(c.name)})).filter(x=>x.days>=STALE_DAYS).sort((a,b)=>b.days-a.days);
+
+    // ---- main table rows: one per active coach, filtered by search, sorted ----
+    const q=state.search.trim().toLowerCase();
+    const bq=state.branchSearch.trim().toLowerCase();
+    // table shows ALL active coaches (18) — a coach with 0 logged hours this week is exactly who needs attention, not someone to hide
+    let tableRows=totals
+      .filter(t=>!q||t.name.toLowerCase().includes(q))
+      .filter(t=>!bq||String(t.center||'').toLowerCase().includes(bq))
+      .map(t=>({...t,lastEntry:(staleMap.get(t.name)||{}).last||null,lastDays:(staleMap.get(t.name)||{}).days}));
+    const sortFn={
+      'name':(a,b)=>String(a.center||'').localeCompare(String(b.center||''))||a.name.localeCompare(b.name),
+      'high':(a,b)=>b.work-a.work||b.teach-a.teach,
+      'low':(a,b)=>a.work-b.work||a.teach-b.teach
+    }[state.sort]||((a,b)=>a.name.localeCompare(b.name));
+    tableRows.sort(sortFn);
+
+    const branchList=[...new Set(coaches.map(c=>c.center).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+
+    // hours: colored text only (no background). green=good, amber=over, red=below min
+    const workPill=v=>{
+      const cls=v>MAX_WORK?'mtc-txt-amber':(v<MIN_WORK?'mtc-txt-red':'mtc-txt-green');
+      const tip=v>MAX_WORK?`Above ${MAX_WORK} hrs — overworked`:(v<MIN_WORK?`Below ${MIN_WORK} hrs — under minimum`:`Within ${MIN_WORK}–${MAX_WORK} hrs`);
+      return `<span class="mtc-hrs ${cls}" title="${tip}">${fmtHrs(v)}</span>`;
+    };
+    const teachPill=v=>{
+      const cls=v<MIN_TEACH?'mtc-txt-red':'mtc-txt-green';
+      const tip=v<MIN_TEACH?`Below ${MIN_TEACH} hrs — under minimum`:`At or above ${MIN_TEACH} hrs`;
+      return `<span class="mtc-hrs ${cls}" title="${tip}">${fmtHrs(v)}</span>`;
+    };
+    // last entry: green text if updated today (no shape); amber/red pill if behind or never
+    const lastCell=(d,days)=>{
+      if(!d) return '<span class="mtc-pill red" title="No entry found">Never</span>';
+      if(days===0) return `<span class="mtc-last-today" title="${fmtDate(d)}">Today</span>`;
+      const ago=days===1?'1 day ago':days+' days ago';
+      const cls=days>=STALE_DAYS?'red':'amber';
+      return `<span class="mtc-pill ${cls}" title="Last entry ${fmtDate(d)}">${ago}</span>`;
+    };
+
+    panel.innerHTML=`
+      <div class="mtc-controls">
+        <div class="filter-switch" role="group" aria-label="MTC filter type">
+          <button class="${state.mode==='week'?'active':''}" data-mtc-mode="week">Filter by week</button>
+          <button class="${state.mode==='period'?'active':''}" data-mtc-mode="period">Filter by period</button>
+        </div>
+        <select id="mtcWeek" ${state.mode==='week'?'':'hidden'} aria-label="Select week">
+          ${weeks.map(w=>`<option value="${esc(w)}" ${w===state.week?'selected':''}>${esc(mtcWeekLabel(w))}</option>`).join('')}
+        </select>
+        <div class="mtc-period" ${state.mode==='period'?'':'hidden'}>
+          <label>From <input id="mtcStart" type="date" value="${esc(state.start)}"></label>
+          <label>To <input id="mtcEnd" type="date" value="${esc(state.end)}"></label>
+          <button id="mtcApplyPeriod" class="control-button" type="button">Apply</button>
+        </div>
+        <div class="mtc-branch-search"><input id="mtcBranchSearch" type="search" placeholder="Search branch" value="${esc(state.branchSearch)}" aria-label="Search branch" autocomplete="off" list="mtcBranchOptions"><datalist id="mtcBranchOptions">${branchList.map(b=>`<option value="${esc(b)}">`).join('')}</datalist></div>
+        <div class="mtc-name-search"><input id="mtcNameSearch" type="search" placeholder="Search MTC name" value="${esc(state.search)}" aria-label="Search MTC name" autocomplete="off"></div>
+        <select id="mtcSort" aria-label="Sort table">
+          <option value="name" ${state.sort==='name'?'selected':''}>Sort: A–Z (by branch)</option>
+          <option value="high" ${state.sort==='high'?'selected':''}>Working hrs: high → low</option>
+          <option value="low" ${state.sort==='low'?'selected':''}>Working hrs: low → high</option>
+        </select>
+        <span class="live-pulse-badge" title="Auto-refreshes every 30 seconds"><i class="pulse-dot"></i> Live · Refreshed ${esc(mtcLastRefreshedAt?mtcLastRefreshedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'Just now')}</span>
+      </div>
+
+      <div class="mtc-summary-cards">
+        <div class="mtc-card"><span>Average working hours</span><strong class="${avgWork<MIN_WORK?'low':(avgWork>MAX_WORK?'over':'ok')}">${fmtHrs(avgWork)}</strong><small>Target ${MIN_WORK}–${MAX_WORK} hrs</small></div>
+        <div class="mtc-card"><span>Average teaching hours</span><strong class="${avgTeach<MIN_TEACH?'low':'ok'}">${fmtHrs(avgTeach)}</strong><small>Minimum ${MIN_TEACH} hrs</small></div>
+        <div class="mtc-card"><span>Overworked coaches</span><strong class="${overworked.length?'over':'ok'}">${overworked.length}</strong><small>Above ${MAX_WORK} working hrs</small></div>
+        <div class="mtc-card"><span>Below teaching minimum</span><strong class="${lowTeach.length?'low':'ok'}">${lowTeach.length}</strong><small>Under ${MIN_TEACH} teaching hrs</small></div>
+      </div>
+
+      <div class="mtc-main-grid">
+        <section class="data-shell mtc-table-shell">
+          <div class="data-toolbar">
+            <div><strong>MTC productivity by branch</strong><span>${tableRows.length} shown${q||bq?` · filtered`:''}</span></div>
+            <span class="mtc-scope-note">${esc(scopeLabel())}</span>
+          </div>
+          <div class="table-wrap">
+            <table class="mtc-table">
+              <thead><tr><th>Branch</th><th>MTC name</th><th class="num">Teaching hrs</th><th class="num">Working hrs</th><th>Last entry</th></tr></thead>
+              <tbody>
+                ${tableRows.length?tableRows.map(t=>`<tr>
+                  <td class="mtc-branch">${esc(t.center||'—')}</td>
+                  <td class="mtc-name"><strong>${esc(t.name)}</strong></td>
+                  <td class="num">${teachPill(t.teach)}</td>
+                  <td class="num">${workPill(t.work)}${t.work>MAX_WORK?'<span class="mtc-tag over">Overworked</span>':''}</td>
+                  <td>${lastCell(t.lastEntry,t.lastDays)}</td>
+                </tr>`).join(''):`<tr><td colspan="5" class="mtc-empty-line">No coaches match this filter.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="mtc-glance">
+        <aside class="mtc-glance smart-glance">
+          <p class="eyebrow">MTC AT A GLANCE</p>
+          <h3>${esc(scopeLabel())}</h3>
+          <div class="smart-glance-stat"><span>Average working hours</span><strong class="${avgWork>MAX_WORK?'mtc-txt-amber':(avgWork<MIN_WORK?'mtc-txt-red':'mtc-txt-green')}">${fmtHrs(avgWork)}</strong></div>
+          <div class="smart-glance-stat"><span>Average teaching hours</span><strong class="${avgTeach<MIN_TEACH?'mtc-txt-red':'mtc-txt-green'}">${fmtHrs(avgTeach)}</strong></div>
+          <div class="smart-glance-definition">
+            <strong>Working hours</strong>Aim for ${MIN_WORK}–${MAX_WORK} per ${state.mode==='week'?'week':'period'}. Below ${MIN_WORK} is under-loaded; above ${MAX_WORK} is overworked.
+          </div>
+          <div class="smart-glance-definition">
+            <strong>Teaching hours</strong>Minimum ${MIN_TEACH}, no maximum. Class time only — Teaching, OPT, PTC/STC, School Visit.
+          </div>
+          <div class="smart-glance-rankings">
+            <section>
+              <h4>Top 3 highest teaching hours</h4>
+              <ol>${topHighTeach.length?topHighTeach.map((t,i)=>`<li><span>${i+1}. ${esc(t.name)}</span><b class="${t.teach<MIN_TEACH?'mtc-txt-red':'mtc-txt-green'}">${fmtHrs(t.teach)} hrs</b></li>`).join(''):'<li><span>No data</span></li>'}</ol>
+            </section>
+            <section>
+              <h4>Top 3 lowest teaching hours</h4>
+              <ol>${topLowTeach.length?topLowTeach.map((t,i)=>`<li><span>${i+1}. ${esc(t.name)}</span><b class="${t.teach<MIN_TEACH?'mtc-txt-red':'mtc-txt-green'}">${fmtHrs(t.teach)} hrs</b></li>`).join(''):'<li><span>No data</span></li>'}</ol>
+            </section>
+          </div>
+        </aside>
+      </div>
+
+      <section class="mtc-analysis">
+        <p class="eyebrow">WORKLOAD ANALYSIS</p>
+        <h2>What drives the working hours</h2>
+        <p class="mtc-analysis-lead">Across all active coaches in <strong>${esc(scopeLabel())}</strong>, teaching accounts for <strong>${teachingShare.toFixed(0)}%</strong> of logged working hours. ${nonTeachTop.length?`The biggest non-teaching load comes from <strong>${nonTeachTop.map(([t,v])=>`${esc(t)} (${(v/totalWorkAll*100).toFixed(0)}%)`).join(', ')}</strong> — these are the activities to review when a coach is overworked.`:''}</p>
+        <div class="mtc-pie-wrap">
+          ${pieChart(pieSlices,totalWorkAll)}
+          <ul class="mtc-pie-legend">
+            ${pieSlices.length?pieSlices.map(s=>`<li><span class="mtc-legend-dot" style="background:${s.color}"></span><span class="mtc-legend-label">${esc(s.label)}</span><b>${fmtHrs(s.value)} hrs · ${(s.value/totalWorkAll*100).toFixed(0)}%</b></li>`).join(''):'<li class="mtc-empty-line">No working hours logged in this range.</li>'}
+          </ul>
+        </div>
+        ${overworked.length?`<p class="mtc-analysis-note over">⚠ ${overworked.length} coach${overworked.length===1?'':'es'} over ${MAX_WORK} hrs: ${overworked.map(t=>`${esc(t.name)} (${fmtHrs(t.work)})`).join(', ')}. Overload is usually non-teaching time (Admin, Planning, Coordination) piling up on top of a full teaching load.</p>`:''}
+      </section>
+
+      <section class="mtc-stale">
+        <div class="mtc-stale-head">
+          <div><p class="eyebrow">DATA HEALTH</p><h2>Spreadsheet not updated</h2><p>Coaches whose most recent entry is ${STALE_DAYS}+ days old. The Recap should be filled in daily.</p></div>
+          <div class="mtc-stale-count ${stale.length?'warn':'ok'}"><strong>${stale.length}</strong><span>need a reminder</span></div>
+        </div>
+        ${stale.length?`<div class="data-shell mtc-stale-shell"><div class="table-wrap"><table><thead><tr><th>MT Coach</th><th>Center</th><th>Last entry</th><th>Days behind</th></tr></thead><tbody>
+          ${stale.map(s=>`<tr><td><strong>${esc(s.name)}</strong></td><td>${esc(s.center||'—')}</td><td>${s.last?fmtDate(s.last):'<em>No data</em>'}</td><td><span class="mtc-days ${s.days>=5?'bad':'warn'}">${s.days===Infinity?'—':s.days+' day'+(s.days===1?'':'s')}</span></td></tr>`).join('')}
+        </tbody></table></div></div>`:'<div class="mtc-stale-clear">✓ Every active coach has updated their sheet recently.</div>'}
+      </section>
+    `;
+    wireSummaryControls();
+  }
+
+  function wireSummaryControls(){
+    const panel=document.getElementById('mtcSummaryPanel');
+    panel.querySelectorAll('[data-mtc-mode]').forEach(b=>b.addEventListener('click',()=>{state.mode=b.dataset.mtcMode;renderSummary();}));
+    panel.querySelector('#mtcWeek')?.addEventListener('change',e=>{state.week=e.target.value;renderSummary();});
+    panel.querySelector('#mtcApplyPeriod')?.addEventListener('click',()=>{state.start=panel.querySelector('#mtcStart').value;state.end=panel.querySelector('#mtcEnd').value;renderSummary();});
+    panel.querySelector('#mtcSort')?.addEventListener('change',e=>{state.sort=e.target.value;renderSummary();});
+    // debounced text searches that preserve focus & caret (avoid full re-render jank)
+    const wireSearch=(sel,key)=>{
+      const el=panel.querySelector(sel); if(!el) return;
+      let t;
+      el.addEventListener('input',e=>{
+        state[key]=e.target.value;
+        clearTimeout(t);
+        t=setTimeout(()=>{
+          renderSummary();
+          const again=document.querySelector(sel); if(again){again.focus();const v=again.value;again.value='';again.value=v;}
+        },220);
+      });
+    };
+    wireSearch('#mtcNameSearch','search');
+    wireSearch('#mtcBranchSearch','branchSearch');
+  }
+
+  // ---- render: calendar ----
+  function renderCalendar(){
+    const panel=document.getElementById('mtcCalendarPanel');
+    if(!panel) return;
+    const coach=state.calendarCoach;
+    const week=state.calendarWeek||state.week||weeks[weeks.length-1]||'';
+    // all rows for this coach + week (include every task so the user sees the full day)
+    const rows=rawRows.filter(r=>r.name===coach&&r.week===week);
+    // group by date
+    const byDate=new Map();
+    rows.forEach(r=>{const k=r.date?toInputDate(r.date):'nodate';if(!byDate.has(k))byDate.set(k,[]);byDate.get(k).push(r);});
+    const days=[...byDate.keys()].filter(k=>k!=='nodate').sort();
+    const totalWork=rows.filter(r=>r.isWork).reduce((s,r)=>s+r.hours,0);
+    const totalTeach=rows.filter(r=>r.isTeach).reduce((s,r)=>s+r.hours,0);
+    const taskClass=t=>{const l=t.toLowerCase();if(l==='teaching')return'teach';if(TEACHING_TASKS.has(l))return'teach-alt';if(NON_WORK_TASKS.has(l))return'off';if(l==='admin')return'admin';if(l==='planning')return'plan';if(l==='coordination'||l==='daily coordination')return'coord';if(l==='meeting')return'meet';if(l==='training')return'train';if(l==='observation')return'obs';return'other';};
+
+    panel.innerHTML=`
+      <div class="mtc-controls">
+        <select id="mtcCalCoach" aria-label="Select coach">
+          ${coaches.map(c=>`<option value="${esc(c.name)}" ${c.name===coach?'selected':''}>${esc(c.name)} · ${esc(c.center||'')}</option>`).join('')}
+        </select>
+        <select id="mtcCalWeek" aria-label="Select week">
+          ${weeks.map(w=>`<option value="${esc(w)}" ${w===week?'selected':''}>${esc(w)}</option>`).join('')}
+        </select>
+        <span class="mtc-scope-note">${fmtHrs(totalWork)} working · ${fmtHrs(totalTeach)} teaching hrs</span>
+      </div>
+      ${days.length?`<div class="mtc-calendar-grid">
+        ${days.map(k=>{const list=byDate.get(k).slice().sort((a,b)=>String(a.start).localeCompare(String(b.start)));const d=new Date(k);const dayWork=list.filter(r=>r.isWork).reduce((s,r)=>s+r.hours,0);
+          return `<div class="mtc-day"><div class="mtc-day-head"><strong>${d.toLocaleDateString('en-GB',{weekday:'short'})}</strong><span>${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</span><b>${fmtHrs(dayWork)}h</b></div>
+            <div class="mtc-day-body">${list.map(r=>`<div class="mtc-slot ${taskClass(r.task)}"><span class="mtc-slot-time">${esc(r.start||'')}${r.end?'–'+esc(r.end):''}</span><span class="mtc-slot-task">${esc(r.task)}</span>${r.desc?`<span class="mtc-slot-desc">${esc(r.desc)}</span>`:''}</div>`).join('')||'<div class="mtc-slot off"><span class="mtc-slot-task">No entries</span></div>'}</div></div>`;
+        }).join('')}
+      </div>`:`<div class="mtc-stale-clear">No schedule entries for ${esc(coach)} in ${esc(week)}.</div>`}
+    `;
+    panel.querySelector('#mtcCalCoach')?.addEventListener('change',e=>{state.calendarCoach=e.target.value;renderCalendar();});
+    panel.querySelector('#mtcCalWeek')?.addEventListener('change',e=>{state.calendarWeek=e.target.value;renderCalendar();});
+  }
+
+  function setMtcView(view){
+    state.view=view;
+    document.getElementById('mtcSummaryPanel').hidden=view!=='summary';
+    document.getElementById('mtcCalendarPanel').hidden=view!=='calendar';
+    document.querySelectorAll('[data-mtc-view]').forEach(b=>b.classList.toggle('active',b.dataset.mtcView===view));
+    if(view==='summary') renderSummary(); else renderCalendar();
+  }
+
+  async function initMtc(){
+    if(!document.body.dataset.mtcTabsBound){
+      document.body.dataset.mtcTabsBound='true';
+      document.querySelectorAll('[data-mtc-view]').forEach(b=>b.addEventListener('click',()=>setMtcView(b.dataset.mtcView)));
+    }
+    if(!loaded){ await loadData(); }
+    if(loaded) setMtcView(state.view);
+    startMtcAutoRefresh();
+  }
+
+  // Re-fetch the Recap sheet and re-render whichever tab is showing (live updates).
+  async function refreshMtcData(){
+    if(loading) return;
+    try{
+      await loadData(true);
+      if(document.getElementById('mtc-productivity')?.classList.contains('active')){
+        if(state.view==='summary') renderSummary(); else renderCalendar();
+      }
+    }catch(e){ console.warn('MTC auto-refresh issue',e); }
+  }
+  function startMtcAutoRefresh(){
+    if(mtcRefreshTimer) clearInterval(mtcRefreshTimer);
+    mtcRefreshTimer=setInterval(()=>{
+      if(document.hidden) return;
+      if(!document.getElementById('mtc-productivity')?.classList.contains('active')) return;
+      refreshMtcData();
+    },30000); // every 30s while the MTC view is visible
+  }
+
+  // Hook routing: run initMtc when the view becomes active; keep it in the academic division.
+  function maybeInit(){
+    if((location.hash.slice(1)||'dashboard')==='mtc-productivity'){
+      document.body.dataset.division='academic';
+      initMtc();
+    }
+  }
+  // Wrap the core router so the MTC view is themed as the Academic (purple) division.
+  if(typeof window.setView==='function' && !window.setView.__mtcWrapped){
+    const _setView=window.setView;
+    window.setView=function(v){
+      _setView(v);
+      if(v==='mtc-productivity'){document.body.dataset.division='academic';}
+    };
+    window.setView.__mtcWrapped=true;
+  }
+  window.addEventListener('hashchange',maybeInit);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',maybeInit); else maybeInit();
+})();
+/* =================== END MTC PRODUCTIVITY MODULE =================== */
