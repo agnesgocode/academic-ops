@@ -859,7 +859,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
 
   const esc=window.esc||(s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
 
-  let state={view:'summary',mode:'week',week:'',start:'',end:'',search:'',branchSearch:'',sort:'name',calendarCoach:'',calendarWeek:''};
+  let state={view:'summary',mode:'week',week:'',start:'',end:'',search:'',branchSearch:'',sort:'name',calendarCoach:'',calendarWeek:'',calHidden:null};
   let loaded=false, loading=false;
   let mtcLastRefreshedAt=null;   // timestamp of last successful data load/refresh
   let mtcRefreshTimer=0;         // auto-refresh interval id
@@ -1298,9 +1298,16 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     const dayDefs=[];
     if(monday){for(let i=0;i<7;i++){const d=new Date(monday.getFullYear(),monday.getMonth(),monday.getDate()+i);dayDefs.push(d);}}
 
-    // group events by day-of-week index
+    // distinct task types present (for the "Show on calendar" filter panel)
+    const typeOrder=['Teaching','OPT','PTC / STC','Event / School Visit','Planning','Coordination','Daily Coordination','Admin','Meeting','Training','Observation','Mentoring','Break / Off'];
+    const presentTypes=[...new Set(rows.map(r=>(r.task||'').trim()).filter(Boolean))]
+      .sort((a,b)=>{const ia=typeOrder.indexOf(a),ib=typeOrder.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b);});
+    if(state.calHidden===null) state.calHidden=new Set(); // default: all visible
+    const isHidden=t=>state.calHidden.has((t||'').toLowerCase());
+
+    // group events by day-of-week index (respecting the visibility filter)
     const evByDay=Array.from({length:7},()=>[]);
-    rows.forEach(r=>{ if(!r.date) return; const idx=(r.date.getDay()+6)%7; evByDay[idx].push(r); });
+    rows.forEach(r=>{ if(!r.date) return; if(isHidden(r.task)) return; const idx=(r.date.getDay()+6)%7; evByDay[idx].push(r); });
 
     // grid time range: from earliest start to latest end (default 06:00–19:00), 60px per hour
     let minStart=6*60, maxEnd=19*60;
@@ -1343,6 +1350,12 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         </div>
       </div>`;
     };
+    const filterPanel=`<aside class="mtc-cal-filters">
+        <div class="mtc-cal-filters-head"><b>Show on calendar</b><button type="button" id="mtcCalAll" class="mtc-cal-all">All</button></div>
+        <ul>
+          ${presentTypes.map(t=>{const cls=taskClass(t);const on=!isHidden(t);return `<li><label class="mtc-cal-filter ${on?'':'off'}"><input type="checkbox" data-cal-type="${esc(t.toLowerCase())}" ${on?'checked':''}><span class="mtc-cal-swatch ${cls}"></span><span class="mtc-cal-filter-name">${esc(t)}</span></label></li>`;}).join('')||'<li class="mtc-empty-line">No activities this week.</li>'}
+        </ul>
+      </aside>`;
 
     panel.innerHTML=`
       <div class="mtc-controls">
@@ -1354,20 +1367,29 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         </select>
         <span class="mtc-scope-note">${fmtHrs(totalWork)} working · ${fmtHrs(totalTeach)} teaching hrs</span>
       </div>
-      ${rows.length?`<div class="mtc-cal-shell">
-        <div class="mtc-cal-grid">
-          <div class="mtc-cal-timecol">
-            <div class="mtc-cal-col-head"></div>
-            <div class="mtc-cal-times" style="height:${gridHeight}px">
-              ${hourRows.map((h,i)=>`<div class="mtc-cal-time" style="top:${i*60}px">${fmtHour(h)}</div>`).join('')}
+      ${rows.length?`<div class="mtc-cal-layout">
+        ${filterPanel}
+        <div class="mtc-cal-shell">
+          <div class="mtc-cal-grid">
+            <div class="mtc-cal-timecol">
+              <div class="mtc-cal-col-head"></div>
+              <div class="mtc-cal-times" style="height:${gridHeight}px">
+                ${hourRows.map((h,i)=>`<div class="mtc-cal-time" style="top:${i*60}px">${fmtHour(h)}</div>`).join('')}
+              </div>
             </div>
+            ${(dayDefs.length?dayDefs:Array(7).fill(null)).map((d,i)=>dayColumn(d,i)).join('')}
           </div>
-          ${(dayDefs.length?dayDefs:Array(7).fill(null)).map((d,i)=>dayColumn(d,i)).join('')}
         </div>
       </div>`:`<div class="mtc-stale-clear">No schedule entries for ${esc(coach)} in ${esc(mtcWeekLabel(week))}.</div>`}
     `;
     panel.querySelector('#mtcCalCoach')?.addEventListener('change',e=>{state.calendarCoach=e.target.value;renderCalendar();});
     panel.querySelector('#mtcCalWeek')?.addEventListener('change',e=>{state.calendarWeek=e.target.value;renderCalendar();});
+    panel.querySelectorAll('[data-cal-type]').forEach(cb=>cb.addEventListener('change',e=>{
+      const t=e.target.dataset.calType;
+      if(e.target.checked) state.calHidden.delete(t); else state.calHidden.add(t);
+      renderCalendar();
+    }));
+    panel.querySelector('#mtcCalAll')?.addEventListener('click',()=>{state.calHidden.clear();renderCalendar();});
   }
 
   function setMtcView(view){
