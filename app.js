@@ -1170,7 +1170,6 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
           <option value="low" ${state.sort==='low'?'selected':''}>Working hrs: low → high</option>
           <option value="recent" ${state.sort==='recent'?'selected':''}>Last entry: updated → not</option>
         </select>
-        <span class="live-pulse-badge" title="Auto-refreshes every 30 seconds"><i class="pulse-dot"></i> Live · Refreshed ${esc(mtcLastRefreshedAt?mtcLastRefreshedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'Just now')}</span>
       </div>
 
       <div class="mtc-summary-cards">
@@ -1243,7 +1242,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
 
       <section class="mtc-stale">
         <div class="mtc-stale-head">
-          <div><p class="eyebrow">DATA HEALTH</p><h2>Spreadsheet not updated</h2><p>Coaches whose most recent entry is ${STALE_DAYS}+ days old. The Recap should be filled in daily.</p></div>
+          <div><p class="eyebrow">DATA HEALTH</p><h2>Spreadsheet not updated</h2><p>Coaches whose most recent entry is ${STALE_DAYS}+ days old. The Recap should be filled in daily.</p><span class="live-pulse-badge" title="Auto-refreshes every 30 seconds"><i class="pulse-dot"></i> Live · Refreshed ${esc(mtcLastRefreshedAt?mtcLastRefreshedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'Just now')}</span></div>
           <div class="mtc-stale-count ${stale.length?'warn':'ok'}"><strong>${stale.length}</strong><span>need a reminder</span></div>
         </div>
         ${stale.length?`<div class="data-shell mtc-stale-shell"><div class="table-wrap"><table><thead><tr><th>MT Coach</th><th>Center</th><th>Last entry</th><th>Days behind</th></tr></thead><tbody>
