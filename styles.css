@@ -1233,6 +1233,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 /* two-column: table + at-a-glance side card (mirrors SQT smart-table-layout) */
 .mtc-main-grid{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:22px;align-items:start;margin-bottom:26px}
 .mtc-table-shell{margin:0;min-width:0}
+.mtc-shown-count{margin-left:10px;color:var(--muted);font-weight:600}
 .mtc-table-shell .table-wrap{max-height:calc(100vh - 150px);overflow:auto}
 /* table typography matches the app's base data tables (SQT/Operations) */
 .mtc-table thead th{position:sticky;top:0;z-index:2;background:#fafaff;box-shadow:0 1px 0 #e7e7ef;text-align:left;padding:14px 17px;font:600 10px Manrope;letter-spacing:.6px;text-transform:uppercase;color:#817f8b}

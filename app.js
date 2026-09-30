@@ -1182,7 +1182,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
       <div class="mtc-main-grid">
         <section class="data-shell mtc-table-shell">
           <div class="data-toolbar">
-            <div><strong>MTC productivity by branch</strong><span>${tableRows.length} shown${q||bq?` · filtered`:''}</span></div>
+            <div><strong>MTC productivity by branch</strong><span class="mtc-shown-count">${tableRows.length} shown${q||bq?` · filtered`:''}</span></div>
             <span class="mtc-scope-note">${esc(scopeLabel())}</span>
           </div>
           <div class="table-wrap">
