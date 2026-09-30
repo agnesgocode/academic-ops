@@ -989,6 +989,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
           endMin:en.min,
           desc:cellStr(r,COL.desc),
           product:cellStr(r,COL.product),
+          category:cellStr(r,COL.category),
           isWork: !NON_WORK_TASKS.has(task),
           isTeach: TEACHING_TASKS.has(task)
         });
@@ -1324,7 +1325,12 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         const top=(s-gridTop)*PX_PER_MIN, h=Math.max(18,(e-s)*PX_PER_MIN);
         const w=100/laneCount, left=(ev._lane||0)*w;
         const timeLbl=ev.start?`${ev.start}${ev.end?'–'+ev.end:''}`:'';
-        return `<div class="mtc-cal-event ${taskClass(ev.task)}" style="top:${top}px;height:${h}px;left:calc(${left}% + 2px);width:calc(${w}% - 4px)" title="${esc(ev.task)} ${esc(timeLbl)}${ev.desc?' — '+esc(ev.desc):''}"><span class="mtc-cal-ev-title">${esc(ev.task)}</span><span class="mtc-cal-ev-time">${esc(timeLbl)}</span></div>`;
+        // Line 1: "Task Type - Category"  ·  Line 2: "[Product] Task Description"
+        const title=ev.category?`${ev.task} - ${ev.category}`:ev.task;
+        const detailBits=[]; if(ev.product) detailBits.push(`[${ev.product}]`); if(ev.desc) detailBits.push(ev.desc);
+        const detail=detailBits.join(' ');
+        const tip=`${title}${detail?' — '+detail:''} · ${timeLbl}`;
+        return `<div class="mtc-cal-event ${taskClass(ev.task)}" style="top:${top}px;height:${h}px;left:calc(${left}% + 2px);width:calc(${w}% - 4px)" title="${esc(tip)}"><span class="mtc-cal-ev-title">${esc(title)}</span><span class="mtc-cal-ev-time">${esc(timeLbl)}</span>${detail?`<span class="mtc-cal-ev-detail">${esc(detail)}</span>`:''}</div>`;
       }).join('');
       return `<div class="mtc-cal-col">
         <div class="mtc-cal-col-head ${isToday?'today':''}">
