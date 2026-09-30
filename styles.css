@@ -1137,7 +1137,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mtc-empty-line{color:var(--muted);font-size:12px;margin:8px 0 0}
 
 .mtc-analysis{background:#fff;border-radius:22px;padding:26px;margin-bottom:24px;border:1px solid #ece9f8}
-.mtc-analysis-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:26px;align-items:start;margin-bottom:24px}
+.mtc-analysis-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:26px;align-items:start;margin-bottom:24px}
 .mtc-bars-outside{padding-top:4px}
 .mtc-bars{display:flex;flex-direction:column;gap:10px}
 .mtc-bar{display:grid;grid-template-columns:120px 1fr auto;align-items:center;gap:12px;font-size:12px}

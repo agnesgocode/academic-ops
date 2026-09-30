@@ -1230,7 +1230,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
       <section class="mtc-analysis-layout">
         <div class="mtc-bars-outside">
           ${pieSlices.length?`<div class="mtc-bars">
-            ${pieSlices.map(s=>{const pct=totalWorkAll?s.value/totalWorkAll*100:0;return `<div class="mtc-bar"><span class="mtc-bar-name">${esc(s.label)}</span><div class="mtc-bar-track"><i style="width:${pct.toFixed(1)}%;background:${s.color}"></i></div><b class="mtc-bar-val">${fmtHrs(s.value)} hrs · ${pct.toFixed(0)}%</b></div>`;}).join('')}
+            ${pieSlices.map(s=>{const pct=totalWorkAll?s.value/totalWorkAll*100:0;const avg=active.length?s.value/active.length:0;return `<div class="mtc-bar"><span class="mtc-bar-name">${esc(s.label)}</span><div class="mtc-bar-track"><i style="width:${pct.toFixed(1)}%;background:${s.color}"></i></div><b class="mtc-bar-val">${fmtHrs(avg)} hrs avg · ${pct.toFixed(0)}%</b></div>`;}).join('')}
           </div>`:'<p class="mtc-empty-line">No working hours logged in this range.</p>'}
         </div>
         <div class="mtc-analysis-card">
