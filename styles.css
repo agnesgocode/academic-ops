@@ -1169,26 +1169,33 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mtc-stale-clear{background:#eaf7ef;color:#35815a;border-radius:16px;padding:18px 20px;font-size:13px;font-weight:700}
 
 /* Calendar */
-.mtc-calendar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
-.mtc-day{background:#fff;border-radius:18px;border:1px solid #ece9f8;overflow:hidden;display:flex;flex-direction:column}
-.mtc-day-head{display:flex;align-items:baseline;gap:8px;padding:13px 15px;background:var(--accent-soft);border-bottom:1px solid #ece9f8}
-.mtc-day-head strong{font:800 14px Manrope;color:var(--accent-deep,var(--accent))}
-.mtc-day-head span{font-size:11px;color:var(--muted);font-weight:600}
-.mtc-day-head b{margin-left:auto;font-size:12px;color:var(--accent);font-weight:800}
-.mtc-day-body{padding:10px;display:grid;gap:7px}
-.mtc-slot{border-radius:11px;padding:8px 10px;background:var(--paper);border-left:4px solid #b9b2e6;display:grid;gap:2px}
-.mtc-slot-time{font-size:10px;font-weight:700;color:var(--muted)}
-.mtc-slot-task{font-size:12px;font-weight:700;color:var(--ink)}
-.mtc-slot-desc{font-size:10px;color:var(--muted);white-space:normal}
-.mtc-slot.teach{border-left-color:#2f9d63;background:#eef9f2}
-.mtc-slot.teach-alt{border-left-color:#5fbf8c;background:#f0faf4}
-.mtc-slot.off{border-left-color:#c7c7d1;background:#f4f4f8;opacity:.85}
-.mtc-slot.admin{border-left-color:#e6a23c;background:#fff7ec}
-.mtc-slot.plan{border-left-color:#6b5bdf;background:#f0eeff}
-.mtc-slot.coord{border-left-color:#3f9ac9;background:#eaf5fb}
-.mtc-slot.meet{border-left-color:#d074c9;background:#fbeefb}
-.mtc-slot.train{border-left-color:#e07a5f;background:#fdefe9}
-.mtc-slot.obs{border-left-color:#8a7bf0;background:#f2effe}
+/* --- Calendar tab: Google-Calendar-style week time grid --- */
+.mtc-cal-shell{background:#fff;border:1px solid #ece9f8;border-radius:18px;overflow:auto;max-height:calc(100vh - 210px)}
+.mtc-cal-grid{display:grid;grid-template-columns:56px repeat(7,minmax(120px,1fr));min-width:900px}
+.mtc-cal-timecol,.mtc-cal-col{border-right:1px solid #f0f0f5}
+.mtc-cal-col:last-child{border-right:0}
+.mtc-cal-col-head{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:sticky;top:0;z-index:3;background:#fafaff;border-bottom:1px solid #ece9f8}
+.mtc-cal-dow{font:800 10px 'DM Sans';letter-spacing:.5px;color:#817f8b}
+.mtc-cal-date{font:700 17px Manrope;color:var(--ink);width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.mtc-cal-date.today{background:var(--accent);color:#fff}
+.mtc-cal-col-head.today .mtc-cal-dow{color:var(--accent)}
+.mtc-cal-times{position:relative}
+.mtc-cal-time{position:absolute;right:6px;transform:translateY(-6px);font:600 10px 'DM Sans';color:#a3a1ac}
+.mtc-cal-col-body{position:relative}
+.mtc-cal-hourline{position:absolute;left:0;right:0;border-top:1px solid #f2f1f7}
+.mtc-cal-event{position:absolute;border-radius:7px;padding:3px 6px;overflow:hidden;font-size:11px;border-left:3px solid #b9b2e6;background:var(--paper);cursor:default;box-shadow:0 1px 2px rgba(35,31,70,.06)}
+.mtc-cal-ev-title{display:block;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.mtc-cal-ev-time{display:block;font-size:9px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtc-cal-event.teach{border-left-color:#2f9d63;background:#eef9f2}
+.mtc-cal-event.teach-alt{border-left-color:#5fbf8c;background:#f0faf4}
+.mtc-cal-event.off{border-left-color:#c7c7d1;background:#f4f4f8;opacity:.9}
+.mtc-cal-event.admin{border-left-color:#e6a23c;background:#fff7ec}
+.mtc-cal-event.plan{border-left-color:#6b5bdf;background:#f0eeff}
+.mtc-cal-event.coord{border-left-color:#3f9ac9;background:#eaf5fb}
+.mtc-cal-event.meet{border-left-color:#d074c9;background:#fbeefb}
+.mtc-cal-event.train{border-left-color:#e07a5f;background:#fdefe9}
+.mtc-cal-event.obs{border-left-color:#8a7bf0;background:#f2effe}
+.mtc-cal-event.other{border-left-color:#b9b2e6;background:#f5f4fb}
 
 @media(max-width:1000px){.mtc-summary-cards{grid-template-columns:repeat(2,1fr)}.mtc-lists-grid{grid-template-columns:1fr}.mtc-taskbar{grid-template-columns:110px 1fr 100px;gap:10px}}
 @media(max-width:600px){.mtc-summary-cards{grid-template-columns:1fr}.mtc-scope-note{margin-left:0;width:100%}.mtc-stale-head{flex-direction:column;align-items:flex-start}}

@@ -881,6 +881,21 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
   function cellVal(row,i){const c=row.c&&row.c[i];return c?c.v:null;}
   function cellStr(row,i){const v=cellVal(row,i);return v==null?'':String(v).trim();}
   function cellNum(row,i){const v=cellVal(row,i);const n=Number(v);return Number.isFinite(n)?n:0;}
+  // Parse a time cell ("Date(1899,11,30,H,M,0)" or formatted .f like "11:00") -> {min, label}
+  function cellTime(row,i){
+    const c=row.c&&row.c[i];
+    if(!c) return {min:null,label:''};
+    const v=c.v;
+    if(typeof v==='string'){
+      const m=v.match(/Date\(\d+,\d+,\d+,(\d+),(\d+)(?:,(\d+))?\)/);
+      if(m){const h=+m[1],mi=+m[2];return {min:h*60+mi,label:`${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`};}
+    }
+    // fallback: formatted string like "9:15" / "09:15"
+    const f=(c.f||v||'').toString().trim();
+    const fm=f.match(/(\d{1,2}):(\d{2})/);
+    if(fm){const h=+fm[1],mi=+fm[2];return {min:h*60+mi,label:`${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`};}
+    return {min:null,label:f};
+  }
   function weekNumber(label){const m=String(label||'').match(/(\d+)/);return m?+m[1]:null;}
   function fmtHrs(n){return (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
   function fmtDate(d){return d?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';}
@@ -959,6 +974,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         const hours=cellNum(r,COL.hours);
         const display=coach.name; // canonical name from Teacher DB
         if(!coachMap.has(coach.key)) coachMap.set(coach.key,{name:display,center:coach.center||cellStr(r,COL.branch)});
+        const st=cellTime(r,COL.start), en=cellTime(r,COL.end);
         kept.push({
           key:coach.key,
           name:display,
@@ -967,8 +983,10 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
           task:cellStr(r,COL.task),
           taskLc:task,
           hours,
-          start:cellStr(r,COL.start),
-          end:cellStr(r,COL.end),
+          start:st.label,
+          end:en.label,
+          startMin:st.min,
+          endMin:en.min,
           desc:cellStr(r,COL.desc),
           product:cellStr(r,COL.product),
           isWork: !NON_WORK_TASKS.has(task),
@@ -1263,15 +1281,62 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     if(!panel) return;
     const coach=state.calendarCoach;
     const week=state.calendarWeek||state.week||weeks[weeks.length-1]||'';
-    // all rows for this coach + week (include every task so the user sees the full day)
     const rows=rawRows.filter(r=>r.name===coach&&r.week===week);
-    // group by date
-    const byDate=new Map();
-    rows.forEach(r=>{const k=r.date?toInputDate(r.date):'nodate';if(!byDate.has(k))byDate.set(k,[]);byDate.get(k).push(r);});
-    const days=[...byDate.keys()].filter(k=>k!=='nodate').sort();
     const totalWork=rows.filter(r=>r.isWork).reduce((s,r)=>s+r.hours,0);
     const totalTeach=rows.filter(r=>r.isTeach).reduce((s,r)=>s+r.hours,0);
-    const taskClass=t=>{const l=t.toLowerCase();if(l==='teaching')return'teach';if(TEACHING_TASKS.has(l))return'teach-alt';if(NON_WORK_TASKS.has(l))return'off';if(l==='admin')return'admin';if(l==='planning')return'plan';if(l==='coordination'||l==='daily coordination')return'coord';if(l==='meeting')return'meet';if(l==='training')return'train';if(l==='observation')return'obs';return'other';};
+    const taskClass=t=>{const l=(t||'').toLowerCase();if(l==='teaching')return'teach';if(TEACHING_TASKS.has(l))return'teach-alt';if(NON_WORK_TASKS.has(l))return'off';if(l==='admin')return'admin';if(l==='planning')return'plan';if(l==='coordination'||l==='daily coordination')return'coord';if(l==='meeting')return'meet';if(l==='training')return'train';if(l==='observation')return'obs';return'other';};
+
+    // Build the Mon–Sun span for this week from the dates present (fallback: derive from any row's date).
+    const dated=rows.filter(r=>r.date);
+    let monday=null;
+    if(dated.length){
+      const any=dated[0].date;
+      const dow=(any.getDay()+6)%7; // 0=Mon
+      monday=new Date(any.getFullYear(),any.getMonth(),any.getDate()-dow);
+    }
+    const dayDefs=[];
+    if(monday){for(let i=0;i<7;i++){const d=new Date(monday.getFullYear(),monday.getMonth(),monday.getDate()+i);dayDefs.push(d);}}
+
+    // group events by day-of-week index
+    const evByDay=Array.from({length:7},()=>[]);
+    rows.forEach(r=>{ if(!r.date) return; const idx=(r.date.getDay()+6)%7; evByDay[idx].push(r); });
+
+    // grid time range: from earliest start to latest end (default 06:00–19:00), 60px per hour
+    let minStart=6*60, maxEnd=19*60;
+    rows.forEach(r=>{ if(r.startMin!=null) minStart=Math.min(minStart,r.startMin); if(r.endMin!=null) maxEnd=Math.max(maxEnd,r.endMin); });
+    const startHour=Math.floor(minStart/60), endHour=Math.ceil(maxEnd/60);
+    const PX_PER_MIN=1; // 60px per hour
+    const gridTop=startHour*60;
+    const gridHeight=(endHour-startHour)*60*PX_PER_MIN;
+    const hourRows=[]; for(let h=startHour;h<=endHour;h++) hourRows.push(h);
+    const fmtHour=h=>{const ap=h<12?'AM':'PM';const hh=((h+11)%12)+1;return `${hh} ${ap}`;};
+    const todayKey=new Date().toDateString();
+
+    const dayColumn=(d,idx)=>{
+      const isToday=d&&d.toDateString()===todayKey;
+      const list=evByDay[idx].slice().sort((a,b)=>(a.startMin??0)-(b.startMin??0));
+      // simple overlap lanes so concurrent events sit side by side
+      const lanes=[];
+      list.forEach(ev=>{const s=ev.startMin??gridTop,e=ev.endMin??(s+60);let placed=false;for(const lane of lanes){if(lane.lastEnd<=s){lane.items.push(ev);lane.lastEnd=e;ev._lane=lanes.indexOf(lane);placed=true;break;}}if(!placed){ev._lane=lanes.length;lanes.push({items:[ev],lastEnd:e});}});
+      const laneCount=Math.max(1,lanes.length);
+      const blocks=list.map(ev=>{
+        const s=ev.startMin??gridTop, e=ev.endMin??(s+60);
+        const top=(s-gridTop)*PX_PER_MIN, h=Math.max(18,(e-s)*PX_PER_MIN);
+        const w=100/laneCount, left=(ev._lane||0)*w;
+        const timeLbl=ev.start?`${ev.start}${ev.end?'–'+ev.end:''}`:'';
+        return `<div class="mtc-cal-event ${taskClass(ev.task)}" style="top:${top}px;height:${h}px;left:calc(${left}% + 2px);width:calc(${w}% - 4px)" title="${esc(ev.task)} ${esc(timeLbl)}${ev.desc?' — '+esc(ev.desc):''}"><span class="mtc-cal-ev-title">${esc(ev.task)}</span><span class="mtc-cal-ev-time">${esc(timeLbl)}</span></div>`;
+      }).join('');
+      return `<div class="mtc-cal-col">
+        <div class="mtc-cal-col-head ${isToday?'today':''}">
+          <span class="mtc-cal-dow">${d?d.toLocaleDateString('en-GB',{weekday:'short'}).toUpperCase():['MON','TUE','WED','THU','FRI','SAT','SUN'][idx]}</span>
+          <span class="mtc-cal-date ${isToday?'today':''}">${d?d.getDate():''}</span>
+        </div>
+        <div class="mtc-cal-col-body" style="height:${gridHeight}px">
+          ${hourRows.slice(0,-1).map((h,i)=>`<div class="mtc-cal-hourline" style="top:${(i+1)*60}px"></div>`).join('')}
+          ${blocks}
+        </div>
+      </div>`;
+    };
 
     panel.innerHTML=`
       <div class="mtc-controls">
@@ -1279,16 +1344,21 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
           ${coaches.map(c=>`<option value="${esc(c.name)}" ${c.name===coach?'selected':''}>${esc(c.name)} · ${esc(c.center||'')}</option>`).join('')}
         </select>
         <select id="mtcCalWeek" aria-label="Select week">
-          ${weeks.map(w=>`<option value="${esc(w)}" ${w===week?'selected':''}>${esc(w)}</option>`).join('')}
+          ${weeks.map(w=>`<option value="${esc(w)}" ${w===week?'selected':''}>${esc(mtcWeekLabel(w))}</option>`).join('')}
         </select>
         <span class="mtc-scope-note">${fmtHrs(totalWork)} working · ${fmtHrs(totalTeach)} teaching hrs</span>
       </div>
-      ${days.length?`<div class="mtc-calendar-grid">
-        ${days.map(k=>{const list=byDate.get(k).slice().sort((a,b)=>String(a.start).localeCompare(String(b.start)));const d=new Date(k);const dayWork=list.filter(r=>r.isWork).reduce((s,r)=>s+r.hours,0);
-          return `<div class="mtc-day"><div class="mtc-day-head"><strong>${d.toLocaleDateString('en-GB',{weekday:'short'})}</strong><span>${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}</span><b>${fmtHrs(dayWork)}h</b></div>
-            <div class="mtc-day-body">${list.map(r=>`<div class="mtc-slot ${taskClass(r.task)}"><span class="mtc-slot-time">${esc(r.start||'')}${r.end?'–'+esc(r.end):''}</span><span class="mtc-slot-task">${esc(r.task)}</span>${r.desc?`<span class="mtc-slot-desc">${esc(r.desc)}</span>`:''}</div>`).join('')||'<div class="mtc-slot off"><span class="mtc-slot-task">No entries</span></div>'}</div></div>`;
-        }).join('')}
-      </div>`:`<div class="mtc-stale-clear">No schedule entries for ${esc(coach)} in ${esc(week)}.</div>`}
+      ${rows.length?`<div class="mtc-cal-shell">
+        <div class="mtc-cal-grid">
+          <div class="mtc-cal-timecol">
+            <div class="mtc-cal-col-head"></div>
+            <div class="mtc-cal-times" style="height:${gridHeight}px">
+              ${hourRows.map((h,i)=>`<div class="mtc-cal-time" style="top:${i*60}px">${fmtHour(h)}</div>`).join('')}
+            </div>
+          </div>
+          ${(dayDefs.length?dayDefs:Array(7).fill(null)).map((d,i)=>dayColumn(d,i)).join('')}
+        </div>
+      </div>`:`<div class="mtc-stale-clear">No schedule entries for ${esc(coach)} in ${esc(mtcWeekLabel(week))}.</div>`}
     `;
     panel.querySelector('#mtcCalCoach')?.addEventListener('change',e=>{state.calendarCoach=e.target.value;renderCalendar();});
     panel.querySelector('#mtcCalWeek')?.addEventListener('change',e=>{state.calendarWeek=e.target.value;renderCalendar();});
