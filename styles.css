@@ -1192,11 +1192,6 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 
 @media(max-width:1000px){.mtc-summary-cards{grid-template-columns:repeat(2,1fr)}.mtc-lists-grid{grid-template-columns:1fr}.mtc-taskbar{grid-template-columns:110px 1fr 100px;gap:10px}}
 @media(max-width:600px){.mtc-summary-cards{grid-template-columns:1fr}.mtc-scope-note{margin-left:0;width:100%}.mtc-stale-head{flex-direction:column;align-items:flex-start}}
-/* --- Sticky header: pins the MTC title + tabs to the top while scrolling --- */
-#mtc-productivity .mtc-sticky-head{position:sticky;top:0;z-index:40;background:#f7f8fd;margin:-36px -34px 18px;padding:34px 34px 12px}
-#mtc-productivity .mtc-sticky-head:after{content:"";position:absolute;left:0;right:0;bottom:-16px;height:16px;background:linear-gradient(#f7f8fd,rgba(247,248,253,0));pointer-events:none}
-#mtc-productivity .mtc-sticky-head .page-title{margin-bottom:14px}
-#mtc-productivity .mtc-sticky-head .sheet-tabs{padding-bottom:0;overflow:visible}
 /* --- Summary redesign: search fields, branch table, at-a-glance card, pie chart --- */
 .mtc-controls .mtc-period[hidden],.mtc-controls [hidden]{display:none!important}
 .mtc-branch-search input,.mtc-name-search input{width:180px}

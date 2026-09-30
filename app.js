@@ -1299,6 +1299,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     document.getElementById('mtcSummaryPanel').hidden=view!=='summary';
     document.getElementById('mtcCalendarPanel').hidden=view!=='calendar';
     document.querySelectorAll('[data-mtc-view]').forEach(b=>b.classList.toggle('active',b.dataset.mtcView===view));
+    syncMtcDock(view);
     if(view==='summary') renderSummary(); else renderCalendar();
   }
 
@@ -1307,9 +1308,25 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
       document.body.dataset.mtcTabsBound='true';
       document.querySelectorAll('[data-mtc-view]').forEach(b=>b.addEventListener('click',()=>setMtcView(b.dataset.mtcView)));
     }
+    initMtcSticky();
     if(!loaded){ await loadData(); }
     if(loaded) setMtcView(state.view);
     startMtcAutoRefresh();
+    if(typeof updateAllStickyDocks==='function') updateAllStickyDocks();
+  }
+
+  // Reuse the app's shared sticky-dock system (same as SQT / Operations / Sessions).
+  function initMtcSticky(){
+    if(typeof initGenericSticky!=='function') return;
+    initGenericSticky('mtc-productivity','Academic',[{id:'summary',label:'Summary'},{id:'calendar',label:'Calendar'}],tab=>setMtcView(tab));
+  }
+  function syncMtcDock(view){
+    const dock=document.querySelector('.view-dock[data-view="mtc-productivity"]');
+    if(!dock) return;
+    const labels={summary:'Summary',calendar:'Calendar'};
+    const subtitle=dock.querySelector('.dock-subtitle');
+    if(subtitle) subtitle.textContent=`/ ${labels[view]||'Summary'}`;
+    dock.querySelectorAll('[data-dock-tab]').forEach(span=>span.classList.toggle('active',span.dataset.dockTab===view));
   }
 
   // Re-fetch the Recap sheet and re-render whichever tab is showing (live updates).
