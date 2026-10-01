@@ -869,6 +869,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
   let weekNums=new Map();// week label -> number
   let weekKeyMap=new Map();// week label "Week 39" -> full key "2026|Week 39" for weekLabel()
   let lastEntry=new Map();// coachName -> latest Date seen (any status)
+  let coachLinks=new Map();// normalized coach name -> individual productivity tracker URL (from Link & Validation tab)
 
   function normName(s){return String(s||'').trim().toLowerCase().replace(/[.,]/g,'').replace(/\s+/g,' ');}
   function parseSheetDate(cell){
@@ -925,7 +926,27 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     return list;
   }
 
-  // Match a recap name to an active coach (exact -> contains -> startsWith on tokens)
+  // Link & Validation tab: A=MT Coach name, C=individual productivity-tracker URL
+  async function loadCoachLinks(){
+    const table=await gvizFetch(MTC_SOURCE_ID,`sheet=${encodeURIComponent('Link & Validation')}`);
+    const map=new Map();
+    (table.rows||[]).forEach(r=>{
+      const name=cellStr(r,0), url=cellStr(r,2);
+      if(!name||!/^https?:\/\//i.test(url)) return;
+      map.set(normName(name),url);
+    });
+    return map;
+  }
+
+  // Resolve a coach's tracker URL: exact normalized key, else fuzzy (contains / shared first+last token)
+  function coachLinkFor(name){
+    const k=normName(name);
+    if(coachLinks.has(k)) return coachLinks.get(k);
+    for(const [lk,url] of coachLinks){ if(k&&(k.includes(lk)||lk.includes(k))) return url; }
+    const kt=k.split(' ');
+    for(const [lk,url] of coachLinks){ const lt=lk.split(' '); if(kt[0]===lt[0]&&kt[kt.length-1]===lt[lt.length-1]) return url; }
+    return '';
+  }
   function buildMatcher(activeCoaches){
     const byKey=new Map();
     activeCoaches.forEach(c=>byKey.set(c.key,c));
@@ -950,10 +971,12 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     loading=true;
     try{
       const bust=force?`&_=${Date.now()}`:'';
-      const [activeCoaches, table]=await Promise.all([
+      const [activeCoaches, table, linkMap]=await Promise.all([
         loadActiveCoaches().catch(()=>[]),
-        gvizFetch(MTC_SOURCE_ID,`sheet=${encodeURIComponent(MTC_SHEET)}${bust}`)
+        gvizFetch(MTC_SOURCE_ID,`sheet=${encodeURIComponent(MTC_SHEET)}${bust}`),
+        loadCoachLinks().catch(()=>new Map())
       ]);
+      coachLinks=linkMap;
       const match=buildMatcher(activeCoaches);
       const allRows=(table.rows||[]).slice(1); // skip header row
       const coachMap=new Map(); // key -> {name(display), center}
@@ -995,7 +1018,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         });
       });
       rawRows=kept;
-      coaches=[...coachMap.values()].sort((a,b)=>a.name.localeCompare(b.name));
+      coaches=[...coachMap.values()].map(c=>({...c,link:coachLinkFor(c.name)})).sort((a,b)=>a.name.localeCompare(b.name));
       lastEntry=seenLast;
       // weeks present in data, sorted by number
       const wset=new Set(kept.map(r=>r.week).filter(Boolean));
@@ -1046,7 +1069,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
   function coachTotals(){
     const scoped=rowsInScope();
     const map=new Map();
-    coaches.forEach(c=>map.set(c.name,{name:c.name,center:c.center,work:0,teach:0,byTask:{}}));
+    coaches.forEach(c=>map.set(c.name,{name:c.name,center:c.center,link:c.link||'',work:0,teach:0,byTask:{}}));
     scoped.forEach(r=>{
       const m=map.get(r.name); if(!m) return;
       if(r.isWork) m.work+=r.hours;
@@ -1145,6 +1168,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     // last entry: green text if updated today (no shape); amber/red pill if behind or never
     const lastCell=(d,days)=>{
       if(!d) return '<span class="mtc-pill red" title="No entry found">Never</span>';
+      if(days<0){const n=Math.abs(days);return `<span class="mtc-pill amber" title="Last entry is dated ${fmtDate(d)} — ${n} day${n===1?'':'s'} in the future. Check the date in the sheet.">Future date ⚠</span>`;}
       if(days===0) return `<span class="mtc-last-today" title="${fmtDate(d)}">Today</span>`;
       const ago=days===1?'1 day ago':days+' days ago';
       const cls=days>=STALE_DAYS?'red':'amber';
@@ -1200,7 +1224,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
               <tbody>
                 ${tableRows.length?tableRows.map(t=>`<tr>
                   <td class="mtc-branch">${esc(t.center||'—')}</td>
-                  <td class="mtc-name"><strong>${esc(t.name)}</strong></td>
+                  <td class="mtc-name">${t.link?`<a href="${esc(t.link)}" target="_blank" rel="noopener" class="mtc-name-link" title="Open ${esc(t.name)}’s productivity tracker"><strong>${esc(t.name)}</strong><span class="mtc-name-ext" aria-hidden="true">↗</span></a>`:`<strong>${esc(t.name)}</strong>`}</td>
                   <td class="num">${teachPill(t.teach)}</td>
                   <td class="num">${workPill(t.work)}${t.work>MAX_WORK?'<span class="mtc-tag over">Overworked</span>':''}</td>
                   <td>${lastCell(t.lastEntry,t.lastDays)}</td>
