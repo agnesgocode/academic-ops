@@ -1194,6 +1194,20 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mtc-cal-swatch{width:13px;height:13px;border-radius:4px;flex:0 0 auto;background:#b9b2e6}
 .mtc-cal-swatch.teach{background:#2f9d63}.mtc-cal-swatch.teach-alt{background:#5fbf8c}.mtc-cal-swatch.off{background:#c7c7d1}.mtc-cal-swatch.admin{background:#e6a23c}.mtc-cal-swatch.plan{background:#6b5bdf}.mtc-cal-swatch.coord{background:#3f9ac9}.mtc-cal-swatch.meet{background:#d074c9}.mtc-cal-swatch.train{background:#e07a5f}.mtc-cal-swatch.obs{background:#8a7bf0}.mtc-cal-swatch.other{background:#b9b2e6}
 .mtc-cal-filter-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtc-cal-analysis{margin-top:14px;padding-top:14px;border-top:1px solid #efedf8}
+.mtc-cal-an-head{display:flex;flex-direction:column;align-items:flex-start;gap:7px;margin-bottom:11px}
+.mtc-cal-an-badge{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font:800 11px 'DM Sans';padding:5px 11px;border-radius:999px;line-height:1}
+.mtc-cal-an-badge.over{background:#fdecec;color:#c0392b}
+.mtc-cal-an-badge.ok{background:#e7f6ee;color:#1f8a53}
+.mtc-cal-an-ico{font-size:12px;line-height:1}
+.mtc-cal-an-hrs{font:700 12px 'DM Sans';color:#817f8b;white-space:nowrap}
+.mtc-cal-an-label{font:800 9px 'DM Sans';letter-spacing:.5px;text-transform:uppercase;color:#9a98a6;margin-bottom:6px}
+.mtc-cal-an-tasks{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:5px}
+.mtc-cal-an-tasks li{display:flex;align-items:center;gap:8px;font:700 11.5px 'DM Sans';color:var(--ink)}
+.mtc-cal-an-tasks .mtc-cal-an-t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtc-cal-an-tasks b{color:#817f8b;font-weight:800}
+.mtc-cal-an-fix{font:500 11.5px 'DM Sans';line-height:1.45;color:#5a5866;background:#faf9ff;border-radius:10px;padding:9px 10px}
+.mtc-cal-an-fix b{color:var(--ink);font-weight:800}
 .mtc-cal-shell{background:#fff;border:1px solid #ece9f8;border-radius:18px;overflow:auto;max-height:calc(100vh - 210px)}
 .mtc-cal-grid{display:grid;grid-template-columns:56px repeat(7,minmax(120px,1fr));min-width:900px}
 .mtc-cal-timecol,.mtc-cal-col{border-right:1px solid #f0f0f5}

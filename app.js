@@ -1387,11 +1387,43 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         </div>
       </div>`;
     };
+    // ── Short overwork analysis (bottom-left) ──────────────────────────────
+    // Working-hour threshold: >40 = overworked (matches Summary MAX_WORK).
+    const OVERWORK=40;
+    const overworked=totalWork>OVERWORK;
+    // Top 3 working-task types by hours consumed.
+    const byTask=new Map();
+    rows.filter(r=>r.isWork).forEach(r=>byTask.set(r.task,(byTask.get(r.task)||0)+r.hours));
+    const topTasks=[...byTask.entries()].sort((a,b)=>b[1]-a[1]).slice(0,3);
+    let analysisHtml='';
+    if(rows.length){
+      if(overworked){
+        const lead=topTasks[0];
+        const feedback=lead
+          ? `Trim <b>${esc(lead[0])}</b> (${fmtHrs(lead[1])} hrs) — redistribute or defer non-urgent sessions to bring working hours under ${OVERWORK}.`
+          : `Rebalance the schedule to bring working hours under ${OVERWORK}.`;
+        analysisHtml=`<div class="mtc-cal-analysis over">
+          <div class="mtc-cal-an-head"><span class="mtc-cal-an-badge over"><span class="mtc-cal-an-ico">⚠</span>Overworked</span><span class="mtc-cal-an-hrs">${fmtHrs(totalWork)} / ${OVERWORK} hrs</span></div>
+          <div class="mtc-cal-an-label">Biggest time sinks</div>
+          <ol class="mtc-cal-an-tasks">
+            ${topTasks.map(([t,h])=>`<li><span class="mtc-cal-swatch ${taskClass(t)}"></span><span class="mtc-cal-an-t">${esc(t)}</span><b>${fmtHrs(h)}h</b></li>`).join('')}
+          </ol>
+          <div class="mtc-cal-an-fix"><b>Fix:</b> ${feedback}</div>
+        </div>`;
+      } else {
+        analysisHtml=`<div class="mtc-cal-analysis ok">
+          <div class="mtc-cal-an-head"><span class="mtc-cal-an-badge ok"><span class="mtc-cal-an-ico">✓</span>Healthy load</span><span class="mtc-cal-an-hrs">${fmtHrs(totalWork)} / ${OVERWORK} hrs</span></div>
+          <div class="mtc-cal-an-fix">Working hours are within the ${OVERWORK}-hour limit — no action needed.</div>
+        </div>`;
+      }
+    }
+
     const filterPanel=`<aside class="mtc-cal-filters">
         <div class="mtc-cal-filters-head"><b>Show on calendar</b><button type="button" id="mtcCalAll" class="mtc-cal-all">All</button></div>
         <ul>
           ${presentTypes.map(t=>{const cls=taskClass(t);const on=!isHidden(t);return `<li><label class="mtc-cal-filter ${on?'':'off'}"><input type="checkbox" data-cal-type="${esc(t.toLowerCase())}" ${on?'checked':''}><span class="mtc-cal-swatch ${cls}"></span><span class="mtc-cal-filter-name">${esc(t)}</span></label></li>`;}).join('')||'<li class="mtc-empty-line">No activities this week.</li>'}
         </ul>
+        ${analysisHtml}
       </aside>`;
 
     panel.innerHTML=`
