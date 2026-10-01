@@ -1519,6 +1519,15 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     const totalTeach=rows.filter(r=>r.isTeach).reduce((s,r)=>s+r.hours,0);
     const load=loadLabel(totalWork);
 
+    // Previous week comparison: find the week immediately before the selected one (by week order) that this coach has data in.
+    const wIdx=weeks.indexOf(week);
+    let prevWeek='';
+    for(let i=wIdx-1;i>=0;i--){ if(rawRows.some(r=>r.name===coach&&r.week===weeks[i])){ prevWeek=weeks[i]; break; } }
+    const prevRows=prevWeek?rawRows.filter(r=>r.name===coach&&r.week===prevWeek):[];
+    const prevWork=prevRows.filter(r=>r.isWork).reduce((s,r)=>s+r.hours,0);
+    const prevTeach=prevRows.filter(r=>r.isTeach).reduce((s,r)=>s+r.hours,0);
+    const prevSessions=prevRows.length;
+
     // teaching rows split by category
     const teachRows=rows.filter(r=>r.isTeach && (r.task||'').toLowerCase()==='teaching');
     const isMainCat=c=>String(c||'').toLowerCase().replace(/\s+/g,'')==='mainclass';
@@ -1554,6 +1563,39 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     });
     const workTasks=[...workMap.values()].sort((a,b)=>b.hours-a.hours);
 
+    // Day-by-day: group every logged session by its date, Mon→Sun, each day's sessions sorted by start time.
+    const DAY_NAMES=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    const dayMap=new Map(); // dateKey -> {date, idx, label, items, work, teach}
+    rows.forEach(r=>{
+      if(!r.date) return;
+      const k=r.date.toDateString();
+      let e=dayMap.get(k);
+      if(!e){const idx=(r.date.getDay()+6)%7;e={date:r.date,idx,label:DAY_NAMES[idx],dateStr:fmtDate(r.date),items:[],work:0,teach:0};dayMap.set(k,e);}
+      e.items.push(r);
+      if(r.isWork) e.work+=r.hours;
+      if(r.isTeach) e.teach+=r.hours;
+    });
+    const dayList=[...dayMap.values()].sort((a,b)=>a.date-b.date);
+    dayList.forEach(d=>d.items.sort((a,b)=>(a.startMin??0)-(b.startMin??0)));
+    const undatedRows=rows.filter(r=>!r.date);
+    const sessionKind=r=>{const l=(r.task||'').toLowerCase();if(l==='teaching')return'teach';if(r.isTeach)return'teach-alt';if(!r.isWork)return'off';return'work';};
+    const sessionLabel=r=>{
+      const task=(r.task||'').trim();
+      if((task.toLowerCase())==='teaching'){
+        const cls=isMainCat(r.category)?(tidyClassName(r.desc)||'Main Class'):((r.category||'').trim()||'Teaching');
+        return cls;
+      }
+      return task||'Other';
+    };
+    const sessionSub=r=>{
+      const task=(r.task||'').trim();
+      if(task.toLowerCase()==='teaching'){
+        const cat=(r.category||'').trim();
+        return isMainCat(r.category)?`Main Class${cat&&cat.toLowerCase()!=='main class'?' · '+esc(cat):''}`:esc(task);
+      }
+      return r.product?esc(r.product):'';
+    };
+
     if(!rows.length){
       panel.innerHTML=controls+`<div class="mtc-detail-empty"><div class="mtc-detail-empty-ico">🗓️</div><strong>No entries for ${esc(coach)} in ${esc(mtcWeekLabel(week))}</strong><p>This coach has no logged activity for the selected week. Try another week.</p></div>`;
       wireDetailControls();
@@ -1572,6 +1614,54 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         <div class="mtc-card"><span>Load status</span><strong class="${load.cls==='over'?'over':(load.cls==='low'?'low':'ok')}" style="font-size:22px">${load.text}</strong><small>${load.note}</small></div>
         <div class="mtc-card"><span>Teaching sessions</span><strong class="ok">${teachRows.length}</strong><small>${mainSessions} main class · ${otherRows.length} other</small></div>
       </div>
+
+      <section class="mtc-detail-block mtc-detail-compare">
+        <header><p class="eyebrow">THIS WEEK VS LAST WEEK</p><h3>Change from ${prevWeek?esc(mtcWeekLabel(prevWeek)):'the previous week'}</h3><p>${prevWeek?`Compared with ${esc(coach)}'s activity in ${esc(mtcWeekLabel(prevWeek))}.`:'No earlier week with logged activity to compare against yet.'}</p></header>
+        ${prevWeek?`<div class="mtc-compare-grid">
+          ${[
+            {label:'Working hours',now:totalWork,prev:prevWork,unit:'h',goodUp:true},
+            {label:'Teaching hours',now:totalTeach,prev:prevTeach,unit:'h',goodUp:true},
+            {label:'Total sessions',now:rows.length,prev:prevSessions,unit:'',goodUp:true}
+          ].map(c=>{
+            const d=c.now-c.prev;
+            const dir=Math.abs(d)<0.005?'flat':(d>0?'up':'down');
+            const arrow=dir==='flat'?'→':(dir==='up'?'▲':'▼');
+            const sign=d>0?'+':'';
+            const dStr=c.unit==='h'?fmtHrs(Math.abs(d)):String(Math.abs(Math.round(d)));
+            const nowStr=c.unit==='h'?fmtHrs(c.now):String(c.now);
+            const prevStr=c.unit==='h'?fmtHrs(c.prev):String(c.prev);
+            return `<div class="mtc-compare-card ${dir}">
+              <span class="mtc-cmp-label">${c.label}</span>
+              <strong class="mtc-cmp-now">${nowStr}${c.unit}</strong>
+              <span class="mtc-cmp-delta ${dir}">${arrow} ${dir==='flat'?'no change':`${sign}${c.unit==='h'?'':''}${dStr}${c.unit}`}</span>
+              <small>was ${prevStr}${c.unit}</small>
+            </div>`;
+          }).join('')}
+        </div>`:``}
+      </section>
+
+      <section class="mtc-detail-block mtc-detail-days mtc-detail-days-compact">
+        <header><p class="eyebrow">DAY BY DAY</p><h3>Session timeline</h3><p>Every logged session this week, grouped by day in start-time order.</p></header>
+        <div class="mtc-day-list">
+          ${dayList.map(d=>`
+            <div class="mtc-day">
+              <div class="mtc-day-head">
+                <div class="mtc-day-when"><strong>${esc(d.label)}</strong><span>${esc(d.dateStr)}</span></div>
+                <div class="mtc-day-tot">${d.teach?`<span class="pill teach">${fmtHrs(d.teach)}h teaching</span>`:''}<span class="pill work">${fmtHrs(d.work)}h working</span><span class="mtc-day-count">${d.items.length} session${d.items.length===1?'':'s'}</span></div>
+              </div>
+              <ul class="mtc-day-sessions">
+                ${d.items.map(r=>{const sub=sessionSub(r);return `<li class="mtc-sess ${sessionKind(r)}">
+                  <span class="mtc-sess-time">${r.start?esc(r.start):'—'}${r.end?'–'+esc(r.end):''}</span>
+                  <span class="mtc-sess-main"><span class="mtc-sess-title">${esc(sessionLabel(r))}</span>${sub?`<span class="mtc-sess-sub">${sub}</span>`:''}</span>
+                  <span class="mtc-sess-hrs">${fmtHrs(r.hours)}h</span>
+                </li>`;}).join('')}
+              </ul>
+            </div>`).join('')}
+          ${undatedRows.length?`<div class="mtc-day"><div class="mtc-day-head"><div class="mtc-day-when"><strong>No date</strong><span>${undatedRows.length} entr${undatedRows.length===1?'y':'ies'} without a date</span></div></div>
+            <ul class="mtc-day-sessions">${undatedRows.map(r=>{const sub=sessionSub(r);return `<li class="mtc-sess ${sessionKind(r)}"><span class="mtc-sess-time">—</span><span class="mtc-sess-main"><span class="mtc-sess-title">${esc(sessionLabel(r))}</span>${sub?`<span class="mtc-sess-sub">${sub}</span>`:''}</span><span class="mtc-sess-hrs">${fmtHrs(r.hours)}h</span></li>`;}).join('')}</ul></div>`:''}
+          ${!dayList.length&&!undatedRows.length?`<p class="mtc-empty-line">No dated sessions this week.</p>`:''}
+        </div>
+      </section>
 
       <div class="mtc-detail-grid">
         <section class="mtc-detail-block">

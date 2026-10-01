@@ -1273,8 +1273,67 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mtc-detail-wb-track i{display:block;height:100%;border-radius:8px;min-width:3px;background:linear-gradient(90deg,#a89bf3,#6553dc)}
 .mtc-detail-workbar b{font-weight:700;color:#85828d;white-space:nowrap}
 
-@media(max-width:1000px){.mtc-summary-cards{grid-template-columns:repeat(2,1fr)}.mtc-lists-grid{grid-template-columns:1fr}.mtc-taskbar{grid-template-columns:110px 1fr 100px;gap:10px}.mtc-cal-layout{grid-template-columns:1fr}.mtc-analysis-layout{grid-template-columns:1fr}.mtc-detail-grid{grid-template-columns:1fr}}
-@media(max-width:600px){.mtc-summary-cards{grid-template-columns:1fr}.mtc-scope-note{margin-left:0;width:100%}.mtc-stale-head{flex-direction:column;align-items:flex-start}}
+/* Day-by-day session timeline */
+.mtc-detail-days{margin-bottom:18px}
+.mtc-day-list{display:grid;gap:14px}
+.mtc-day{background:var(--paper);border:1px solid #ece9f8;border-radius:16px;overflow:hidden}
+.mtc-day-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;background:#f6f4ff;border-bottom:1px solid #ece9f8}
+.mtc-day-when{display:flex;align-items:baseline;gap:9px;min-width:0}
+.mtc-day-when strong{font:800 15px Manrope;letter-spacing:-.4px;color:var(--ink)}
+.mtc-day-when span{font-size:12px;color:var(--muted);font-weight:600}
+.mtc-day-tot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mtc-day-tot .pill{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.mtc-day-tot .pill.teach{background:#eceaff;color:#5345c9}
+.mtc-day-tot .pill.work{background:#e4f5ec;color:#2f8d5e}
+.mtc-day-count{font-size:11px;color:var(--muted);font-weight:700}
+.mtc-day-sessions{list-style:none;margin:0;padding:6px 10px}
+.mtc-sess{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:12px;padding:9px 8px;border-bottom:1px solid #f0eef9}
+.mtc-sess:last-child{border-bottom:none}
+.mtc-sess-time{font-size:12px;font-weight:700;color:#6c6a78;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:9px;border-left:3px solid #c9c3ef}
+.mtc-sess.teach .mtc-sess-time{border-left-color:#6b5bdf}
+.mtc-sess.teach-alt .mtc-sess-time{border-left-color:#5fbf8c}
+.mtc-sess.work .mtc-sess-time{border-left-color:#f0a93d}
+.mtc-sess.off .mtc-sess-time{border-left-color:#c7c5d0}
+.mtc-sess-main{min-width:0;display:flex;flex-direction:column;gap:1px}
+.mtc-sess-title{font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtc-sess-sub{font-size:11px;color:var(--muted);font-weight:600}
+.mtc-sess-hrs{font-size:12px;font-weight:800;color:var(--accent);white-space:nowrap}
+
+/* Compact variant — denser, smaller type so the timeline takes less vertical room */
+.mtc-detail-days-compact{margin-bottom:18px}
+.mtc-detail-days-compact .mtc-day-list{grid-template-columns:repeat(3,1fr);gap:12px;align-items:start}
+.mtc-detail-days-compact .mtc-day{border-radius:13px}
+.mtc-detail-days-compact .mtc-day-head{flex-direction:column;align-items:flex-start;gap:7px;padding:9px 13px}
+.mtc-detail-days-compact .mtc-day-when strong{font-size:13px}
+.mtc-detail-days-compact .mtc-day-when span{font-size:11px}
+.mtc-detail-days-compact .mtc-day-tot{width:100%}
+.mtc-detail-days-compact .mtc-day-tot .pill{font-size:10px;padding:2px 8px}
+.mtc-detail-days-compact .mtc-day-count{font-size:10px}
+.mtc-detail-days-compact .mtc-day-sessions{padding:2px 10px}
+.mtc-detail-days-compact .mtc-sess{grid-template-columns:92px 1fr auto;gap:9px;padding:5px 6px}
+.mtc-detail-days-compact .mtc-sess-time{font-size:11px;padding-left:8px;border-left-width:3px}
+.mtc-detail-days-compact .mtc-sess-main{min-width:0;flex-direction:column;align-items:flex-start;gap:0}
+.mtc-detail-days-compact .mtc-sess-title{font-size:12px}
+.mtc-detail-days-compact .mtc-sess-sub{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.mtc-detail-days-compact .mtc-sess-hrs{font-size:11px}
+
+/* This week vs last week comparison */
+.mtc-detail-compare{margin-bottom:18px}
+.mtc-compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mtc-compare-card{background:var(--paper);border:1px solid #ece9f8;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:3px}
+.mtc-compare-card.up{border-left:4px solid #2f8d5e}
+.mtc-compare-card.down{border-left:4px solid #d97070}
+.mtc-compare-card.flat{border-left:4px solid #c7c5d0}
+.mtc-cmp-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.mtc-cmp-now{font:800 24px Manrope;letter-spacing:-.6px;color:var(--ink)}
+.mtc-cmp-delta{font-size:12px;font-weight:800;white-space:nowrap}
+.mtc-cmp-delta.up{color:#2f8d5e}
+.mtc-cmp-delta.down{color:#cf5e5e}
+.mtc-cmp-delta.flat{color:#8a8794}
+.mtc-compare-card small{font-size:11px;color:var(--muted);font-weight:600}
+
+@media(max-width:1000px){.mtc-summary-cards{grid-template-columns:repeat(2,1fr)}.mtc-lists-grid{grid-template-columns:1fr}.mtc-taskbar{grid-template-columns:110px 1fr 100px;gap:10px}.mtc-cal-layout{grid-template-columns:1fr}.mtc-analysis-layout{grid-template-columns:1fr}.mtc-detail-grid{grid-template-columns:1fr}.mtc-compare-grid{grid-template-columns:1fr}.mtc-detail-days-compact .mtc-day-list{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.mtc-summary-cards{grid-template-columns:1fr}.mtc-scope-note{margin-left:0;width:100%}.mtc-stale-head{flex-direction:column;align-items:flex-start}.mtc-detail-days-compact .mtc-day-list{grid-template-columns:1fr}}
 /* --- Summary redesign: search fields, branch table, at-a-glance card, pie chart --- */
 .mtc-controls .mtc-period[hidden],.mtc-controls [hidden]{display:none!important}
 .mtc-branch-search input,.mtc-name-search input{width:180px}
