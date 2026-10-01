@@ -859,7 +859,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
 
   const esc=window.esc||(s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
 
-  let state={view:'summary',mode:'week',week:'',start:'',end:'',search:'',branchSearch:'',sortCol:'branch',sortDir:'asc',calendarCoach:'',calendarWeek:'',calHidden:null};
+  let state={view:'summary',mode:'week',week:'',start:'',end:'',search:'',branchSearch:'',sortCol:'branch',sortDir:'asc',calendarCoach:'',calendarWeek:'',calHidden:null,detailCoach:'',detailWeek:''};
   let loaded=false, loading=false;
   let mtcLastRefreshedAt=null;   // timestamp of last successful data load/refresh
   let mtcRefreshTimer=0;         // auto-refresh interval id
@@ -1461,13 +1461,158 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     panel.querySelector('#mtcCalAll')?.addEventListener('click',()=>{state.calHidden.clear();renderCalendar();});
   }
 
+  // ---- render: details (per-coach breakdown) ----
+  // Extract a tidy class name from a free-text Main Class description.
+  // Descriptions are messy: "Main Class Dasher 3", "teaching ranger B", "Explorer A Private - Noval",
+  // "Main Class for Runner C". We strip boilerplate and keep "<Level> <Section>".
+  const CLASS_LEVELS=['dasher','explorer','ranger','runner','sprinter'];
+  function tidyClassName(desc){
+    let s=String(desc||'').trim();
+    if(!s) return '';
+    // Private / exam products: keep as-is up to a trailing " - Name"
+    const privateM=s.match(/\b(ielts|toefl|ielts private|toefl private)\b/i);
+    const lower=s.toLowerCase();
+    // find a known level + its following section token (letter+optional digit, or digit)
+    for(const lvl of CLASS_LEVELS){
+      const m=lower.match(new RegExp(lvl+'\\s*([a-z0-9]{1,2})?','i'));
+      if(m){
+        const section=(m[1]||'').toUpperCase().trim();
+        const name=lvl.charAt(0).toUpperCase()+lvl.slice(1);
+        return section?`${name} ${section}`:name;
+      }
+    }
+    if(privateM){ return s.replace(/\bmain class( for| in)?\b/ig,'').replace(/\bteaching\b/ig,'').replace(/\bclass\b/ig,'').replace(/\s+/g,' ').trim()||s; }
+    // fallback: strip boilerplate words, title-case the remainder
+    let cleaned=s.replace(/\bmain class( for| in)?\b/ig,'').replace(/\bteaching( class)?\b/ig,'').replace(/\bclass\b/ig,'').replace(/\s+/g,' ').trim();
+    return cleaned||s;
+  }
+  function loadLabel(work){
+    if(work>MAX_WORK) return {cls:'over',text:'Overworked',note:`Above ${MAX_WORK} working hrs`};
+    if(work<MIN_WORK) return {cls:'low',text:'Underload',note:`Below ${MIN_WORK} working hrs`};
+    return {cls:'ok',text:'Healthy load',note:`Within ${MIN_WORK}–${MAX_WORK} working hrs`};
+  }
+
+  function renderDetails(){
+    const panel=document.getElementById('mtcDetailsPanel');
+    if(!panel) return;
+    const coach=state.detailCoach;
+    const week=state.detailWeek||state.week||weeks[weeks.length-1]||'';
+    const coachOptions=`<option value="">— Pick an MTC —</option>`+coaches.map(c=>`<option value="${esc(c.name)}" ${c.name===coach?'selected':''}>${esc(c.name)}${c.center?` · ${esc(c.center)}`:''}</option>`).join('');
+    const weekOptions=weeks.map(w=>`<option value="${esc(w)}" ${w===week?'selected':''}>${esc(mtcWeekLabel(w))}</option>`).join('');
+
+    const controls=`
+      <div class="mtc-controls">
+        <select id="mtcDetailCoach" aria-label="Select MTC">${coachOptions}</select>
+        <select id="mtcDetailWeek" aria-label="Select week">${weekOptions}</select>
+        ${coach?`<span class="mtc-scope-note">${esc(coach)} · ${esc(mtcWeekLabel(week))}</span>`:''}
+      </div>`;
+
+    if(!coach){
+      panel.innerHTML=controls+`<div class="mtc-detail-empty"><div class="mtc-detail-empty-ico">👩‍🏫</div><strong>Pick a Master Teacher Coach to begin</strong><p>Choose a name from the dropdown above to see their working &amp; teaching hours, load status, and a breakdown of the classes and sessions they ran in ${esc(mtcWeekLabel(week))}.</p></div>`;
+      wireDetailControls();
+      return;
+    }
+
+    const rows=rawRows.filter(r=>r.name===coach&&r.week===week);
+    const center=(coaches.find(c=>c.name===coach)||{}).center||'';
+    const totalWork=rows.filter(r=>r.isWork).reduce((s,r)=>s+r.hours,0);
+    const totalTeach=rows.filter(r=>r.isTeach).reduce((s,r)=>s+r.hours,0);
+    const load=loadLabel(totalWork);
+
+    // teaching rows split by category
+    const teachRows=rows.filter(r=>r.isTeach && (r.task||'').toLowerCase()==='teaching');
+    const isMainCat=c=>String(c||'').toLowerCase().replace(/\s+/g,'')==='mainclass';
+    const mainRows=teachRows.filter(r=>isMainCat(r.category));
+    const otherRows=teachRows.filter(r=>!isMainCat(r.category));
+
+    // Main class: group by tidy class name, count sessions + sum hours
+    const mainMap=new Map();
+    mainRows.forEach(r=>{
+      const name=tidyClassName(r.desc)||'(unlabelled)';
+      const e=mainMap.get(name)||{name,sessions:0,hours:0};
+      e.sessions++; e.hours+=r.hours; mainMap.set(name,e);
+    });
+    const mainClasses=[...mainMap.values()].sort((a,b)=>b.sessions-a.sessions||b.hours-a.hours||a.name.localeCompare(b.name));
+    const mainSessions=mainRows.length, mainHours=mainRows.reduce((s,r)=>s+r.hours,0);
+
+    // Other teaching categories: count sessions per category + sum hours
+    const otherMap=new Map();
+    otherRows.forEach(r=>{
+      const cat=(r.category||'Uncategorised').trim()||'Uncategorised';
+      const key=cat.toLowerCase();
+      const e=otherMap.get(key)||{cat,sessions:0,hours:0};
+      e.sessions++; e.hours+=r.hours; otherMap.set(key,e);
+    });
+    const otherCats=[...otherMap.values()].sort((a,b)=>b.sessions-a.sessions||b.hours-a.hours||a.cat.localeCompare(b.cat));
+
+    // non-teaching working breakdown (so the hours add up for the user)
+    const workMap=new Map();
+    rows.filter(r=>r.isWork && !(r.isTeach && (r.task||'').toLowerCase()==='teaching')).forEach(r=>{
+      const t=(r.task||'Other').trim()||'Other';
+      const e=workMap.get(t)||{task:t,sessions:0,hours:0};
+      e.sessions++; e.hours+=r.hours; workMap.set(t,e);
+    });
+    const workTasks=[...workMap.values()].sort((a,b)=>b.hours-a.hours);
+
+    if(!rows.length){
+      panel.innerHTML=controls+`<div class="mtc-detail-empty"><div class="mtc-detail-empty-ico">🗓️</div><strong>No entries for ${esc(coach)} in ${esc(mtcWeekLabel(week))}</strong><p>This coach has no logged activity for the selected week. Try another week.</p></div>`;
+      wireDetailControls();
+      return;
+    }
+
+    panel.innerHTML=controls+`
+      <div class="mtc-detail-head">
+        <div><p class="eyebrow">MTC DETAILS</p><h2>${esc(coach)}</h2><p>${esc(center||'—')} · ${esc(mtcWeekLabel(week))}</p></div>
+        <span class="mtc-detail-loadtag ${load.cls}">${load.text}</span>
+      </div>
+
+      <div class="mtc-summary-cards mtc-detail-cards">
+        <div class="mtc-card"><span>Working hours</span><strong class="${load.cls==='over'?'over':(load.cls==='low'?'low':'ok')}">${fmtHrs(totalWork)}</strong><small>Target ${MIN_WORK}–${MAX_WORK} hrs</small></div>
+        <div class="mtc-card"><span>Teaching hours</span><strong class="${totalTeach<MIN_TEACH?'low':'ok'}">${fmtHrs(totalTeach)}</strong><small>Minimum ${MIN_TEACH} hrs</small></div>
+        <div class="mtc-card"><span>Load status</span><strong class="${load.cls==='over'?'over':(load.cls==='low'?'low':'ok')}" style="font-size:22px">${load.text}</strong><small>${load.note}</small></div>
+        <div class="mtc-card"><span>Teaching sessions</span><strong class="ok">${teachRows.length}</strong><small>${mainSessions} main class · ${otherRows.length} other</small></div>
+      </div>
+
+      <div class="mtc-detail-grid">
+        <section class="mtc-detail-block">
+          <header><p class="eyebrow">MAIN CLASS</p><h3>Classes taught</h3><p>${mainSessions} session${mainSessions===1?'':'s'} · ${fmtHrs(mainHours)} hrs · ${mainClasses.length} distinct class${mainClasses.length===1?'':'es'}</p></header>
+          ${mainClasses.length?`<ul class="mtc-detail-list">
+            ${mainClasses.map(m=>`<li><span class="mtc-detail-chip main"></span><span class="mtc-detail-name">${esc(m.name)}</span><span class="mtc-detail-meta"><b>${m.sessions}</b> session${m.sessions===1?'':'s'} · ${fmtHrs(m.hours)} hrs</span></li>`).join('')}
+          </ul>`:`<p class="mtc-empty-line">No main-class teaching logged this week.</p>`}
+        </section>
+
+        <section class="mtc-detail-block">
+          <header><p class="eyebrow">OTHER TEACHING</p><h3>Sessions by category</h3><p>${otherRows.length} session${otherRows.length===1?'':'s'} · ${fmtHrs(otherRows.reduce((s,r)=>s+r.hours,0))} hrs across ${otherCats.length} categor${otherCats.length===1?'y':'ies'}</p></header>
+          ${otherCats.length?`<ul class="mtc-detail-list">
+            ${otherCats.map(o=>`<li><span class="mtc-detail-chip other"></span><span class="mtc-detail-name">${esc(o.cat)}</span><span class="mtc-detail-meta"><b>${o.sessions}</b> session${o.sessions===1?'':'s'} · ${fmtHrs(o.hours)} hrs</span></li>`).join('')}
+          </ul>`:`<p class="mtc-empty-line">No other teaching categories this week (OPT, Trial Class, Pre-Class, etc.).</p>`}
+        </section>
+      </div>
+
+      <section class="mtc-detail-block mtc-detail-work">
+        <header><p class="eyebrow">NON-TEACHING WORK</p><h3>Where the rest of the hours went</h3><p>Planning, Admin, Coordination and other working time — this plus teaching makes up the ${fmtHrs(totalWork)} working hours.</p></header>
+        ${workTasks.length?`<div class="mtc-detail-workbars">
+          ${workTasks.map(w=>{const pct=totalWork?w.hours/totalWork*100:0;return `<div class="mtc-detail-workbar"><span class="mtc-detail-wb-name">${esc(w.task)}</span><div class="mtc-detail-wb-track"><i style="width:${pct.toFixed(1)}%"></i></div><b>${fmtHrs(w.hours)} hrs · ${w.sessions} entr${w.sessions===1?'y':'ies'}</b></div>`;}).join('')}
+        </div>`:`<p class="mtc-empty-line">All working hours this week were teaching.</p>`}
+      </section>
+    `;
+    wireDetailControls();
+  }
+  function wireDetailControls(){
+    const panel=document.getElementById('mtcDetailsPanel');
+    if(!panel) return;
+    panel.querySelector('#mtcDetailCoach')?.addEventListener('change',e=>{state.detailCoach=e.target.value;renderDetails();});
+    panel.querySelector('#mtcDetailWeek')?.addEventListener('change',e=>{state.detailWeek=e.target.value;renderDetails();});
+  }
+
   function setMtcView(view){
     state.view=view;
     document.getElementById('mtcSummaryPanel').hidden=view!=='summary';
     document.getElementById('mtcCalendarPanel').hidden=view!=='calendar';
+    const dp=document.getElementById('mtcDetailsPanel'); if(dp) dp.hidden=view!=='details';
     document.querySelectorAll('[data-mtc-view]').forEach(b=>b.classList.toggle('active',b.dataset.mtcView===view));
     syncMtcDock(view);
-    if(view==='summary') renderSummary(); else renderCalendar();
+    if(view==='summary') renderSummary(); else if(view==='calendar') renderCalendar(); else renderDetails();
   }
 
   async function initMtc(){
@@ -1485,12 +1630,12 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
   // Reuse the app's shared sticky-dock system (same as SQT / Operations / Sessions).
   function initMtcSticky(){
     if(typeof initGenericSticky!=='function') return;
-    initGenericSticky('mtc-productivity','Academic',[{id:'summary',label:'Summary'},{id:'calendar',label:'Calendar'}],tab=>setMtcView(tab));
+    initGenericSticky('mtc-productivity','Academic',[{id:'summary',label:'Summary'},{id:'calendar',label:'Calendar'},{id:'details',label:'Details'}],tab=>setMtcView(tab));
   }
   function syncMtcDock(view){
     const dock=document.querySelector('.view-dock[data-view="mtc-productivity"]');
     if(!dock) return;
-    const labels={summary:'Summary',calendar:'Calendar'};
+    const labels={summary:'Summary',calendar:'Calendar',details:'Details'};
     const subtitle=dock.querySelector('.dock-subtitle');
     if(subtitle) subtitle.textContent=`/ ${labels[view]||'Summary'}`;
     dock.querySelectorAll('[data-dock-tab]').forEach(span=>span.classList.toggle('active',span.dataset.dockTab===view));
@@ -1502,7 +1647,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     try{
       await loadData(true);
       if(document.getElementById('mtc-productivity')?.classList.contains('active')){
-        if(state.view==='summary') renderSummary(); else renderCalendar();
+        if(state.view==='summary') renderSummary(); else if(state.view==='calendar') renderCalendar(); else renderDetails();
       }
     }catch(e){ console.warn('MTC auto-refresh issue',e); }
   }
