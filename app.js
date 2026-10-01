@@ -859,7 +859,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
 
   const esc=window.esc||(s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
 
-  let state={view:'summary',mode:'week',week:'',start:'',end:'',search:'',branchSearch:'',sort:'name',calendarCoach:'',calendarWeek:'',calHidden:null};
+  let state={view:'summary',mode:'week',week:'',start:'',end:'',search:'',branchSearch:'',sortCol:'branch',sortDir:'asc',calendarCoach:'',calendarWeek:'',calHidden:null};
   let loaded=false, loading=false;
   let mtcLastRefreshedAt=null;   // timestamp of last successful data load/refresh
   let mtcRefreshTimer=0;         // auto-refresh interval id
@@ -1118,13 +1118,16 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
       .filter(t=>!q||t.name.toLowerCase().includes(q))
       .filter(t=>!bq||String(t.center||'').toLowerCase().includes(bq))
       .map(t=>({...t,lastEntry:(staleMap.get(t.name)||{}).last||null,lastDays:(staleMap.get(t.name)||{}).days}));
-    const sortFn={
-      'name':(a,b)=>String(a.center||'').localeCompare(String(b.center||''))||a.name.localeCompare(b.name),
-      'high':(a,b)=>b.work-a.work||b.teach-a.teach,
-      'low':(a,b)=>a.work-b.work||a.teach-b.teach,
-      'recent':(a,b)=>{const da=(a.lastDays==null||a.lastDays===Infinity)?9e9:a.lastDays,db=(b.lastDays==null||b.lastDays===Infinity)?9e9:b.lastDays;return da-db||a.name.localeCompare(b.name);}
-    }[state.sort]||((a,b)=>a.name.localeCompare(b.name));
-    tableRows.sort(sortFn);
+    // Sort by clicked column. Up arrow (asc): A–Z / high→low hrs / most-recently-updated first. Down (desc): reverse.
+    const lastRank=t=>(t.lastDays==null||t.lastDays===Infinity)?9e9:t.lastDays;
+    const cmp={
+      branch:(a,b)=>String(a.center||'').localeCompare(String(b.center||''))||a.name.localeCompare(b.name),
+      name:(a,b)=>a.name.localeCompare(b.name),
+      teach:(a,b)=>b.teach-a.teach||a.name.localeCompare(b.name),
+      work:(a,b)=>b.work-a.work||a.name.localeCompare(b.name),
+      last:(a,b)=>lastRank(a)-lastRank(b)||a.name.localeCompare(b.name)
+    }[state.sortCol]||((a,b)=>String(a.center||'').localeCompare(String(b.center||'')));
+    tableRows.sort((a,b)=>state.sortDir==='desc'?-cmp(a,b):cmp(a,b));
 
     const branchList=[...new Set(coaches.map(c=>c.center).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
 
@@ -1164,12 +1167,6 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         </div>
         <div class="mtc-branch-search"><input id="mtcBranchSearch" type="search" placeholder="Search branch" value="${esc(state.branchSearch)}" aria-label="Search branch" autocomplete="off" list="mtcBranchOptions"><datalist id="mtcBranchOptions">${branchList.map(b=>`<option value="${esc(b)}">`).join('')}</datalist></div>
         <div class="mtc-name-search"><input id="mtcNameSearch" type="search" placeholder="Search MTC name" value="${esc(state.search)}" aria-label="Search MTC name" autocomplete="off"></div>
-        <select id="mtcSort" aria-label="Sort table">
-          <option value="name" ${state.sort==='name'?'selected':''}>Sort: A–Z (by branch)</option>
-          <option value="high" ${state.sort==='high'?'selected':''}>Working hrs: high → low</option>
-          <option value="low" ${state.sort==='low'?'selected':''}>Working hrs: low → high</option>
-          <option value="recent" ${state.sort==='recent'?'selected':''}>Last entry: updated → not</option>
-        </select>
       </div>
 
       <div class="mtc-summary-cards">
@@ -1187,7 +1184,19 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
           </div>
           <div class="table-wrap">
             <table class="mtc-table">
-              <thead><tr><th>Branch</th><th>MTC name</th><th class="num">Teaching hrs</th><th class="num">Working hrs</th><th>Last entry</th></tr></thead>
+              <thead><tr>${[
+                {col:'branch',label:'Branch',num:false},
+                {col:'name',label:'MTC name',num:false},
+                {col:'teach',label:'Teaching hrs',num:true},
+                {col:'work',label:'Working hrs',num:true},
+                {col:'last',label:'Last entry',num:false}
+              ].map(h=>{
+                const active=state.sortCol===h.col;
+                const arrow=active?(state.sortDir==='asc'?'▲':'▼'):'';
+                const nextDir=active&&state.sortDir==='asc'?'desc':'asc';
+                const tip=h.col==='branch'||h.col==='name'?'Sort A–Z (▲) / Z–A (▼)':(h.col==='last'?'Sort most-recent first (▲) / least-recent first (▼)':'Sort high→low (▲) / low→high (▼)');
+                return `<th class="mtc-sort-th${h.num?' num':''}${active?' active':''}" data-sort="${h.col}" data-next="${nextDir}" title="${tip}" role="button" tabindex="0"><span class="mtc-sort-label">${h.label}<span class="mtc-sort-arrow">${arrow}</span></span></th>`;
+              }).join('')}</tr></thead>
               <tbody>
                 ${tableRows.length?tableRows.map(t=>`<tr>
                   <td class="mtc-branch">${esc(t.center||'—')}</td>
@@ -1258,7 +1267,11 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     panel.querySelectorAll('[data-mtc-mode]').forEach(b=>b.addEventListener('click',()=>{state.mode=b.dataset.mtcMode;renderSummary();}));
     panel.querySelector('#mtcWeek')?.addEventListener('change',e=>{state.week=e.target.value;renderSummary();});
     panel.querySelector('#mtcApplyPeriod')?.addEventListener('click',()=>{state.start=panel.querySelector('#mtcStart').value;state.end=panel.querySelector('#mtcEnd').value;renderSummary();});
-    panel.querySelector('#mtcSort')?.addEventListener('change',e=>{state.sort=e.target.value;renderSummary();});
+    panel.querySelectorAll('.mtc-sort-th').forEach(th=>{
+      const doSort=()=>{const col=th.dataset.sort;state.sortDir=(state.sortCol===col&&state.sortDir==='asc')?'desc':'asc';state.sortCol=col;renderSummary();};
+      th.addEventListener('click',doSort);
+      th.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();doSort();}});
+    });
     // debounced text searches that preserve focus & caret (avoid full re-render jank)
     const wireSearch=(sel,key)=>{
       const el=panel.querySelector(sel); if(!el) return;
