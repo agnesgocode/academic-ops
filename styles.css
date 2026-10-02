@@ -1365,6 +1365,11 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .mtc-table .mtc-name-link:hover strong{color:#6b5bdf;text-decoration:underline}
 .mtc-table .mtc-name-ext{font-size:10px;color:#b4b2c4;transition:color .12s}
 .mtc-table .mtc-name-link:hover .mtc-name-ext{color:#6b5bdf}
+.mtc-table th.mtc-detail-th{text-align:right;white-space:nowrap;color:#8b89a0;font-weight:700}
+.mtc-table td.mtc-detail-cell{text-align:right;white-space:nowrap}
+.mtc-detail-link{font:inherit;font-weight:700;font-size:12px;color:#6b5bdf;background:#f3f1ff;border:1px solid #e2ddff;border-radius:8px;padding:5px 10px;cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s,color .12s}
+.mtc-detail-link:hover{background:#6b5bdf;border-color:#6b5bdf;color:#fff}
+.mtc-detail-link:focus-visible{outline:2px solid #6b5bdf;outline-offset:2px}
 .mtc-hrs{font-weight:800;font-variant-numeric:tabular-nums}
 .mtc-hrs.ok{color:#3e3d49}
 .mtc-hrs.low{color:#cc5547}

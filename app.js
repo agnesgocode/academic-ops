@@ -1220,7 +1220,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
                 const nextDir=active&&state.sortDir==='asc'?'desc':'asc';
                 const tip=h.col==='branch'||h.col==='name'?'Sort A–Z (▲) / Z–A (▼)':(h.col==='last'?'Sort most-recent first (▲) / least-recent first (▼)':'Sort high→low (▲) / low→high (▼)');
                 return `<th class="mtc-sort-th${h.num?' num':''}${active?' active':''}" data-sort="${h.col}" data-next="${nextDir}" title="${tip}" role="button" tabindex="0"><span class="mtc-sort-label">${h.label}<span class="mtc-sort-arrow">${arrow}</span></span></th>`;
-              }).join('')}</tr></thead>
+              }).join('')}<th class="mtc-detail-th" title="Open this coach’s weekly details">Details</th></tr></thead>
               <tbody>
                 ${tableRows.length?tableRows.map(t=>`<tr>
                   <td class="mtc-branch">${esc(t.center||'—')}</td>
@@ -1228,7 +1228,8 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
                   <td class="num">${teachPill(t.teach)}</td>
                   <td class="num">${workPill(t.work)}${t.work>MAX_WORK?'<span class="mtc-tag over">Overworked</span>':''}</td>
                   <td>${lastCell(t.lastEntry,t.lastDays)}</td>
-                </tr>`).join(''):`<tr><td colspan="5" class="mtc-empty-line">No coaches match this filter.</td></tr>`}
+                  <td class="mtc-detail-cell"><button type="button" class="mtc-detail-link" data-detail-name="${esc(t.name)}" title="See ${esc(t.name)}’s weekly details">Details →</button></td>
+                </tr>`).join(''):`<tr><td colspan="6" class="mtc-empty-line">No coaches match this filter.</td></tr>`}
               </tbody>
             </table>
           </div>
@@ -1311,6 +1312,18 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     };
     wireSearch('#mtcNameSearch','search');
     wireSearch('#mtcBranchSearch','branchSearch');
+    // One-time delegated handler: the "Details →" button in each row jumps to the
+    // Details tab for that coach, carrying over the current week filter.
+    if(!panel.dataset.detailLinkBound){
+      panel.dataset.detailLinkBound='true';
+      panel.addEventListener('click',e=>{
+        const btn=e.target.closest('.mtc-detail-link'); if(!btn) return;
+        state.detailCoach=btn.dataset.detailName||'';
+        state.detailWeek=(state.mode==='week'?state.week:'')||'';
+        setMtcView('details');
+        document.getElementById('mtcDetailsPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    }
   }
 
   // ---- render: calendar ----
