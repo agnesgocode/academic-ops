@@ -1178,6 +1178,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
       last:(a,b)=>lastRank(a)-lastRank(b)||a.name.localeCompare(b.name)
     }[state.sortCol]||((a,b)=>String(a.center||'').localeCompare(String(b.center||'')));
     tableRows.sort((a,b)=>state.sortDir==='desc'?-cmp(a,b):cmp(a,b));
+    state.exportRows=tableRows;
 
     const branchList=[...new Set(coaches.map(c=>c.center).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
 
@@ -1329,9 +1330,11 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
       const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
       const lastText=t=>{if(!t.lastEntry)return'Never';const d=fmtDate(t.lastEntry),days=t.lastDays;if(days==null)return d;if(days<0)return`${d} (future date)`;if(days===0)return`${d} (today)`;return`${d} (${days} day${days===1?'':'s'} ago)`;};
       const header=['Branch','MTC name','Teaching hrs','Working hrs','Last entry'];
-      const lines=[header.join(','),...tableRows.map(t=>[q(t.center||''),q(t.name||''),(t.teach||0).toFixed(2),(t.work||0).toFixed(2),q(lastText(t))].join(','))];
+      const rows=state.exportRows||[];
+      const lines=[header.join(','),...rows.map(t=>[q(t.center||''),q(t.name||''),(t.teach||0).toFixed(2),(t.work||0).toFixed(2),q(lastText(t))].join(','))];
       const scope=state.mode==='week'?(state.week||'week'):'period';
-      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));a.download=`mtc-productivity-${String(scope).replace(/[^\w.-]+/g,'-')}.csv`;a.click();URL.revokeObjectURL(a.href);
+      const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mtc-productivity-${String(scope).replace(/[^\w.-]+/g,'-')}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),0);
     });
     // debounced text searches that preserve focus & caret (avoid full re-render jank)
     const wireSearch=(sel,key)=>{
