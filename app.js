@@ -1218,6 +1218,7 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
         </div>
         <div class="mtc-branch-search"><input id="mtcBranchSearch" type="search" placeholder="Search branch" value="${esc(state.branchSearch)}" aria-label="Search branch" autocomplete="off" list="mtcBranchOptions"><datalist id="mtcBranchOptions">${branchList.map(b=>`<option value="${esc(b)}">`).join('')}</datalist></div>
         <div class="mtc-name-search"><input id="mtcNameSearch" type="search" placeholder="Search MTC name" value="${esc(state.search)}" aria-label="Search MTC name" autocomplete="off"></div>
+        <button id="mtcExport" class="control-button" type="button">Export CSV</button>
       </div>
 
       <div class="mtc-summary-cards">
@@ -1323,6 +1324,14 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
       const doSort=()=>{const col=th.dataset.sort;state.sortDir=(state.sortCol===col&&state.sortDir==='asc')?'desc':'asc';state.sortCol=col;renderSummary();};
       th.addEventListener('click',doSort);
       th.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();doSort();}});
+    });
+    panel.querySelector('#mtcExport')?.addEventListener('click',()=>{
+      const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
+      const lastText=t=>{if(!t.lastEntry)return'Never';const d=fmtDate(t.lastEntry),days=t.lastDays;if(days==null)return d;if(days<0)return`${d} (future date)`;if(days===0)return`${d} (today)`;return`${d} (${days} day${days===1?'':'s'} ago)`;};
+      const header=['Branch','MTC name','Teaching hrs','Working hrs','Last entry'];
+      const lines=[header.join(','),...tableRows.map(t=>[q(t.center||''),q(t.name||''),(t.teach||0).toFixed(2),(t.work||0).toFixed(2),q(lastText(t))].join(','))];
+      const scope=state.mode==='week'?(state.week||'week'):'period';
+      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));a.download=`mtc-productivity-${String(scope).replace(/[^\w.-]+/g,'-')}.csv`;a.click();URL.revokeObjectURL(a.href);
     });
     // debounced text searches that preserve focus & caret (avoid full re-render jank)
     const wireSearch=(sel,key)=>{
