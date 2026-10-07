@@ -107,9 +107,9 @@
 <a class="outline-button" id="academicLink" target="_blank" rel="noreferrer">Open source ↗</a>
 </div>
 <div class="sheet-tabs sqt-tabs">
-<button class="sheet-tab active">SQT</button>
-<button class="sheet-tab">Observation</button>
-<button class="sheet-tab" disabled>SmartApp Usage</button>
+<button class="sheet-tab active" data-academic-tab="sqt">SQT</button>
+<button class="sheet-tab" data-academic-tab="observation">Observation</button>
+<button class="sheet-tab" data-academic-tab="smartapp">SmartApp Usage</button>
 </div>
 <div class="sqt-controls">
 <div class="filter-switch" role="group" aria-label="SQT filter type">
@@ -128,11 +128,6 @@
 <button id="applyPeriod" class="control-button">Apply</button>
 </div>
 <input id="sqtSearch" type="search" placeholder="Search center" aria-label="Search center"/>
-<select id="sqtSort" aria-label="Sort centers">
-<option value="name">A–Z</option>
-<option value="high">SQT: high to low</option>
-<option value="low">SQT: low to high</option>
-</select>
 <button id="exportSqt" class="control-button">Export CSV</button>
 </div>
 <div class="sqt-summary" id="sqtSummary">
