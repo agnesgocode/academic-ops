@@ -43,6 +43,8 @@
       var capKey = VIEW_CAP[v];
       var allowed = !capKey || can(capKey);
       a.style.display = allowed ? '' : 'none';
+      // nama menu muncul sebagai tooltip saat sidebar diciutkan jadi ikon
+      if (!a.title) a.title = a.textContent.replace(/\s+/g, ' ').trim();
     });
     // Sembunyikan seluruh divisi (judul + garis + jarak) kalau semua menunya tersembunyi,
     // supaya tidak ada garis kosong di sidebar.

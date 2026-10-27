@@ -1549,3 +1549,54 @@ body[data-access="checking"] .nav-toggle,
 body[data-access="checking"] .sidebar-backdrop,
 body[data-access="checking"] .view-dock,
 body[data-access="checking"] .academic-dock { display: none !important; }
+
+/* ==== Sidebar tertutup = rail ikon (layar lebar). Layar sempit tetap pakai drawer. ==== */
+@media (min-width: 1130px) {
+  html body.nav-hidden .sidebar {
+    transform: none !important;
+    pointer-events: auto !important;
+    width: 76px !important;
+    padding: 22px 10px 12px !important;
+    overflow: visible !important;
+    align-items: center;
+    box-shadow: none !important;
+  }
+  html body.is-toggling .sidebar { transition: width .22s ease !important; }
+  html body.is-toggling main { transition: margin-left .22s ease !important; }
+
+  /* isi halaman bergeser mengikuti lebar rail */
+  html body.nav-hidden main { margin-left: 76px !important; padding-left: 34px !important; }
+  html body.nav-hidden .academic-dock,
+  html body.nav-hidden .view-dock { left: 76px !important; width: calc(100% - 76px) !important; padding-left: 34px !important; }
+
+  /* logo: hanya lambangnya */
+  html body.nav-hidden .brand { justify-content: center; width: 100%; }
+  html body.nav-hidden .brand > span:last-child { display: none !important; }
+
+  /* menu: hanya ikon, tepat di tengah */
+  html body.nav-hidden .sidebar nav { width: 100%; margin-top: 22px !important; padding: 0 0 12px !important; gap: 4px !important; scrollbar-width: none; display: flex !important; flex-direction: column; align-items: center; }
+  html body.nav-hidden .sidebar nav::-webkit-scrollbar { display: none; }
+  html body.nav-hidden .nav-link { font-size: 0 !important; gap: 0 !important; justify-content: center; align-items: center; width: 40px; height: 40px; padding: 0 !important; margin: 0 auto; }
+  html body.nav-hidden .nav-link.nav-sub { display: none !important; }
+
+  /* judul grup jadi tiga titik (digambar, bukan teks, supaya pas di tengah) */
+  html body.nav-hidden .nav-division { width: 100%; justify-items: center; border-top: 0 !important; margin-top: 2px !important; padding: 4px 0 2px !important; gap: 4px; }
+  html body.nav-hidden .nav-division > strong { display: flex !important; justify-content: center; align-items: center; width: 100%; height: 16px; margin: 0 !important; padding: 0 !important; font-size: 0 !important; }
+  html body.nav-hidden .nav-division > strong::after { content: ""; display: block; width: 3px; height: 3px; border-radius: 50%; background: #b3b0bc; box-shadow: -7px 0 0 #b3b0bc, 7px 0 0 #b3b0bc; }
+
+  /* akun: hanya avatar; menu muncul di sebelah kanan rail */
+  html body.nav-hidden .account { padding: 8px 0 !important; width: 100%; }
+  html body.nav-hidden .account-btn { width: auto; margin: 0 auto; padding: 2px; justify-content: center; }
+  html body.nav-hidden .account-avatar { width: 34px; height: 34px; flex: 0 0 34px; font-size: 13px; }
+  html body.nav-hidden .account-summary { display: none !important; }
+  html body.nav-hidden .account-menu { left: calc(100% + 18px); bottom: 4px; }
+
+  /* tombol buka/tutup menempel di tepi rail, di bawah logo */
+  html body.nav-hidden .nav-toggle { left: 62px !important; top: 76px !important; }
+}
+
+/* Ikon menu: satu set ikon garis yang seragam (warna mengikuti teks / aksen saat aktif) */
+.nav-link .nav-ico { display: grid; place-items: center; flex: 0 0 22px; width: 22px; height: 22px; font-size: 0; color: #77737f; }
+.nav-link .nav-ico svg { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nav-link:hover .nav-ico { color: var(--accent-deep, #5142bf); }
+.nav-link.active .nav-ico { color: var(--accent, #6b5bdf); }
