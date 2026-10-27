@@ -948,7 +948,9 @@ document.addEventListener('click',event=>{const card=event.target.closest('[data
     const rows=table.rows||[];
     const list=[];
     rows.forEach(r=>{
-      const name=cellStr(r,0), role=cellStr(r,1), status=cellStr(r,5), center=cellStr(r,13);
+      // Teachers directory columns (after the "Rumus Code" column was added at col A):
+      // col B(1)=name, col C(2)=position/role, col G(6)=teaching status, col O(14)=center
+      const name=cellStr(r,1), role=cellStr(r,2), status=cellStr(r,6), center=cellStr(r,14);
       if(!name) return;
       if(!/coach/i.test(role)) return;
       if(status.toUpperCase().includes('INACTIVE')) return;
