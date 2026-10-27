@@ -1521,3 +1521,15 @@ dialog.modal::backdrop { background: rgba(0,0,0,.45); }
 
 /* Sidebar rapat: divisi pertama yang terlihat tanpa garis/jarak di atas */
 .sidebar nav .nav-division.nav-first { border-top: 0; margin-top: 0; padding-top: 0; }
+
+/* Access Control: dialog lebih besar, daftar orang mengisi tinggi yang tersedia */
+dialog.modal#access-dialog { width: min(1180px, 94vw); max-width: none; height: min(88vh, 900px); padding: 28px 32px; }
+dialog.modal#access-dialog[open] { display: flex; flex-direction: column; }
+#access-dialog #access-people, #access-dialog #access-roles { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#access-dialog #access-people[hidden], #access-dialog #access-roles[hidden] { display: none; }
+#access-dialog .member-list { flex: 1; max-height: none; min-height: 0; padding-bottom: 80px; }
+#access-dialog .member { padding: 14px 16px; }
+#access-dialog #access-roles { overflow: auto; }
+#access-dialog .add-person-toggle, #access-dialog .add-person-form { flex-shrink: 0; align-self: flex-start; }
+#access-dialog .add-person-form { align-self: stretch; }
+#access-dialog .roles-grid-wrap { max-height: none; }
