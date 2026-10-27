@@ -181,14 +181,35 @@
     guardCurrentView();
   }
 
+  var readyFor = null; // id pengguna yang aksesnya sudah selesai dihitung
+
+  function doneChecking() {
+    // tunggu 2 frame supaya halaman tujuan sudah tergambar sebelum layar "memuat" dibuka
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { document.body.removeAttribute('data-access'); });
+    });
+  }
+
   function onSignedIn(user) {
+    // Pertama kali login: tutup tampilan (layar "memuat") sampai akses selesai dihitung
+    // dan halaman tujuan sudah benar, supaya halaman terlarang tidak sempat terlihat.
+    var firstTime = readyFor !== user.id;
+    if (firstTime) document.body.setAttribute('data-access', 'checking');
+
     // ambil default role dari server bila ada (opsional), lalu hitung izin
     function compute() {
-      perms = P.effectiveFor ? P.effectiveFor(user, roleDefaults) : null;
-      if (window.Account) window.Account.setUser(user);
-      // beri waktu app.js merender sidebar, lalu terapkan
-      setTimeout(applyAll, 0);
-      setTimeout(applyAll, 400);
+      try {
+        perms = P.effectiveFor ? P.effectiveFor(user, roleDefaults) : null;
+        if (window.Account) window.Account.setUser(user);
+        applyAll(); // langsung, tanpa menunggu: menu, tab, dan pindah ke halaman yang diizinkan
+      } catch (err) {
+        console.error('access-control:', err);
+      } finally {
+        readyFor = user.id;
+        if (firstTime) doneChecking();
+        // cadangan: app.js kadang merender sidebar sedikit terlambat
+        setTimeout(applyAll, 400);
+      }
     }
     if (window.Auth && typeof window.Auth.admin === 'function' && window.Auth.roleOf(user) === 'admin') {
       compute();
@@ -208,7 +229,7 @@
     window.Auth.init({
       onSignedIn: onSignedIn,
       onUserUpdated: function (user) { onSignedIn(user); },
-      onSignedOut: function () { perms = null; }
+      onSignedOut: function () { perms = null; readyFor = null; document.body.removeAttribute('data-access'); }
     });
   }
 

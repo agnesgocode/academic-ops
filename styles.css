@@ -1540,3 +1540,12 @@ dialog.modal#access-dialog[open] { display: flex; flex-direction: column; }
 .add-role-form input:focus { outline: 2px solid #1c7c84; border-color: #1c7c84; }
 .role-del { margin-left: 4px; width: 18px; height: 18px; line-height: 14px; border-radius: 50%; border: 1px solid #e7b9b3; background: #fff; color: #c0392b; font-size: 13px; cursor: pointer; padding: 0; vertical-align: middle; }
 .role-del:hover { background: #fbeceb; }
+
+/* Setelah login: tutup web sampai akses dihitung & halaman tujuan benar (tanpa kedip halaman terlarang) */
+body[data-access="checking"] .auth-loading { display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 1000; background: #0f1b1d; color: #e6f2f1; font-size: 15px; }
+body[data-access="checking"] .sidebar,
+body[data-access="checking"] main,
+body[data-access="checking"] .nav-toggle,
+body[data-access="checking"] .sidebar-backdrop,
+body[data-access="checking"] .view-dock,
+body[data-access="checking"] .academic-dock { display: none !important; }
