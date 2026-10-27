@@ -1600,3 +1600,11 @@ body[data-access="checking"] .academic-dock { display: none !important; }
 .nav-link .nav-ico svg { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .nav-link:hover .nav-ico { color: var(--accent-deep, #5142bf); }
 .nav-link.active .nav-ico { color: var(--accent, #6b5bdf); }
+
+/* Logo English Academy menggantikan lambang bintang */
+.brand-mark.logo { width: auto !important; height: 44px !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; display: block; flex: 0 0 auto; }
+.brand-mark.logo img { display: block; height: 100%; width: auto; }
+.auth-brand .brand-mark.logo { height: 52px !important; margin-bottom: 8px; }
+@media (min-width: 1130px) {
+  html body.nav-hidden .brand-mark.logo { height: 40px !important; }
+}
