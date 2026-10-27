@@ -1424,8 +1424,16 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 body[data-auth="pending"] .auth-loading { display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 1000; background: #0f1b1d; color: #e6f2f1; font-size: 15px; }
 body[data-auth="pending"] .sidebar,
 body[data-auth="pending"] main,
+body[data-auth="pending"] .nav-toggle,
+body[data-auth="pending"] .sidebar-backdrop,
+body[data-auth="pending"] .view-dock,
+body[data-auth="pending"] .academic-dock,
 body[data-auth="out"] .sidebar,
-body[data-auth="out"] main { display: none !important; }
+body[data-auth="out"] main,
+body[data-auth="out"] .nav-toggle,
+body[data-auth="out"] .sidebar-backdrop,
+body[data-auth="out"] .view-dock,
+body[data-auth="out"] .academic-dock { display: none !important; }
 body[data-auth="out"] .auth-screen { display: flex; }
 
 .auth-screen { position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(160deg, #0f1b1d, #15454a); }
@@ -1510,3 +1518,6 @@ dialog.modal::backdrop { background: rgba(0,0,0,.45); }
 .roles-table th, .roles-table td { border: 1px solid #e8eef0; padding: 7px 9px; text-align: center; }
 .roles-table th:first-child, .roles-table td:first-child { text-align: left; position: sticky; left: 0; background: #fff; min-width: 190px; }
 .roles-table thead th { position: sticky; top: 0; background: #f2f7f7; z-index: 2; }
+
+/* Sidebar rapat: divisi pertama yang terlihat tanpa garis/jarak di atas */
+.sidebar nav .nav-division.nav-first { border-top: 0; margin-top: 0; padding-top: 0; }

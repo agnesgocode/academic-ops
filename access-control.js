@@ -44,13 +44,26 @@
       var allowed = !capKey || can(capKey);
       a.style.display = allowed ? '' : 'none';
     });
-    // Sembunyikan judul divisi yang semua menunya tersembunyi
-    document.querySelectorAll('.nav-division').forEach(function (div) {
-      var links = [...div.querySelectorAll('.nav-link')];
-      var anyVisible = links.some(function (a) { return a.style.display !== 'none'; });
-      var strong = div.querySelector('strong');
-      if (strong) strong.style.display = anyVisible ? '' : 'none';
+    // Sembunyikan seluruh divisi (judul + garis + jarak) kalau semua menunya tersembunyi,
+    // supaya tidak ada garis kosong di sidebar.
+    var firstVisibleEl = null;
+    document.querySelectorAll('nav[aria-label="Main navigation"] > *').forEach(function (el) {
+      var isDivision = el.classList.contains('nav-division');
+      var visible;
+      if (isDivision) {
+        var links = [...el.querySelectorAll('.nav-link')];
+        visible = links.some(function (a) { return a.style.display !== 'none'; });
+        el.style.display = visible ? '' : 'none';
+        el.classList.remove('nav-first');
+      } else {
+        visible = el.style.display !== 'none';
+      }
+      if (visible && !firstVisibleEl) firstVisibleEl = el;
     });
+    // Divisi pertama yang terlihat dirapatkan ke atas (tanpa garis pemisah di atasnya)
+    if (firstVisibleEl && firstVisibleEl.classList.contains('nav-division')) {
+      firstVisibleEl.classList.add('nav-first');
+    }
   }
 
   // Sembunyikan tab di dalam halaman Academic / Operations
