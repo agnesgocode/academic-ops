@@ -18,7 +18,7 @@
 <h1>Masuk</h1>
 <p class="auth-lead">Masuk untuk membuka dashboard. Halaman ini tertutup untuk umum.</p>
 <label class="field"><span>Email</span><input type="email" name="email" autocomplete="username" required></label>
-<label class="field"><span>Password</span><input type="password" name="password" autocomplete="current-password" required></label>
+<label class="field"><span>Password</span><span class="pw-wrap"><input type="password" name="password" autocomplete="current-password" required><button class="pw-toggle" type="button" data-toggle-pw aria-label="Tampilkan password" aria-pressed="false"><svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></button></span></label>
 <p class="auth-msg" role="alert"></p>
 <button class="btn-primary" type="submit">Masuk</button>
 <button class="btn-link" type="button" data-auth-view="signup">Belum punya akun? Daftar</button>
@@ -31,7 +31,7 @@
 <label class="field"><span>Email</span><input type="email" name="email" autocomplete="username" required></label>
 <label class="field"><span>Role</span><select name="role" required></select></label>
 <label class="field"><span>Center</span><input type="text" name="center" maxlength="120" placeholder="Contoh: Makassar - Pettarani" required></label>
-<label class="field"><span>Password</span><input type="password" name="password" autocomplete="new-password" minlength="6" required></label>
+<label class="field"><span>Password</span><span class="pw-wrap"><input type="password" name="password" autocomplete="new-password" minlength="6" required><button class="pw-toggle" type="button" data-toggle-pw aria-label="Tampilkan password" aria-pressed="false"><svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></button></span></label>
 <p class="auth-msg" role="alert"></p>
 <button class="btn-primary" type="submit">Daftar &amp; masuk</button>
 <button class="btn-link" type="button" data-auth-view="login">Sudah punya akun? Masuk</button>
@@ -1015,8 +1015,8 @@
 <h2 id="my-password-title">Ganti password</h2>
 <button type="button" data-close aria-label="Tutup" class="modal-close">×</button>
 <form id="my-password-form" novalidate>
-<label class="field"><span>Password baru</span><input type="password" name="password" autocomplete="new-password" minlength="6" required></label>
-<label class="field"><span>Ulangi password</span><input type="password" name="confirm" autocomplete="new-password" minlength="6" required></label>
+<label class="field"><span>Password baru</span><span class="pw-wrap"><input type="password" name="password" autocomplete="new-password" minlength="6" required><button class="pw-toggle" type="button" data-toggle-pw aria-label="Tampilkan password" aria-pressed="false"><svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></button></span></label>
+<label class="field"><span>Ulangi password</span><span class="pw-wrap"><input type="password" name="confirm" autocomplete="new-password" minlength="6" required><button class="pw-toggle" type="button" data-toggle-pw aria-label="Tampilkan password" aria-pressed="false"><svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></button></span></label>
 <p class="auth-msg" role="status"></p>
 <button class="btn-primary" type="submit">Simpan</button>
 </form>

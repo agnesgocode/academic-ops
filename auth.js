@@ -31,6 +31,7 @@
   function setMode(mode) { document.body.dataset.auth = mode; }
 
   function showView(name) {
+    resetPwToggles(); // password selalu disembunyikan lagi saat pindah layar
     ['login', 'signup', 'config'].forEach(function (v) {
       var el = $('view-' + v);
       if (el) el.hidden = v !== name;
@@ -209,6 +210,26 @@
   }
 
   // ---------- API publik ----------
+  // ---------- Tombol mata: tampilkan / sembunyikan password ----------
+  function setPwVisible(btn, show) {
+    var input = btn.parentNode.querySelector('input');
+    if (!input) return;
+    input.type = show ? 'text' : 'password';
+    btn.setAttribute('aria-pressed', String(show));
+    btn.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+  }
+  function resetPwToggles() {
+    document.querySelectorAll('[data-toggle-pw]').forEach(function (b) { setPwVisible(b, false); });
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('[data-toggle-pw]') : null;
+    if (!btn) return;
+    e.preventDefault();
+    var input = btn.parentNode.querySelector('input');
+    setPwVisible(btn, !!input && input.type === 'password');
+    if (input) input.focus();
+  });
+
   window.Auth = {
     init: function (h) {
       handlers = Object.assign({}, handlers, h);

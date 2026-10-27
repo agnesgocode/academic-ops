@@ -1645,3 +1645,14 @@ body[data-access="checking"] .auth-loading { background: #11113a; color: #e9e9fb
     background: #b3b0bc; box-shadow: -7px 0 0 #b3b0bc, 7px 0 0 #b3b0bc;
   }
 }
+
+/* Tombol mata di kolom password */
+.pw-wrap { position: relative; display: block; }
+.pw-wrap input { width: 100%; padding-right: 44px; }
+.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border: none; border-radius: 8px; background: none; color: #77799a; cursor: pointer; }
+.pw-toggle:hover { color: #343483; background: rgba(52, 52, 131, .08); }
+.pw-toggle:focus-visible { outline: 2px solid #343483; }
+.pw-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pw-toggle .eye-off { display: none; }
+.pw-toggle[aria-pressed="true"] .eye-on { display: none; }
+.pw-toggle[aria-pressed="true"] .eye-off { display: block; }
