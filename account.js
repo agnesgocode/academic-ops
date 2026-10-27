@@ -196,6 +196,60 @@
     });
   }
 
+  // ---------- Tambah orang (dari web) ----------
+  function randomPassword() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+    var buf = new Uint32Array(12);
+    crypto.getRandomValues(buf);
+    var out = '';
+    for (var i = 0; i < buf.length; i++) out += chars[buf[i] % chars.length];
+    return out;
+  }
+
+  function bindAddPerson() {
+    var form = $('add-person-form');
+    var toggle = $('add-person-toggle');
+    if (!form || !toggle) return;
+    var roleSel = form.elements.role;
+    roleSel.innerHTML = '<option value="" disabled selected>Pilih role…</option>' +
+      ROLES.map(function (r) { return '<option value="' + esc(r) + '">' + esc(r) + '</option>'; }).join('');
+
+    toggle.addEventListener('click', function () {
+      form.hidden = !form.hidden;
+      toggle.setAttribute('aria-expanded', String(!form.hidden));
+      if (!form.hidden) form.elements.name.focus();
+    });
+
+    $('add-person-gen').addEventListener('click', function () {
+      form.elements.password.value = randomPassword();
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var msg = $('add-person-msg');
+      var btn = form.querySelector('button[type="submit"]');
+      var payload = {
+        name: form.elements.name.value,
+        email: form.elements.email.value,
+        role: form.elements.role.value,
+        center: form.elements.center.value,
+        password: form.elements.password.value
+      };
+      var pass = payload.password;
+      btn.disabled = true;
+      message(msg, 'Membuat akun…', true);
+      Auth.admin('createUser', payload)
+        .then(function (res) {
+          upsertMember(res.member);
+          message(msg, 'Akun dibuat untuk ' + payload.email + '. Password awal: ' + pass + ' (salin sekarang, tidak ditampilkan lagi).', true);
+          form.reset();
+          roleSel.selectedIndex = 0;
+        })
+        .catch(function (err) { message(msg, err.message); })
+        .finally(function () { btn.disabled = false; });
+    });
+  }
+
   // ---------- Dialog override per-orang ----------
   function effectiveDefaults(role) {
     if (roleDefaults && roleDefaults[role]) return roleDefaults[role];
@@ -314,6 +368,7 @@
     bindMenu();
     bindAccessOpen();
     bindPeople();
+    bindAddPerson();
     bindOverride();
     bindRoles();
   }

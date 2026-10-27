@@ -5,6 +5,7 @@
 //
 // Aksi:
 //   list                      -> daftar semua pengguna + role, center, status, override
+//   createUser {email,password,name,role,center} -> tambah akun baru langsung aktif
 //   setRole   {id, role}      -> ganti role seseorang (BM/MTC/SA/Regional/Internship/FEC/admin/none)
 //   setCenter {id, center}    -> ganti center seseorang
 //   setOverride {id, override}-> set/ganti override per-orang (objek { capKey: bool })
@@ -95,6 +96,34 @@ export default {
             return (a.name || a.email).localeCompare(b.name || b.email)
           })
           return Response.json({ members, me: me.id })
+        }
+
+        // Admin menambah akun langsung dari web (tanpa buka dashboard Supabase).
+        // Akun langsung aktif (email dianggap terkonfirmasi) dengan role & center yang dipilih.
+        case 'createUser': {
+          const email = String(body.email ?? '').trim().toLowerCase()
+          const password = String(body.password ?? '')
+          const fullName = String(body.name ?? '').trim().slice(0, 80)
+          const role = String(body.role ?? '')
+          const center = String(body.center ?? '').trim().slice(0, 120)
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(400, 'Email tidak valid')
+          if (password.length < 8) return fail(400, 'Password minimal 8 karakter')
+          if (!fullName) return fail(400, 'Nama wajib diisi')
+          if (!ALLOWED_ROLES.includes(role)) return fail(400, 'Role tidak dikenal')
+          const { data: created, error } = await admin.createUser({
+            email,
+            password,
+            email_confirm: true,
+            user_metadata: { full_name: fullName, center: center },
+            app_metadata: { role: role, center: center },
+          })
+          if (error) {
+            const msg = /already|registered|exists/i.test(error.message || '')
+              ? 'Email ini sudah terdaftar'
+              : 'Gagal membuat akun: ' + (error.message || 'tidak diketahui')
+            return fail(400, msg)
+          }
+          return Response.json({ member: toMember(created.user) })
         }
 
         case 'setRole': {

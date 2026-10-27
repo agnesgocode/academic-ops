@@ -1018,6 +1018,18 @@
 
 <div id="access-people">
 <p>Atur role, center, dan akses tiap orang. Perubahan di sini menimpa default role untuk orang itu saja.</p>
+<button class="btn-primary add-person-toggle" type="button" id="add-person-toggle" aria-expanded="false" aria-controls="add-person-form">+ Tambah orang</button>
+<form id="add-person-form" class="add-person-form" hidden autocomplete="off">
+<label class="field"><span>Nama lengkap</span><input type="text" name="name" maxlength="80" required></label>
+<label class="field"><span>Email</span><input type="email" name="email" required></label>
+<label class="field"><span>Role</span><select name="role" required></select></label>
+<label class="field"><span>Center</span><input type="text" name="center" maxlength="120" placeholder="Contoh: Makassar - Pettarani"></label>
+<label class="field"><span>Password awal (min. 8 karakter)</span>
+<span class="add-person-pass"><input type="text" name="password" minlength="8" autocomplete="off" required><button class="btn-chip" type="button" id="add-person-gen">Buat otomatis</button></span></label>
+<p class="auth-lead">Kirim email dan password ini ke orangnya. Mereka bisa menggantinya lewat menu akun.</p>
+<p class="auth-msg" id="add-person-msg" role="status"></p>
+<button class="btn-primary" type="submit">Buat akun</button>
+</form>
 <p class="auth-msg" id="people-msg" role="status"></p>
 <ul id="people-list" class="member-list"></ul>
 </div>
