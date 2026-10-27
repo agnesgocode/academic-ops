@@ -74,11 +74,12 @@
 </div>
 </nav>
 <div class="account">
-<button class="account-btn" id="account-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="account-menu" aria-label="Akun"></button>
+<button class="account-btn" id="account-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="account-menu" aria-label="Akun"><span class="account-avatar" id="account-avatar"></span><span class="account-summary"><b id="account-short-name"></b><small id="account-short-role"></small></span></button>
 <div class="account-menu" id="account-menu" hidden>
 <p class="account-name" id="account-name"></p>
 <p class="account-email" id="account-email"></p>
 <span class="role-badge" id="account-role"></span>
+<button class="menu-item" id="open-profile" type="button" onclick="document.getElementById('my-profile-dialog').showModal()">Edit profil</button>
 <button class="menu-item" id="open-profile-pw" type="button" onclick="document.getElementById('my-password-dialog').showModal()">Ganti password</button>
 <button class="menu-item" id="open-access" type="button" hidden>Access Control</button>
 <button class="menu-item" id="sign-out" type="button">Keluar</button>
@@ -996,6 +997,18 @@
 <p>Make sure the source is shared as “Anyone with the link — Viewer”, then refresh this page.</p>
 </div>
 </template>
+
+<dialog class="modal" id="my-profile-dialog" aria-labelledby="my-profile-title">
+<h2 id="my-profile-title">Edit profil</h2>
+<button type="button" data-close aria-label="Tutup" class="modal-close">×</button>
+<form id="my-profile-form" novalidate>
+<label class="field"><span>Nama lengkap</span><input type="text" name="full_name" autocomplete="name" maxlength="80" required></label>
+<label class="field"><span>Email</span><input type="email" name="email" disabled></label>
+<p class="auth-lead">Role dan center diatur oleh admin di Access Control.</p>
+<p class="auth-msg" role="status"></p>
+<button class="btn-primary" type="submit">Simpan</button>
+</form>
+</dialog>
 
 <dialog class="modal" id="my-password-dialog" aria-labelledby="my-password-title">
 <h2 id="my-password-title">Ganti password</h2>

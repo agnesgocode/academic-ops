@@ -41,7 +41,11 @@
     user = u;
     var email = u.email || '', name = nameOf(u), role = Auth.roleOf(u), center = Auth.centerOf(u);
     var btn = $('account-btn');
-    if (btn) { btn.textContent = initials(name, email); btn.title = (name ? name + ' · ' : '') + email; }
+    var shortRole = (ROLE_LABEL[role] || role) + (center && role !== 'admin' ? ' · ' + center : '');
+    if (btn) btn.title = (name ? name + ' · ' : '') + email;
+    if ($('account-avatar')) $('account-avatar').textContent = initials(name, email);
+    if ($('account-short-name')) $('account-short-name').textContent = name || email;
+    if ($('account-short-role')) $('account-short-role').textContent = shortRole;
     if ($('account-name')) $('account-name').textContent = name || 'Tanpa nama';
     if ($('account-email')) $('account-email').textContent = email;
     if ($('account-role')) {
@@ -71,6 +75,32 @@
         if (e.target === dlg || e.target.closest('[data-close]')) dlg.close();
       });
     });
+
+    // Edit profil sendiri (nama)
+    var pf = $('my-profile-form');
+    if (pf) {
+      if ($('open-profile')) $('open-profile').addEventListener('click', function () {
+        toggleMenu(false);
+        pf.full_name.value = nameOf(user);
+        pf.email.value = (user && user.email) || '';
+        message(pf.querySelector('.auth-msg'), '');
+      });
+      pf.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var msg = pf.querySelector('.auth-msg'), btn = pf.querySelector('button[type=submit]');
+        var fullName = pf.full_name.value.trim();
+        if (!fullName) { message(msg, 'Nama tidak boleh kosong.'); return; }
+        btn.disabled = true;
+        Auth.updateProfile(fullName)
+          .then(function (u) {
+            setUser(u);
+            message(msg, 'Profil tersimpan.', true);
+            setTimeout(function () { $('my-profile-dialog').close(); }, 600);
+          })
+          .catch(function (err) { message(msg, err.message); })
+          .finally(function () { btn.disabled = false; });
+      });
+    }
 
     // Ganti password sendiri
     if ($('my-password-form')) {

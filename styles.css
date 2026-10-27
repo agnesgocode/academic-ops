@@ -1447,7 +1447,12 @@ body[data-auth="out"] .auth-screen { display: flex; }
 
 /* Menu akun di sidebar */
 .account { position: relative; margin-top: auto; padding: 12px; }
-.account-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: #176b72; color: #fff; font-weight: 700; cursor: pointer; }
+.account-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 4px; border: none; background: none; color: #15303a; text-align: left; cursor: pointer; border-radius: 12px; }
+.account-btn:hover { background: rgba(23,107,114,.08); }
+.account-avatar { flex: 0 0 38px; width: 38px; height: 38px; border-radius: 50%; background: #176b72; color: #fff; font-weight: 700; display: grid; place-items: center; }
+.account-summary { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.account-summary b { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-summary small { font-size: 11px; color: #6b7b80; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .account-menu { position: absolute; bottom: calc(100% + 8px); left: 12px; z-index: 50; background: #fff; color: #15303a; border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,.25); padding: 12px; min-width: 220px; }
 .account-name { font-weight: 700; margin: 0; }
 .account-email { margin: 2px 0 8px; font-size: 12px; color: #6b7b80; word-break: break-all; }
