@@ -64,8 +64,40 @@
     return 'Terjadi kesalahan: ' + (msg || 'coba lagi.');
   }
 
+  // ---------- Batas umur sesi (default 7 hari sejak login) ----------
+  // Supabase menjaga sesi tetap hidup selamanya lewat refresh token. Jadi waktu login
+  // dicatat di sini, dan sesi diakhiri sendiri bila sudah lewat batas.
+  var SESSION_MS = (Number(cfg.sessionDays) > 0 ? Number(cfg.sessionDays) : 7) * 24 * 60 * 60 * 1000;
+  var STAMP_KEY = 'acops-login-at';
+  var expiredNotice = false;
+
+  function readStamp() {
+    try { return JSON.parse(localStorage.getItem(STAMP_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function writeStamp(uid) {
+    try { localStorage.setItem(STAMP_KEY, JSON.stringify({ uid: uid, at: Date.now() })); } catch (e) {}
+  }
+  function clearStamp() {
+    try { localStorage.removeItem(STAMP_KEY); } catch (e) {}
+  }
+  function sessionExpired(uid) {
+    var s = readStamp();
+    return !!(s && s.uid === uid && Date.now() - s.at > SESSION_MS);
+  }
+  function expireSession() {
+    expiredNotice = true;
+    clearStamp();
+    if (client) client.auth.signOut();
+  }
+  function checkExpiry() {
+    if (currentUserId && sessionExpired(currentUserId)) expireSession();
+  }
+
   // ---------- Sesi ----------
   function enterApp(user) {
+    var s = readStamp();
+    if (!s || s.uid !== user.id) writeStamp(user.id); // sesi lama/tanpa catatan: hitung 7 hari dari sekarang
+    else if (sessionExpired(user.id)) { expireSession(); return; }
     setMode('in');
     if (user.id === currentUserId) { handlers.onUserUpdated(user); return; }
     currentUserId = user.id;
@@ -75,8 +107,13 @@
   function handleSession(event, session) {
     if (!session) {
       currentUserId = null;
+      clearStamp();
       handlers.onSignedOut();
       showView('login');
+      if (expiredNotice) {
+        expiredNotice = false;
+        message($('view-login'), 'Sesi berakhir (maksimal 7 hari). Silakan masuk lagi.', true);
+      }
       return;
     }
     enterApp(session.user);
@@ -95,7 +132,7 @@
       client.auth.signInWithPassword({ email: email, password: password })
         .then(function (res) {
           if (res.error) message(form, friendlyError(res.error));
-          else form.password.value = '';
+          else { form.password.value = ''; if (res.data && res.data.user) writeStamp(res.data.user.id); }
         })
         .finally(function () { busy(form, false); });
     });
@@ -164,6 +201,7 @@
           if (res.error) { message(form, friendlyError(res.error)); return; }
           // Dengan email-confirmation OFF, signUp langsung mengembalikan sesi.
           if (res.data && res.data.session) {
+            if (res.data.user) writeStamp(res.data.user.id);
             // Sesi aktif; onAuthStateChange akan membawa masuk.
             message(form, 'Akun dibuat. Memuat…', true);
           } else {
@@ -240,6 +278,10 @@
       client.auth.onAuthStateChange(function (event, session) {
         setTimeout(function () { handleSession(event, session); }, 0);
       });
+      // Cek berkala: tab yang dibiarkan terbuka / dibuka lagi setelah lama tetap kena batas waktu
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) checkExpiry(); });
+      window.addEventListener('focus', checkExpiry);
+      setInterval(checkExpiry, 5 * 60 * 1000);
     },
 
     // Aksi admin (dicek ulang di server)
