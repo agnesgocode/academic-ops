@@ -1612,3 +1612,26 @@ body[data-access="checking"] .academic-dock { display: none !important; }
 /* Halaman login: logo dan nama di tengah kartu */
 .auth-brand { text-align: center; }
 .auth-brand .brand-mark.logo { margin: 0 auto 8px; }
+
+/* ==== Tema login mengikuti warna logo: coral #DC4651 -> plum #A94161 -> indigo #343483 ==== */
+.auth-screen {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(220, 70, 81, .42), transparent 46%),
+    radial-gradient(circle at 8% 96%, rgba(52, 52, 131, .55), transparent 52%),
+    linear-gradient(155deg, #11113a 0%, #1f1f5c 52%, #3a2260 100%);
+}
+body[data-auth="pending"] .auth-loading,
+body[data-access="checking"] .auth-loading { background: #11113a; color: #e9e9fb; }
+
+.auth-card { position: relative; overflow: hidden; box-shadow: 0 28px 70px rgba(10, 10, 40, .5); }
+.auth-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, #343483, #a94161 60%, #dc4651); }
+.auth-brand { color: #272768; }
+.auth-card h1 { color: #272768; }
+.auth-lead { color: #5d5f7a; }
+.auth-card .field { color: #4a4d6b; }
+.auth-card .field input, .auth-card .field select { border-color: #d7d8ea; color: #1d1f45; }
+.auth-card .field input:focus, .auth-card .field select:focus { outline: 2px solid #343483; border-color: #343483; }
+.auth-card .btn-primary { background: linear-gradient(110deg, #343483 0%, #7a3a78 55%, #dc4651 125%); box-shadow: 0 8px 20px rgba(52, 52, 131, .28); }
+.auth-card .btn-primary:hover { background: linear-gradient(110deg, #2a2a6e 0%, #6a2f69 55%, #c93b47 125%); }
+.auth-card .btn-link { color: #343483; }
+.auth-card .btn-link:hover { color: #dc4651; }
