@@ -227,6 +227,15 @@
   }
 
   // ---------- Tambah orang (dari web) ----------
+  function fillAddPersonRoles() {
+    var form = $('add-person-form');
+    if (!form) return;
+    var sel = form.elements.role, keep = sel.value;
+    sel.innerHTML = '<option value="" disabled' + (keep ? '' : ' selected') + '>Pilih role…</option>' +
+      ROLES.map(function (r) {
+        return '<option value="' + esc(r) + '"' + (r === keep ? ' selected' : '') + '>' + esc(r) + '</option>';
+      }).join('');
+  }
   function randomPassword() {
     var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
     var buf = new Uint32Array(12);
@@ -241,8 +250,7 @@
     var toggle = $('add-person-toggle');
     if (!form || !toggle) return;
     var roleSel = form.elements.role;
-    roleSel.innerHTML = '<option value="" disabled selected>Pilih role…</option>' +
-      ROLES.map(function (r) { return '<option value="' + esc(r) + '">' + esc(r) + '</option>'; }).join('');
+    fillAddPersonRoles();
 
     toggle.addEventListener('click', function () {
       form.hidden = !form.hidden;
@@ -342,16 +350,46 @@
   }
 
   // ---------- Tab 2: Default per role ----------
+  var BUILTIN = P.BUILTIN_ROLES || ['BM', 'MTC', 'SA', 'Regional', 'Internship', 'FEC'];
+  var RESERVED = ['admin', 'revoked', 'none'];
+  var ROLE_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9 _.-]{1,23}$/;
+
+  function isBuiltin(r) { return BUILTIN.indexOf(r) !== -1; }
+  function customRoles() { return ROLES.filter(function (r) { return !isBuiltin(r); }); }
+
+  // Samakan daftar role di seluruh UI dengan yang tersimpan di server
+  function syncRoles(extra) {
+    if (P.setRoles) P.setRoles(extra || []);
+    fillAddPersonRoles();
+    renderMembers();
+    renderRoleGrid();
+  }
+
+  // Simpan centang yang sedang tampil di grid (belum disimpan ke server) ke memori
+  function collectGrid() {
+    var grid = $('roles-grid');
+    if (!grid) return;
+    var out = {};
+    ROLES.forEach(function (r) { out[r] = {}; });
+    grid.querySelectorAll('input[data-role]').forEach(function (cb) {
+      if (out[cb.dataset.role]) out[cb.dataset.role][cb.dataset.cap] = cb.checked;
+    });
+    roleDefaults = out;
+  }
+
   function loadRoleDefaults() {
     return Auth.admin('getRoleDefaults')
       .then(function (res) {
         roleDefaults = (res && res.defaults) || null;
-        renderRoleGrid();
+        var extra = roleDefaults
+          ? Object.keys(roleDefaults).filter(function (r) { return !isBuiltin(r); }).sort()
+          : [];
+        syncRoles(extra);
       })
       .catch(function () {
         // Belum ada tabel / fungsi lama: pakai bawaan permissions.js
         roleDefaults = null;
-        renderRoleGrid();
+        syncRoles([]);
       });
   }
 
@@ -367,7 +405,11 @@
     var wrap = $('roles-grid');
     if (!wrap) return;
     var defs = currentRoleDefaults();
-    var head = '<tr><th>Bagian</th>' + ROLES.map(function (r) { return '<th>' + esc(r) + '</th>'; }).join('') + '</tr>';
+    var head = '<tr><th>Bagian</th>' + ROLES.map(function (r) {
+      var del = isBuiltin(r) ? '' :
+        ' <button type="button" class="role-del" data-del-role="' + esc(r) + '" title="Hapus role ' + esc(r) + '" aria-label="Hapus role ' + esc(r) + '">×</button>';
+      return '<th>' + esc(r) + del + '</th>';
+    }).join('') + '</tr>';
     var body = CAPS.map(function (c) {
       return '<tr><td>' + esc(c.label) + '</td>' + ROLES.map(function (r) {
         var on = defs[r] && defs[r][c.key] === true;
@@ -378,6 +420,44 @@
   }
 
   function bindRoles() {
+    // Tambah role baru (kolom baru, semua kotak kosong sampai admin mencentang)
+    var addForm = $('add-role-form');
+    if (addForm) {
+      addForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var msg = $('roles-msg');
+        var name = addForm.elements.role.value.trim().replace(/\s+/g, ' ');
+        if (!ROLE_NAME_RE.test(name)) { message(msg, 'Nama role 2–24 karakter: huruf, angka, spasi, - _ .'); return; }
+        if (RESERVED.indexOf(name.toLowerCase()) !== -1) { message(msg, 'Nama "' + name + '" tidak boleh dipakai.'); return; }
+        if (ROLES.some(function (r) { return r.toLowerCase() === name.toLowerCase(); })) { message(msg, 'Role "' + name + '" sudah ada.'); return; }
+        collectGrid();
+        var extra = customRoles().concat([name]);
+        roleDefaults = roleDefaults || {};
+        roleDefaults[name] = {};
+        CAPS.forEach(function (c) { roleDefaults[name][c.key] = false; });
+        syncRoles(extra);
+        addForm.reset();
+        message(msg, 'Role "' + name + '" ditambahkan di kolom paling kanan. Centang aksesnya, lalu klik "Simpan default role".', true);
+      });
+    }
+
+    // Hapus role buatan (kolom ×)
+    var grid = $('roles-grid');
+    if (grid) {
+      grid.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-del-role]');
+        if (!btn) return;
+        var role = btn.dataset.delRole, msg = $('roles-msg');
+        var users = members.filter(function (m) { return m.role === role; });
+        if (users.length) { message(msg, 'Role "' + role + '" masih dipakai ' + users.length + ' orang. Pindahkan mereka ke role lain dulu.'); return; }
+        if (!confirm('Hapus role "' + role + '"? Perubahan baru berlaku setelah klik "Simpan default role".')) return;
+        collectGrid();
+        if (roleDefaults) delete roleDefaults[role];
+        syncRoles(customRoles().filter(function (r) { return r !== role; }));
+        message(msg, 'Role "' + role + '" dihapus dari tabel. Klik "Simpan default role" untuk menyimpan.', true);
+      });
+    }
+
     if ($('roles-save')) {
       $('roles-save').addEventListener('click', function () {
         var defs = {};
@@ -388,7 +468,7 @@
         var btn = this; btn.disabled = true;
         Auth.admin('setRoleDefaults', { defaults: defs })
           .then(function () { roleDefaults = defs; message($('roles-msg'), 'Default role tersimpan. Berlaku untuk semua orang di role itu.', true); })
-          .catch(function (err) { message($('roles-msg'), err.message + ' (Pastikan tabel acops_role_defaults sudah dibuat.)'); })
+          .catch(function (err) { message($('roles-msg'), err.message); })
           .finally(function () { btn.disabled = false; });
       });
     }

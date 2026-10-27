@@ -113,10 +113,23 @@
 
     // Isi dropdown role
     var sel = form.querySelector('select[name=role]');
+    function fillRoles(list) {
+      if (!sel) return;
+      var keep = sel.value;
+      sel.innerHTML = '<option value="" disabled' + (keep ? '' : ' selected') + '>Pilih role…</option>' +
+        list.map(function (r) {
+          return '<option value="' + r + '"' + (r === keep ? ' selected' : '') + '>' + r + '</option>';
+        }).join('');
+    }
     if (sel && !sel.dataset.filled) {
       sel.dataset.filled = '1';
-      sel.innerHTML = '<option value="" disabled selected>Pilih role…</option>' +
-        ROLES.map(function (r) { return '<option value="' + r + '">' + r + '</option>'; }).join('');
+      fillRoles(ROLES);
+      // Daftar terbaru (termasuk role buatan admin) dari database; gagal -> pakai bawaan
+      if (client && client.rpc) {
+        client.rpc('acops_list_roles').then(function (res) {
+          if (res && !res.error && Array.isArray(res.data) && res.data.length) fillRoles(res.data);
+        }, function () {});
+      }
     }
 
     form.addEventListener('submit', function (e) {

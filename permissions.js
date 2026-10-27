@@ -14,6 +14,16 @@
 
   // ---- Daftar role yang ada ----
   var ROLES = ['BM', 'MTC', 'SA', 'Regional', 'Internship', 'FEC'];
+  var BUILTIN_ROLES = ROLES.slice();
+
+  // Daftar role bisa bertambah (role buatan admin). Array ROLES diubah di tempat
+  // supaya semua file yang memegang referensinya ikut terbarui.
+  function setRoles(extra) {
+    var next = BUILTIN_ROLES.slice();
+    (extra || []).forEach(function (r) { if (next.indexOf(r) === -1) next.push(r); });
+    ROLES.length = 0;
+    next.forEach(function (r) { ROLES.push(r); });
+  }
 
   // ---- Daftar semua "capability" (hal yang bisa diberi/dicabut aksesnya) ----
   // key: id internal (dipakai di kode)  |  label: nama untuk halaman admin
@@ -165,6 +175,8 @@
 
   window.ACOPS_PERMS = {
     ROLES: ROLES,
+    BUILTIN_ROLES: BUILTIN_ROLES,
+    setRoles: setRoles,
     CAPABILITIES: CAPABILITIES,
     CAP_KEYS: CAP_KEYS,
     ROLE_DEFAULTS: ROLE_DEFAULTS,

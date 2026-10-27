@@ -14,7 +14,9 @@
 //   delete {id}               -> hapus permanen (hanya untuk yang sudah dicabut)
 import { withSupabase } from 'npm:@supabase/server@1.9.1'
 
-const ALLOWED_ROLES = ['BM', 'MTC', 'SA', 'Regional', 'Internship', 'FEC']
+const ALLOWED_ROLES = ['BM', 'MTC', 'SA', 'Regional', 'Internship', 'FEC'] // role bawaan
+const RESERVED_ROLES = ['admin', 'revoked', 'none']
+const ROLE_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9 _.-]{1,23}$/
 const BAN_FOREVER = '876000h'
 
 // deno-lint-ignore no-explicit-any
@@ -64,10 +66,31 @@ export default {
 
     const { data: meData } = await admin.getUserById(ctx.userClaims!.id)
     const me = meData?.user
-    if (!me || isBanned(me) || roleOf(me) !== 'admin') return fail(403, 'Hanya admin yang bisa membuka halaman ini')
+    if (!me || isBanned(me)) return fail(403, 'Akses ditolak')
     if (req.method !== 'POST') return fail(405, 'Gunakan POST')
 
     const body = await req.json().catch(() => ({}))
+
+    // Role bawaan + role buatan admin (disimpan sebagai kunci di acops_role_defaults)
+    async function storedDefaults(): Promise<Record<string, unknown> | null> {
+      const { data, error } = await ctx.supabaseAdmin
+        .from('acops_role_defaults').select('defaults').eq('id', 1).maybeSingle()
+      if (error || !data || !data.defaults || typeof data.defaults !== 'object') return null
+      return data.defaults as Record<string, unknown>
+    }
+    async function roleIsKnown(role: string): Promise<boolean> {
+      if (ALLOWED_ROLES.includes(role)) return true
+      const s = await storedDefaults()
+      return !!s && Object.prototype.hasOwnProperty.call(s, role)
+    }
+
+    // Boleh dibaca SEMUA pengguna yang login (bukan rahasia): dipakai untuk menghitung
+    // akses sesuai default role terbaru. Hanya menulis yang khusus admin.
+    if (body.action === 'getRoleDefaults') {
+      return Response.json({ defaults: await storedDefaults() })
+    }
+
+    if (roleOf(me) !== 'admin') return fail(403, 'Hanya admin yang bisa membuka halaman ini')
 
     async function allUsers(): Promise<User[]> {
       const users: User[] = []
@@ -109,7 +132,7 @@ export default {
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(400, 'Email tidak valid')
           if (password.length < 8) return fail(400, 'Password minimal 8 karakter')
           if (!fullName) return fail(400, 'Nama wajib diisi')
-          if (!ALLOWED_ROLES.includes(role)) return fail(400, 'Role tidak dikenal')
+          if (!(await roleIsKnown(role))) return fail(400, 'Role tidak dikenal')
           const { data: created, error } = await admin.createUser({
             email,
             password,
@@ -128,7 +151,7 @@ export default {
 
         case 'setRole': {
           const role = String(body.role ?? '')
-          if (role !== 'none' && role !== 'revoked' && !ALLOWED_ROLES.includes(role) && role !== 'admin') {
+          if (role !== 'none' && role !== 'revoked' && role !== 'admin' && !(await roleIsKnown(role))) {
             return fail(400, 'Role tidak dikenal')
           }
           const target = await getTarget(String(body.id ?? ''))
@@ -208,21 +231,51 @@ export default {
           return Response.json({ deleted: target.id })
         }
 
-        // Baca default per-role dari tabel acops_role_defaults (satu baris id=1)
-        case 'getRoleDefaults': {
-          const { data, error } = await ctx.supabaseAdmin
-            .from('acops_role_defaults').select('defaults').eq('id', 1).maybeSingle()
-          if (error) return Response.json({ defaults: null })
-          return Response.json({ defaults: (data && data.defaults) || null })
-        }
-
-        // Simpan default per-role (admin saja)
+        // Simpan default semua role (admin saja). Kunci objek = daftar role,
+        // jadi menambah/menghapus role = menambah/menghapus kunci di sini.
         case 'setRoleDefaults': {
-          const defs = (body.defaults && typeof body.defaults === 'object') ? body.defaults : null
+          const defs = (body.defaults && typeof body.defaults === 'object' && !Array.isArray(body.defaults))
+            ? body.defaults as Record<string, unknown> : null
           if (!defs) return fail(400, 'Data default tidak valid')
+          const names = Object.keys(defs)
+          if (names.length > 40) return fail(400, 'Terlalu banyak role (maksimal 40)')
+          const seen = new Set<string>()
+          const clean: Record<string, Record<string, boolean>> = {}
+          for (const n of names) {
+            const isBuiltin = ALLOWED_ROLES.includes(n)
+            if (!isBuiltin && !ROLE_NAME_RE.test(n)) {
+              return fail(400, 'Nama role "' + n + '" tidak valid (2-24 karakter: huruf, angka, spasi, - _ .)')
+            }
+            if (RESERVED_ROLES.includes(n.toLowerCase())) return fail(400, 'Nama role "' + n + '" tidak boleh dipakai')
+            if (seen.has(n.toLowerCase())) return fail(400, 'Nama role kembar: ' + n)
+            seen.add(n.toLowerCase())
+            const caps = defs[n]
+            if (!caps || typeof caps !== 'object') return fail(400, 'Data role "' + n + '" tidak valid')
+            const row: Record<string, boolean> = {}
+            for (const k of Object.keys(caps as Record<string, unknown>).slice(0, 60)) {
+              const v = (caps as Record<string, unknown>)[k]
+              if (typeof v === 'boolean') row[k] = v
+            }
+            clean[n] = row
+          }
+          for (const b of ALLOWED_ROLES) if (!clean[b]) return fail(400, 'Role bawaan ' + b + ' tidak boleh dihapus')
+
+          // Role buatan yang dihapus tidak boleh masih dipakai orang
+          const before = await storedDefaults()
+          if (before) {
+            const removed = Object.keys(before).filter((k) => !ALLOWED_ROLES.includes(k) && !clean[k])
+            if (removed.length) {
+              const inUse = (await allUsers()).filter((u) => removed.includes(roleOf(u)))
+              if (inUse.length) {
+                return fail(409, 'Role "' + roleOf(inUse[0]) + '" masih dipakai ' + inUse.length +
+                  ' orang. Pindahkan mereka ke role lain dulu.')
+              }
+            }
+          }
+
           const { error } = await ctx.supabaseAdmin
             .from('acops_role_defaults')
-            .upsert({ id: 1, defaults: defs, updated_at: new Date().toISOString() })
+            .upsert({ id: 1, defaults: clean, updated_at: new Date().toISOString() })
           if (error) return fail(500, 'Gagal menyimpan. Pastikan tabel acops_role_defaults sudah dibuat.')
           return Response.json({ ok: true })
         }

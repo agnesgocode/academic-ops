@@ -1533,3 +1533,10 @@ dialog.modal#access-dialog[open] { display: flex; flex-direction: column; }
 #access-dialog .add-person-toggle, #access-dialog .add-person-form { flex-shrink: 0; align-self: flex-start; }
 #access-dialog .add-person-form { align-self: stretch; }
 #access-dialog .roles-grid-wrap { max-height: none; }
+
+/* Tambah / hapus role */
+.add-role-form { display: flex; gap: 8px; margin: 4px 0 12px; flex-shrink: 0; }
+.add-role-form input { flex: 1; max-width: 340px; padding: 10px 12px; border: 1px solid #cfdcde; border-radius: 9px; font-size: 14px; }
+.add-role-form input:focus { outline: 2px solid #1c7c84; border-color: #1c7c84; }
+.role-del { margin-left: 4px; width: 18px; height: 18px; line-height: 14px; border-radius: 50%; border: 1px solid #e7b9b3; background: #fff; color: #c0392b; font-size: 13px; cursor: pointer; padding: 0; vertical-align: middle; }
+.role-del:hover { background: #fbeceb; }

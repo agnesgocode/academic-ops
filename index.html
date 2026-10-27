@@ -1050,6 +1050,10 @@
 <div id="access-roles" hidden>
 <p>Centang bagian yang boleh diakses tiap role. Berlaku untuk semua orang di role tersebut (kecuali yang diubah khusus).</p>
 <p class="auth-msg" id="roles-msg" role="status"></p>
+<form id="add-role-form" class="add-role-form" autocomplete="off">
+<input type="text" name="role" maxlength="24" placeholder="Nama role baru, contoh: Supervisor" aria-label="Nama role baru" required>
+<button class="btn-primary" type="submit">+ Tambah role</button>
+</form>
 <div id="roles-grid" class="roles-grid-wrap"></div>
 <div class="access-footer"><button class="btn-primary" id="roles-save" type="button">Simpan default role</button></div>
 </div>
