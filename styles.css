@@ -1608,3 +1608,7 @@ body[data-access="checking"] .academic-dock { display: none !important; }
 @media (min-width: 1130px) {
   html body.nav-hidden .brand-mark.logo { height: 40px !important; }
 }
+
+/* Halaman login: logo dan nama di tengah kartu */
+.auth-brand { text-align: center; }
+.auth-brand .brand-mark.logo { margin: 0 auto 8px; }
