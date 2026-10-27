@@ -1635,3 +1635,13 @@ body[data-access="checking"] .auth-loading { background: #11113a; color: #e9e9fb
 .auth-card .btn-primary:hover { background: linear-gradient(110deg, #2a2a6e 0%, #6a2f69 55%, #c93b47 125%); }
 .auth-card .btn-link { color: #343483; }
 .auth-card .btn-link:hover { color: #dc4651; }
+
+/* Rail: titik pemisah grup digambar oleh kotak grup (margin auto = selalu di tengah) */
+@media (min-width: 1130px) {
+  html body.nav-hidden .nav-division > strong { display: none !important; }
+  html body.nav-hidden .nav-division::before {
+    content: ""; display: block; justify-self: center;
+    width: 3px; height: 3px; margin: 6px auto 4px; border-radius: 50%;
+    background: #b3b0bc; box-shadow: -7px 0 0 #b3b0bc, 7px 0 0 #b3b0bc;
+  }
+}
