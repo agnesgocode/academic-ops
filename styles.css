@@ -1656,3 +1656,7 @@ body[data-access="checking"] .auth-loading { background: #11113a; color: #e9e9fb
 .pw-toggle .eye-off { display: none; }
 .pw-toggle[aria-pressed="true"] .eye-on { display: none; }
 .pw-toggle[aria-pressed="true"] .eye-off { display: block; }
+
+/* GMB: highlight the month picked in the month filter */
+.events-table th.gmb-month-active { background: #fdebe6; color: #c9472d; }
+.events-table td.gmb-month-active { background: #fff6f3; font-weight: 700; }
