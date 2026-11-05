@@ -422,7 +422,7 @@ function enhanceCustomSelect(select){if(select.dataset.acopsSelect||select.match
 function initCustomSelects(){document.querySelectorAll('select:not([data-mpp-priority])').forEach(enhanceCustomSelect);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.('select:not([data-mpp-priority])'))enhanceCustomSelect(node);node.querySelectorAll?.('select:not([data-mpp-priority])').forEach(enhanceCustomSelect)}))).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>document.querySelectorAll('.acops-select-options').forEach(menu=>{menu.hidden=true}))}
 initCustomSelects()
 const revenueSource={id:'1emMFv_OzONiUupCdmzF6nBP1wAWEt02w4Fu8phDgIa4',gid:'583329138'};
-let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',branchView:'overall',branch:'',month:'2026-10',product:'eac',group:'all',status:'all',search:'',sort:'high',week:'',excludeWave6:localStorage.getItem('acops-revenue-exclude-wave6')==='true'};
+let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',view:'weekly',lastWeek:'',branchView:'overall',branch:'',month:'2026-10',product:'eac',group:'all',status:'all',search:'',sort:'high',week:'',excludeWave6:localStorage.getItem('acops-revenue-exclude-wave6')==='true'};
 // The Tracker sheet stacks every month top-to-bottom; rows shift whenever a new month is added.
 // So we fetch the whole sheet once and split it into month blocks at each "TOTAL REVENUE REGION" row
 // (the reliable end-of-month marker). Each block's month is read from the date serial the sheet stores
@@ -624,17 +624,43 @@ function updateRevenueWeekSelect(monthData){
   if(!select)return;
   const count=monthData?.weekCount||5,offset=monthData?.weekOffset||39,label=monthData?.monthLabel||'October 2026';
   const year=Number((monthData?.monthKey||revenueState.month).split('-')[0])||2026;
-  let html=`<option value="all">All ${label}</option>`;
+  let html='';
   for(let w=1;w<=count;w++){
     html+=`<option value="${w}">${esc(weekLabel(`${year}|Week ${offset+w}`))}</option>`;
   }
   select.innerHTML=html;
-  const weekly=monthData?.regionalProducts?.[revenueState.product||'all']?.weekly||[],latestWithRevenue=[...weekly].reverse().find(item=>item.actual>0)?.week||count;
-  if(!revenueState.week||(revenueState.week!=='all'&&Number(revenueState.week)>count)){
-    revenueState.week=String(latestWithRevenue);
+  // Weekly view always has a real week selected; Monthly view uses week='all' and remembers the week to return to.
+  const weekly=monthData?.regionalProducts?.[revenueState.product||'all']?.weekly||[],latestWithRevenue=String([...weekly].reverse().find(item=>item.actual>0)?.week||count),validWeek=value=>value&&value!=='all'&&Number(value)<=count;
+  if(revenueState.view==='monthly'){
+    revenueState.week='all';
+    if(!validWeek(revenueState.lastWeek))revenueState.lastWeek=latestWithRevenue;
+  }else if(!validWeek(revenueState.week)){
+    revenueState.week=latestWithRevenue;
   }
-  select.value=revenueState.week;
+  select.value=revenueState.view==='monthly'?revenueState.lastWeek:revenueState.week;
   renderCustomSelect(select);
+  syncRevenueViewControls();
+}
+// The Weekly/Monthly switch: Weekly shows the week picker, Monthly hides it and shows month totals.
+function syncRevenueViewControls(){
+  const monthly=revenueState.view==='monthly',select=document.getElementById('revenueWeek');
+  document.querySelectorAll('[data-revenue-view]').forEach(button=>button.classList.toggle('active',button.dataset.revenueView===revenueState.view));
+  if(select){select.hidden=monthly;const custom=select.nextElementSibling;if(custom?.classList.contains('acops-select'))custom.hidden=monthly}
+}
+function setRevenueView(view){
+  if(view===revenueState.view)return;
+  const monthData=revenueMonthsMap[revenueState.month],count=monthData?.weekCount||5;
+  if(view==='monthly'){
+    if(revenueState.week&&revenueState.week!=='all')revenueState.lastWeek=revenueState.week;
+    revenueState.view='monthly';revenueState.week='all';
+  }else{
+    const weekly=monthData?.regionalProducts?.[revenueState.product||'all']?.weekly||[],latest=String([...weekly].reverse().find(item=>item.actual>0)?.week||count),last=revenueState.lastWeek;
+    revenueState.view='weekly';revenueState.week=last&&Number(last)<=count?last:latest;
+  }
+  const select=document.getElementById('revenueWeek');
+  if(select){select.value=revenueState.view==='monthly'?(revenueState.lastWeek||select.value):revenueState.week;renderCustomSelect(select)}
+  syncRevenueViewControls();
+  if(revenueLoaded)renderRevenue();
 }
 
 function switchRevenueMonth(monthKey){
@@ -690,12 +716,13 @@ async function loadRevenue(){
 function revenuePeriodRow(item){const monthlyTarget=item.target,monthlyRevenue=item.revenue,monthlyAchievement=item.achievement,monthlyGap=item.gap;if(revenueState.week==='all')return{...item,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget:null,weeklyRevenue:null,weeklyAchievement:null,weeklyGap:null};const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),weeklyTarget=entry?.target||0,weeklyRevenue=entry?.actual||0,weeklyAchievement=weeklyTarget?weeklyRevenue/weeklyTarget*100:null,weeklyGap=weeklyRevenue-weeklyTarget;return{...item,target:weeklyTarget,revenue:weeklyRevenue,achievement:monthlyAchievement,gap:monthlyGap,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget,weeklyRevenue,weeklyAchievement,weeklyGap}}
 function revenueFiltered(){
   const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(!revenueState.excludeWave6||item.groupKey!=='tagalong6')&&(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));
+  const monthly=revenueState.week==='all',achOf=item=>monthly?item.monthlyAchievement:item.weeklyAchievement,gapOf=item=>monthly?item.monthlyGap:item.weeklyGap;
   return rows.sort((a,b)=>{
-    if(revenueState.sort==='high') return (b.weeklyAchievement??-1)-(a.weeklyAchievement??-1);
-    if(revenueState.sort==='gap') return (a.weeklyGap??Infinity)-(b.weeklyGap??Infinity);
+    if(revenueState.sort==='high') return (achOf(b)??-1)-(achOf(a)??-1);
+    if(revenueState.sort==='gap') return (gapOf(a)??Infinity)-(gapOf(b)??Infinity);
     if(revenueState.sort==='name') return a.shortName.localeCompare(b.shortName);
-    const achA = a.weeklyAchievement!==null ? a.weeklyAchievement : 999;
-    const achB = b.weeklyAchievement!==null ? b.weeklyAchievement : 999;
+    const achA = achOf(a)!==null ? achOf(a) : 999;
+    const achB = achOf(b)!==null ? achOf(b) : 999;
     return achA - achB;
   });
 }
@@ -707,19 +734,21 @@ function revenuePeriodLabel(){
   return revenueState.week==='all'?label:weekLabel(`${year}|Week ${Number(revenueState.week)+offset}`)
 }
 function renderRevenueKpis(rows){const regional=revenueState.group==='all'&&revenueState.status==='all'&&!revenueState.search,weekly=revenueState.week==='all'?null:revenueWeekly.find(item=>item.week===Number(revenueState.week)),target=regional?(weekly?.target??revenueRegional.target):rows.reduce((sum,item)=>sum+item.target,0),actual=regional?(weekly?.actual??revenueRegional.revenue):rows.reduce((sum,item)=>sum+item.revenue,0),achievement=target?actual/target*100:0,gap=actual-target,tracked=rows.filter(item=>item.target).length,period=revenuePeriodLabel();document.getElementById('revenueKpis').innerHTML=`<article><span>Revenue</span><strong>${revenueShort(actual)}</strong><small>${regional?`${period} regional total`:`Across ${rows.length} visible centers`}</small></article><article><span>Target</span><strong>${revenueShort(target)}</strong><small>${regional?`${period} regional target`:`${tracked} centers with targets`}</small></article><article class="${achievement>=100?'good':achievement>=80?'watch':'critical'}"><span>Achievement</span><strong>${achievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%</strong><small>${achievement>=100?'Target achieved':achievement>=80?'Close to target':'Needs intervention'}</small></article><article class="${gap>=0?'good':'critical'}"><span>Gap to target</span><strong>${gap>=0?'+':''}${revenueShort(gap)}</strong><small>${gap>=0?'Above target':'Remaining revenue needed'}</small></article>`}
-function renderRevenueWeekly(){const max=Math.max(...revenueWeekly.flatMap(item=>[item.target,item.actual]),1);const monthHeader=revenueMonthsMap[revenueState.month]?.monthLabel?.toUpperCase()||'OCTOBER 2026';document.getElementById('revenueWeekly').innerHTML=`<div class="revenue-section-head"><div><p class="eyebrow">${monthHeader}</p><h2>Weekly performance</h2></div><span>${revenueState.week==='all'?'Actual vs target':`${revenuePeriodLabel()} selected`}</span></div><div class="revenue-week-grid">${revenueWeekly.map(item=>{const achievement=item.target?item.actual/item.target*100:0,selected=revenueState.week==='all'||Number(revenueState.week)===item.week;return `<article class="${selected?'selected':'muted'}"><div><strong>W${item.week}</strong><span class="${achievement>=100?'good':achievement>=80?'watch':'critical'}">${achievement.toLocaleString('id-ID',{maximumFractionDigits:0})}%</span></div><div class="revenue-bars"><i style="height:${Math.max(4,item.target/max*100)}%" title="Target ${revenueMoney(item.target)}"></i><b style="height:${Math.max(4,item.actual/max*100)}%" title="Revenue ${revenueMoney(item.actual)}"></b></div><small>${revenueShort(item.actual)}</small></article>`}).join('')}</div><div class="revenue-legend"><span><i></i>Target</span><span><b></b>Revenue</span></div>`}
+function renderRevenueWeekly(){const max=Math.max(...revenueWeekly.flatMap(item=>[item.target,item.actual]),1);const monthHeader=revenueMonthsMap[revenueState.month]?.monthLabel?.toUpperCase()||'OCTOBER 2026';document.getElementById('revenueWeekly').innerHTML=`<div class="revenue-section-head"><div><p class="eyebrow">${monthHeader}</p><h2>${revenueState.week==='all'?'Weekly breakdown':'Weekly performance'}</h2></div><span>${revenueState.week==='all'?'Actual vs target':`${revenuePeriodLabel()} selected`}</span></div><div class="revenue-week-grid">${revenueWeekly.map(item=>{const achievement=item.target?item.actual/item.target*100:0,selected=revenueState.week==='all'||Number(revenueState.week)===item.week;return `<article class="${selected?'selected':'muted'}"><div><strong>W${item.week}</strong><span class="${achievement>=100?'good':achievement>=80?'watch':'critical'}">${achievement.toLocaleString('id-ID',{maximumFractionDigits:0})}%</span></div><div class="revenue-bars"><i style="height:${Math.max(4,item.target/max*100)}%" title="Target ${revenueMoney(item.target)}"></i><b style="height:${Math.max(4,item.actual/max*100)}%" title="Revenue ${revenueMoney(item.actual)}"></b></div><small>${revenueShort(item.actual)}</small></article>`}).join('')}</div><div class="revenue-legend"><span><i></i>Target</span><span><b></b>Revenue</span></div>`}
 function renderRevenueTable(rows){
-  const root=document.getElementById('revenueTable'),period=revenueState.week==='all'?'Select a week':esc(revenuePeriodLabel()),month=esc(revenueMonthsMap[revenueState.month]?.monthLabel||'Selected month');
+  const monthly=revenueState.week==='all',root=document.getElementById('revenueTable'),period=esc(revenuePeriodLabel());
   document.getElementById('revenueCount').textContent=`${rows.length} centers`;
   if(!rows.length){root.innerHTML='<div class="empty-state"><strong>No centers match these filters.</strong><p>Try another group, status, or search term.</p></div>';return}
-  root.innerHTML=`<table><thead><tr><th>Branch <small>Center · BM · Group</small></th><th>Weekly revenue <small>${period}</small></th><th>Weekly target <small>${period}</small></th><th>Weekly achievement <small>Selected week</small></th><th>Weekly gap <small>Selected week</small></th><th>Monthly revenue <small>${month}</small></th><th>Monthly target <small>${month}</small></th><th>Monthly achievement <small>${month}</small></th><th>Monthly gap <small>${month}</small></th></tr></thead><tbody>${rows.map(item=>{
-    const monthlyStatus=revenueStatus(item),weeklyStatus=revenueStatus({target:item.weeklyTarget,achievement:item.weeklyAchievement}),group=item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5',prompt='<span class="revenue-week-prompt">Select week</span>';
-    return`<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small><span class="revenue-group">${group}</span></td><td>${item.weeklyRevenue===null?prompt:`<strong>${revenueShort(item.weeklyRevenue)}</strong>`}</td><td>${item.weeklyTarget===null?prompt:revenueShort(item.weeklyTarget)}</td><td>${item.weeklyAchievement===null?prompt:`<span class="revenue-achievement ${weeklyStatus}">${item.weeklyAchievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%</span>`}</td><td class="${item.weeklyGap>=0?'positive':'negative'}">${item.weeklyGap===null?prompt:`${item.weeklyGap>=0?'+':''}${revenueShort(item.weeklyGap)}`}</td><td><strong>${revenueShort(item.monthlyRevenue)}</strong></td><td>${item.monthlyTarget?revenueShort(item.monthlyTarget):'—'}</td><td><span class="revenue-achievement ${monthlyStatus}">${item.monthlyAchievement===null?'No target':`${item.monthlyAchievement.toLocaleString('id-ID',{maximumFractionDigits:1})}%`}</span></td><td class="${item.monthlyGap>=0?'positive':'negative'}">${item.monthlyTarget?`${item.monthlyGap>=0?'+':''}${revenueShort(item.monthlyGap)}`:'—'}</td></tr>`
+  const label=monthly?'Monthly':'Weekly',pct=value=>value===null||value===undefined?'No target':`${value.toLocaleString('id-ID',{maximumFractionDigits:1})}%`;
+  root.innerHTML=`<table><thead><tr><th>Branch <small>Center · BM · Group</small></th><th>${label} revenue <small>${period}</small></th><th>${label} target <small>${period}</small></th><th>${label} achievement <small>${period}</small></th><th>${label} gap <small>${period}</small></th></tr></thead><tbody>${rows.map(item=>{
+    const revenue=monthly?item.monthlyRevenue:item.weeklyRevenue,target=monthly?item.monthlyTarget:item.weeklyTarget,achievement=monthly?item.monthlyAchievement:item.weeklyAchievement,gap=monthly?item.monthlyGap:item.weeklyGap,status=revenueStatus({target,achievement}),group=item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5';
+    return`<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small><span class="revenue-group">${group}</span></td><td><strong>${revenueShort(revenue)}</strong></td><td>${target?revenueShort(target):'—'}</td><td><span class="revenue-achievement ${status}">${pct(achievement)}</span></td><td class="${gap>=0?'positive':'negative'}">${target?`${gap>=0?'+':''}${revenueShort(gap)}`:'—'}</td></tr>`
   }).join('')}</tbody></table>`
 }
 function renderRevenueAttention(rows){
-  const tracked=rows.filter(item=>item.weeklyTarget),critical=[...tracked].filter(item=>(item.weeklyAchievement??0)<80).sort((a,b)=>(a.weeklyAchievement??0)-(b.weeklyAchievement??0)),zero=tracked.filter(item=>item.weeklyRevenue===0).sort((a,b)=>a.shortName.localeCompare(b.shortName)),largest=[...tracked].filter(item=>item.weeklyGap<0).sort((a,b)=>a.weeklyGap-b.weeklyGap).slice(0,5),root=document.getElementById('revenueAttention');
-  root.innerHTML=`<p class="eyebrow">ACTION LIST</p><h2>Needs attention</h2><div class="revenue-attention-stats"><article><strong>${critical.length}</strong><span>Below 80%</span></article><article><strong>${zero.length}</strong><span>Zero revenue</span></article></div><h3>Largest weekly gaps</h3><div class="revenue-gap-list">${largest.map(item=>`<article><div><strong>${esc(item.shortName)}</strong><small>${(item.weeklyAchievement??0).toLocaleString('id-ID',{maximumFractionDigits:1})}% achieved</small></div><b>${revenueShort(Math.abs(item.weeklyGap))}</b></article>`).join('')||'<p class="revenue-empty-attention">All visible centers are on track (no weekly revenue gap).</p>'}</div><section class="revenue-zero-section"><h3>Zero revenue centers</h3><p>${revenueState.week==='all'?'Select a week to identify zero-revenue centers.':esc(revenuePeriodLabel())}</p><div class="revenue-zero-list">${revenueState.week==='all'?'<span class="revenue-zero-empty">Weekly data is not selected.</span>':zero.length?zero.map(item=>`<article><span><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small></span><b>${revenueShort(item.weeklyTarget)} target</b></article>`).join(''):'<span class="revenue-zero-empty">No centers have zero revenue.</span>'}</div></section><p class="revenue-note">Calculated from EAC center totals for the selected week. Vacancies and agent-level details remain available in Google Sheets.</p>`
+  const monthly=revenueState.week==='all',word=monthly?'monthly':'weekly',targetOf=item=>monthly?item.monthlyTarget:item.weeklyTarget,revenueOf=item=>monthly?item.monthlyRevenue:item.weeklyRevenue,achOf=item=>monthly?item.monthlyAchievement:item.weeklyAchievement,gapOf=item=>monthly?item.monthlyGap:item.weeklyGap;
+  const tracked=rows.filter(item=>targetOf(item)),critical=[...tracked].filter(item=>(achOf(item)??0)<80).sort((a,b)=>(achOf(a)??0)-(achOf(b)??0)),zero=tracked.filter(item=>revenueOf(item)===0).sort((a,b)=>a.shortName.localeCompare(b.shortName)),largest=[...tracked].filter(item=>gapOf(item)<0).sort((a,b)=>gapOf(a)-gapOf(b)).slice(0,5),root=document.getElementById('revenueAttention');
+  root.innerHTML=`<p class="eyebrow">ACTION LIST</p><h2>Needs attention</h2><div class="revenue-attention-stats"><article><strong>${critical.length}</strong><span>Below 80%</span></article><article><strong>${zero.length}</strong><span>Zero revenue</span></article></div><h3>Largest ${word} gaps</h3><div class="revenue-gap-list">${largest.map(item=>`<article><div><strong>${esc(item.shortName)}</strong><small>${(achOf(item)??0).toLocaleString('id-ID',{maximumFractionDigits:1})}% achieved</small></div><b>${revenueShort(Math.abs(gapOf(item)))}</b></article>`).join('')||`<p class="revenue-empty-attention">All visible centers are on track (no ${word} revenue gap).</p>`}</div><section class="revenue-zero-section"><h3>Zero revenue centers</h3><p>${esc(revenuePeriodLabel())}</p><div class="revenue-zero-list">${zero.length?zero.map(item=>`<article><span><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small></span><b>${revenueShort(targetOf(item))} target</b></article>`).join(''):'<span class="revenue-zero-empty">No centers have zero revenue.</span>'}</div></section><p class="revenue-note">Calculated from EAC center totals for the ${monthly?'whole month':'selected week'}. Vacancies and agent-level details remain available in Google Sheets.</p>`
 }
 function renderRevenue(){const rows=revenueFiltered();renderRevenueKpis(rows);renderRevenueWeekly();renderRevenueTable(rows);renderRevenueAttention(rows)}
 function revenueBranch(){return revenueRows.find(item=>item.center===revenueState.branch)||revenueRows[0]}
@@ -736,6 +765,7 @@ function initRevenueControls(){
   document.getElementById('revenueMonth')?.addEventListener('change',event=>{switchRevenueMonth(event.target.value)});
   const waveToggle=document.getElementById('revenueExcludeWave6');
   if(waveToggle){waveToggle.checked=revenueState.excludeWave6;waveToggle.addEventListener('change',event=>{revenueState.excludeWave6=event.target.checked;localStorage.setItem('acops-revenue-exclude-wave6',String(revenueState.excludeWave6));renderRevenue()})}
+  document.querySelectorAll('[data-revenue-view]').forEach(button=>button.addEventListener('click',()=>setRevenueView(button.dataset.revenueView)));
   [['revenueWeek','week'],['revenueGroup','group'],['revenueStatus','status'],['revenueSort','sort']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('change',event=>{revenueState[key]=event.target.value;renderRevenue()}));
   document.getElementById('revenueSearch')?.addEventListener('input',event=>{revenueState.search=event.target.value;renderRevenue()});
   document.querySelectorAll('[data-revenue-tab]').forEach(button=>button.addEventListener('click',()=>setRevenueTab(button.dataset.revenueTab)));

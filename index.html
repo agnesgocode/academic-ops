@@ -719,11 +719,14 @@
 </div>
 <div id="revenueOverviewPanel">
 <div class="revenue-controls">
+<div class="filter-switch" role="group" aria-label="Revenue period view">
+<button class="active" data-revenue-view="weekly">Weekly</button>
+<button data-revenue-view="monthly">Monthly</button>
+</div>
 <select id="revenueMonth" aria-label="Filter Revenue by month">
 <option value="2026-10" selected>October 2026</option>
 </select>
 <select id="revenueWeek" aria-label="Filter Revenue by week">
-<option value="all">All October 2026</option>
 <option value="1">Week 40 · 2026</option>
 <option value="2">Week 41 · 2026</option>
 <option value="3">Week 42 · 2026</option>
@@ -766,9 +769,9 @@
 <b>Exclude Wave 6</b>
 </label>
 <select id="revenueSort" aria-label="Sort Revenue centers">
-<option value="high" selected>Highest weekly achievement</option>
-<option value="low">Lowest weekly achievement</option>
-<option value="gap">Largest weekly gap</option>
+<option value="high" selected>Highest achievement</option>
+<option value="low">Lowest achievement</option>
+<option value="gap">Largest gap</option>
 <option value="name">Center A–Z</option>
 </select>
 </div>

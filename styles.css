@@ -1098,7 +1098,7 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .revenue-table-shell td:first-child>small{display:inline-block;vertical-align:middle;margin-top:2px;font-size:10px;color:#9893a0}
 .revenue-table-shell td:first-child .revenue-group{margin:2px 0 0 8px;padding:2px 7px;font-size:8px;vertical-align:middle}
 /* Fixed layout: the Branch column keeps its width and the spare space is shared by the number columns instead of widening Branch. */
-.revenue-table-shell table{table-layout:fixed;min-width:1180px}
+.revenue-table-shell table{table-layout:fixed;min-width:760px}
 .revenue-table-shell th:first-child,.revenue-table-shell td:first-child{width:250px;min-width:250px;max-width:250px;overflow:hidden;text-overflow:ellipsis}
 .revenue-table-shell th,.revenue-table-shell td{padding-left:10px;padding-right:10px}
 .revenue-table-shell th:first-child,.revenue-table-shell td:first-child{padding-left:16px}
