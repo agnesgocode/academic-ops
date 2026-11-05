@@ -1098,11 +1098,18 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .revenue-table-shell td:first-child>small{display:inline-block;vertical-align:middle;margin-top:2px;font-size:10px;color:#9893a0}
 .revenue-table-shell td:first-child .revenue-group{margin:2px 0 0 8px;padding:2px 7px;font-size:8px;vertical-align:middle}
 /* Fixed layout: the Branch column keeps its width and the spare space is shared by the number columns instead of widening Branch. */
-.revenue-table-shell table{table-layout:fixed;min-width:760px;max-width:900px}
+.revenue-table-shell table{table-layout:fixed;min-width:760px;width:100%}
+/* Clickable sortable headers, same behaviour as the MTC Productivity table. */
+.revenue-table-shell thead th.revenue-sort-th{cursor:pointer;user-select:none;transition:color .12s,background .12s}
+.revenue-table-shell thead th.revenue-sort-th:hover{color:#4a3fc7;background:#f3f1ff}
+.revenue-table-shell thead th.revenue-sort-th.active{color:#6b5bdf}
+.revenue-table-shell thead th .revenue-sort-label{display:inline-flex;align-items:center;gap:4px}
+.revenue-table-shell thead th .revenue-sort-arrow{font-size:8px;line-height:1;color:#6b5bdf;min-width:8px}
 /* Branch column left-aligned, all number columns centered (header and values). */
 .revenue-table-shell th:not(:first-child),.revenue-table-shell td:not(:first-child){text-align:center}
 .revenue-table-shell th:first-child,.revenue-table-shell td:first-child{text-align:left}
-.revenue-table-shell th:first-child,.revenue-table-shell td:first-child{width:250px;min-width:250px;max-width:250px;overflow:hidden;text-overflow:ellipsis}
+.revenue-table-shell th:first-child,.revenue-table-shell td:first-child{width:auto;min-width:250px;overflow:hidden;text-overflow:ellipsis}
+.revenue-table-shell th:not(:first-child),.revenue-table-shell td:not(:first-child){width:170px}
 .revenue-table-shell th,.revenue-table-shell td{padding-left:10px;padding-right:10px}
 .revenue-table-shell th:first-child,.revenue-table-shell td:first-child{padding-left:16px}
 .revenue-table-shell thead th{white-space:normal;line-height:1.25;vertical-align:bottom}

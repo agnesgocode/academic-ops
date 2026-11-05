@@ -422,7 +422,7 @@ function enhanceCustomSelect(select){if(select.dataset.acopsSelect||select.match
 function initCustomSelects(){document.querySelectorAll('select:not([data-mpp-priority])').forEach(enhanceCustomSelect);new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType!==1)return;if(node.matches?.('select:not([data-mpp-priority])'))enhanceCustomSelect(node);node.querySelectorAll?.('select:not([data-mpp-priority])').forEach(enhanceCustomSelect)}))).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>document.querySelectorAll('.acops-select-options').forEach(menu=>{menu.hidden=true}))}
 initCustomSelects()
 const revenueSource={id:'1emMFv_OzONiUupCdmzF6nBP1wAWEt02w4Fu8phDgIa4',gid:'583329138'};
-let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',view:'weekly',lastWeek:'',branchView:'overall',branch:'',month:'2026-10',product:'eac',group:'all',status:'all',search:'',sort:'high',week:'',excludeWave6:localStorage.getItem('acops-revenue-exclude-wave6')==='true'};
+let revenueMonthsMap={},revenueRows=[],revenueWeekly=[],revenueRegional={target:0,revenue:0},revenueLoaded=false,revenueLoading=false,revenueState={tab:'overview',view:'weekly',lastWeek:'',branchView:'overall',branch:'',month:'2026-10',product:'eac',group:'all',status:'all',search:'',sortCol:'achievement',sortDir:'desc',week:'',excludeWave6:localStorage.getItem('acops-revenue-exclude-wave6')==='true'};
 // The Tracker sheet stacks every month top-to-bottom; rows shift whenever a new month is added.
 // So we fetch the whole sheet once and split it into month blocks at each "TOTAL REVENUE REGION" row
 // (the reliable end-of-month marker). Each block's month is read from the date serial the sheet stores
@@ -716,14 +716,20 @@ async function loadRevenue(){
 function revenuePeriodRow(item){const monthlyTarget=item.target,monthlyRevenue=item.revenue,monthlyAchievement=item.achievement,monthlyGap=item.gap;if(revenueState.week==='all')return{...item,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget:null,weeklyRevenue:null,weeklyAchievement:null,weeklyGap:null};const week=Number(revenueState.week),entry=item.weekly?.find(row=>row.week===week),weeklyTarget=entry?.target||0,weeklyRevenue=entry?.actual||0,weeklyAchievement=weeklyTarget?weeklyRevenue/weeklyTarget*100:null,weeklyGap=weeklyRevenue-weeklyTarget;return{...item,target:weeklyTarget,revenue:weeklyRevenue,achievement:monthlyAchievement,gap:monthlyGap,monthlyTarget,monthlyRevenue,monthlyAchievement,monthlyGap,weeklyTarget,weeklyRevenue,weeklyAchievement,weeklyGap}}
 function revenueFiltered(){
   const query=revenueState.search.toLowerCase(),rows=revenueRows.map(revenuePeriodRow).filter(item=>(!revenueState.excludeWave6||item.groupKey!=='tagalong6')&&(revenueState.group==='all'||item.groupKey===revenueState.group)&&(revenueState.status==='all'||revenueStatus(item)===revenueState.status)&&(!query||`${item.center} ${item.captain}`.toLowerCase().includes(query)));
-  const monthly=revenueState.week==='all',achOf=item=>monthly?item.monthlyAchievement:item.weeklyAchievement,gapOf=item=>monthly?item.monthlyGap:item.weeklyGap;
+  const monthly=revenueState.week==='all',dir=revenueState.sortDir==='asc'?1:-1,valueOf={
+    revenue:item=>monthly?item.monthlyRevenue:item.weeklyRevenue,
+    target:item=>monthly?item.monthlyTarget:item.weeklyTarget,
+    achievement:item=>monthly?item.monthlyAchievement:item.weeklyAchievement,
+    gap:item=>monthly?item.monthlyGap:item.weeklyGap
+  }[revenueState.sortCol];
   return rows.sort((a,b)=>{
-    if(revenueState.sort==='high') return (achOf(b)??-1)-(achOf(a)??-1);
-    if(revenueState.sort==='gap') return (gapOf(a)??Infinity)-(gapOf(b)??Infinity);
-    if(revenueState.sort==='name') return a.shortName.localeCompare(b.shortName);
-    const achA = achOf(a)!==null ? achOf(a) : 999;
-    const achB = achOf(b)!==null ? achOf(b) : 999;
-    return achA - achB;
+    if(revenueState.sortCol==='branch')return dir*a.shortName.localeCompare(b.shortName);
+    // Centers without a value (e.g. no target) always sink to the bottom whichever way we sort.
+    const va=valueOf(a),vb=valueOf(b);
+    if(va==null&&vb==null)return a.shortName.localeCompare(b.shortName);
+    if(va==null)return 1;
+    if(vb==null)return -1;
+    return dir*(va-vb)||a.shortName.localeCompare(b.shortName);
   });
 }
 function revenuePeriodLabel(){
@@ -740,10 +746,20 @@ function renderRevenueTable(rows){
   document.getElementById('revenueCount').textContent=`${rows.length} centers`;
   if(!rows.length){root.innerHTML='<div class="empty-state"><strong>No centers match these filters.</strong><p>Try another group, status, or search term.</p></div>';return}
   const label=monthly?'Monthly':'Weekly',pct=value=>value===null||value===undefined?'No target':`${value.toLocaleString('id-ID',{maximumFractionDigits:1})}%`;
-  root.innerHTML=`<table><thead><tr><th>Branch <small>Center · BM · Group</small></th><th>${label} revenue <small>${period}</small></th><th>${label} target <small>${period}</small></th><th>${label} achievement <small>${period}</small></th><th>${label} gap <small>${period}</small></th></tr></thead><tbody>${rows.map(item=>{
+  const headers=[['branch','Branch','Center · BM · Group'],['revenue',`${label} revenue`,period],['target',`${label} target`,period],['achievement',`${label} achievement`,period],['gap',`${label} gap`,period]];
+  const headHtml=headers.map(([col,text,sub])=>{
+    const active=revenueState.sortCol===col,arrow=active?(revenueState.sortDir==='asc'?'▲':'▼'):'',tip=col==='branch'?'Sort A–Z (▲) / Z–A (▼)':'Sort low→high (▲) / high→low (▼)';
+    return`<th class="revenue-sort-th${active?' active':''}" data-revenue-sort="${col}" title="${tip}" role="button" tabindex="0"><span class="revenue-sort-label">${text}<span class="revenue-sort-arrow">${arrow}</span></span><small>${sub}</small></th>`
+  }).join('');
+  root.innerHTML=`<table><thead><tr>${headHtml}</tr></thead><tbody>${rows.map(item=>{
     const revenue=monthly?item.monthlyRevenue:item.weeklyRevenue,target=monthly?item.monthlyTarget:item.weeklyTarget,achievement=monthly?item.monthlyAchievement:item.weeklyAchievement,gap=monthly?item.monthlyGap:item.weeklyGap,status=revenueStatus({target,achievement}),group=item.groupKey==='standalone'?'Standalone':item.groupKey==='tagalong6'?'Tagalong W6':'Tagalong W1–5';
     return`<tr><td><strong>${esc(item.shortName)}</strong><small>${item.captain?`BM · ${esc(item.captain)}`:'BM not listed'}</small><span class="revenue-group">${group}</span></td><td><strong>${revenueShort(revenue)}</strong></td><td>${target?revenueShort(target):'—'}</td><td><span class="revenue-achievement ${status}">${pct(achievement)}</span></td><td class="${gap>=0?'positive':'negative'}">${target?`${gap>=0?'+':''}${revenueShort(gap)}`:'—'}</td></tr>`
-  }).join('')}</tbody></table>`
+  }).join('')}</tbody></table>`;
+  root.querySelectorAll('.revenue-sort-th').forEach(th=>{
+    const doSort=()=>{const col=th.dataset.revenueSort;if(revenueState.sortCol===col){revenueState.sortDir=revenueState.sortDir==='asc'?'desc':'asc'}else{revenueState.sortCol=col;revenueState.sortDir=col==='branch'?'asc':'desc'}renderRevenue()};
+    th.addEventListener('click',doSort);
+    th.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();doSort()}});
+  });
 }
 function renderRevenueAttention(rows){
   const monthly=revenueState.week==='all',word=monthly?'monthly':'weekly',targetOf=item=>monthly?item.monthlyTarget:item.weeklyTarget,revenueOf=item=>monthly?item.monthlyRevenue:item.weeklyRevenue,achOf=item=>monthly?item.monthlyAchievement:item.weeklyAchievement,gapOf=item=>monthly?item.monthlyGap:item.weeklyGap;
@@ -766,7 +782,7 @@ function initRevenueControls(){
   const waveToggle=document.getElementById('revenueExcludeWave6');
   if(waveToggle){waveToggle.checked=revenueState.excludeWave6;waveToggle.addEventListener('change',event=>{revenueState.excludeWave6=event.target.checked;localStorage.setItem('acops-revenue-exclude-wave6',String(revenueState.excludeWave6));renderRevenue()})}
   document.querySelectorAll('[data-revenue-view]').forEach(button=>button.addEventListener('click',()=>setRevenueView(button.dataset.revenueView)));
-  [['revenueWeek','week'],['revenueGroup','group'],['revenueStatus','status'],['revenueSort','sort']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('change',event=>{revenueState[key]=event.target.value;renderRevenue()}));
+  [['revenueWeek','week'],['revenueGroup','group'],['revenueStatus','status']].forEach(([id,key])=>document.getElementById(id)?.addEventListener('change',event=>{revenueState[key]=event.target.value;renderRevenue()}));
   document.getElementById('revenueSearch')?.addEventListener('input',event=>{revenueState.search=event.target.value;renderRevenue()});
   document.querySelectorAll('[data-revenue-tab]').forEach(button=>button.addEventListener('click',()=>setRevenueTab(button.dataset.revenueTab)));
   document.querySelectorAll('[data-revenue-branch-view]').forEach(button=>button.addEventListener('click',()=>setRevenueBranchView(button.dataset.revenueBranchView)));
