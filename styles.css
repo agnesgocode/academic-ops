@@ -1091,6 +1091,23 @@ body[data-division="commercial"]{--accent:#278461;--accent-soft:#e5f6ee;--accent
 .revenue-table-shell td:first-child{position:sticky;left:0;min-width:270px;max-width:270px}
 .revenue-table-shell th:first-child{z-index:5;background:#f8f8fc}
 .revenue-table-shell td:first-child{z-index:3;background:#fff;box-shadow:8px 0 12px -12px rgba(35,31,70,.55)}
+/* Agents Performance toolbar: branch + its own month/week filters on the left, Overall/Details switch on the right. */
+.revenue-branch-toolbar{flex-wrap:wrap;justify-content:flex-start;gap:10px}
+.revenue-branch-toolbar>div:first-child{flex:0 0 280px;width:280px;min-width:0}
+.revenue-branch-period{display:flex;gap:10px}
+.revenue-branch-period>div{flex:0 0 170px;width:170px;min-width:0}
+.revenue-branch-toolbar .acops-select{width:100%;min-width:0}
+@media(max-width:700px){.revenue-branch-toolbar>div:first-child,.revenue-branch-period,.revenue-branch-period>div{flex:1 1 100%;width:100%}}
+.revenue-branch-period label{display:block;margin:0 0 6px;color:#85818e;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.55px}
+.revenue-branch-toolbar .filter-switch{margin-left:auto}
+/* Agent revenue details: Agent left-aligned; Position and all numbers centered in equal-width columns. */
+.revenue-agent-shell table{table-layout:fixed;width:100%;min-width:700px}
+.revenue-agent-shell th,.revenue-agent-shell td{padding:10px 12px;text-align:center}
+.revenue-agent-shell th:first-child,.revenue-agent-shell td:first-child{text-align:left}
+.revenue-agent-shell th:nth-child(2),.revenue-agent-shell td:nth-child(2){text-align:center}
+.revenue-agent-shell th:first-child,.revenue-agent-shell td:first-child{width:260px;overflow:hidden;text-overflow:ellipsis}
+/* No width on the other columns: with a fixed layout they all share the remaining space equally, so the spacing is even. */
+.revenue-agent-shell .revenue-group{padding:4px 10px;border-radius:10px;font-size:11px}
 /* Compact Center-performance rows: trim vertical padding and tighten the stacked branch cell so the list fits more on screen while staying legible. */
 .revenue-table-shell tbody td{padding-top:9px;padding-bottom:9px;vertical-align:middle}
 .revenue-table-shell td:first-child{line-height:1.25}
